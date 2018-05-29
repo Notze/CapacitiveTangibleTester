@@ -34,10 +34,6 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
         TangiblePattern pattern = new TangiblePattern();
         pattern.id = patternID.text;
 
-        //List<string> strPoints = new List<string>();
-        //foreach(Vector2 p in patternPoints){
-        //    strPoints.Add(JsonMapper.ToPrettyJson(p));
-        //}
 
         pattern.points = patternPoints;
 
