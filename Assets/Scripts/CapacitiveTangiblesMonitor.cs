@@ -18,6 +18,11 @@ public class CapacitiveTangiblesMonitor : MonoBehaviour {
 	}
 
     public void LoadPattern(){
+
+        for (int i = 0; i < rectTransform.childCount; i++){
+            Destroy(rectTransform.GetChild(i));
+        }
+
         string fullfilepath = TangiblesFileUtils.PatternFilename(patternID.text);
         string json = File.ReadAllText(fullfilepath);
         TangiblePattern pattern = JsonUtility.FromJson<TangiblePattern>(json);
