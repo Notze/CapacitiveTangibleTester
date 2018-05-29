@@ -65,8 +65,8 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
         for (int i = 0; i < (segments + 1); i++)
         {
             float x = center.x + Mathf.Sin(Mathf.Deg2Rad * angle) * radius;
-            float z = center.y + Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
-            points.Add(new Vector3(x, 0, z));
+            float y = center.y + Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
+            points.Add(Camera.main.WorldToScreenPoint( new Vector3(x, y, 0)));
 
             angle += (360f / segments);
         }
