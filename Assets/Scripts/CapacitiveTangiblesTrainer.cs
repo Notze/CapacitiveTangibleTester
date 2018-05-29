@@ -39,16 +39,9 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
 
 
         string json = JsonUtility.ToJson(pattern, true);
-        string fullfilepath = PatternFilename(patternID.text);
+        string fullfilepath = TangiblesFileUtils.PatternFilename(patternID.text);
         print(fullfilepath);
-        System.IO.File.WriteAllText(fullfilepath, json);
+        File.WriteAllText(fullfilepath, json);
     }
-
-
-    public string PatternFilename(string patternID){
-        string filename = "tangible_" + patternID + ".json";
-        string fullpath = Application.persistentDataPath + "/" + filename;
-        return fullpath;
-    } 
 
 }
