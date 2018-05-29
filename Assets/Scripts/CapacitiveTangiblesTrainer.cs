@@ -35,9 +35,9 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
         Vector2 center = MathHelper.ComputeCenter(patternPoints);
         float radius = 0;
         for (int i = 0; i < patternPoints.Count; i++){
-            //Debug.DrawLine(Camera.main.ScreenToWorldPoint(patternPoints[i]), 
-                           //Camera.main.ScreenToWorldPoint(patternPoints[i] - center), 
-                           //Color.green, 30);
+            Debug.DrawLine(patternPoints[i], 
+                           patternPoints[i] - center, 
+                           Color.green, 30);
 
             patternPoints[i] = patternPoints[i] - center;
             float dist = Vector2.Distance(center, patternPoints[i]);
