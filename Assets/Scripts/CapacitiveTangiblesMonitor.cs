@@ -19,8 +19,12 @@ public class CapacitiveTangiblesMonitor : MonoBehaviour {
 
     public void LoadPattern(){
 
+
         for (int i = 0; i < rectTransform.childCount; i++){
-            Destroy(rectTransform.GetChild(i));
+            Transform child = rectTransform.GetChild(i);
+            if (child.CompareTag("Touch")){
+                Destroy(child.gameObject);
+            }
         }
 
         string fullfilepath = TangiblesFileUtils.PatternFilename(patternID.text);
