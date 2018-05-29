@@ -25,7 +25,8 @@ public class CapacitiveTangiblesMonitor : MonoBehaviour {
         foreach(Vector2 point in pattern.points){
             GameObject touchGO = Instantiate(TouchPrefab);
             touchGO.transform.SetParent(this.transform);
-            Vector2 thisPos = rectTransform.position;
+            Vector2 thisPos = new Vector2(rectTransform.position.x + rectTransform.sizeDelta.x * rectTransform.pivot.x,
+                                          rectTransform.position.y + rectTransform.sizeDelta.y * rectTransform.pivot.y);
             (touchGO.transform as RectTransform).position = thisPos + point;
         }
     }
