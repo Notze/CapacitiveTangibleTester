@@ -31,6 +31,12 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
             }
         }
 
+
+        Vector2 center = ComputeCenter(patternPoints);
+        for (int i = 0; i < patternPoints.Count; i++){
+            patternPoints[i] = patternPoints[i] - center;
+        }
+
         TangiblePattern pattern = new TangiblePattern();
         pattern.id = patternID.text;
 
@@ -42,6 +48,15 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
         string fullfilepath = TangiblesFileUtils.PatternFilename(patternID.text);
         print(fullfilepath);
         File.WriteAllText(fullfilepath, json);
+    }
+
+    Vector2 ComputeCenter(List<Vector2> points){
+        Vector2 center = Vector2.zero;
+        foreach(Vector2 p in points){
+            center += p;
+        }
+        center /= points.Count;
+        return center;
     }
 
 }

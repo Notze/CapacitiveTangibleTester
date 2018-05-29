@@ -10,11 +10,11 @@ public class CapacitiveTangiblesMonitor : MonoBehaviour {
     public Text patternID;
     public GameObject TouchPrefab;
 
-	
+    RectTransform rectTransform;
 	
 	// Update is called once per frame
 	void Update () {
-		
+        this.rectTransform = this.transform as RectTransform;
 	}
 
     public void LoadPattern(){
@@ -25,7 +25,8 @@ public class CapacitiveTangiblesMonitor : MonoBehaviour {
         foreach(Vector2 point in pattern.points){
             GameObject touchGO = Instantiate(TouchPrefab);
             touchGO.transform.SetParent(this.transform);
-            (touchGO.transform as RectTransform).localPosition = point;
+            Vector2 thisPos = rectTransform.position;
+            (touchGO.transform as RectTransform).position = thisPos + point;
         }
     }
 }
