@@ -71,7 +71,7 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
             angle += (360f / segments);
         }
         for (int i = 1; i < points.Count; i++){
-            Debug.DrawLine(points[i - 1], points[i], Color.red, 10);
+            Debug.DrawLine(points[i - 1], points[i], Color.blue, 30);
         }
     }
 
