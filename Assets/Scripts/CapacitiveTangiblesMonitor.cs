@@ -31,8 +31,7 @@ public class CapacitiveTangiblesMonitor : MonoBehaviour {
         string json = File.ReadAllText(fullfilepath);
         TangiblePattern pattern = JsonUtility.FromJson<TangiblePattern>(json);
 
-        Vector2 center = MathHelper.ComputeCenter(pattern.points);
-        MathHelper.DrawCircle(center, pattern.radius, 50);
+        List<Vector2> touchPositions = new List<Vector2>();
 
         foreach(Vector2 point in pattern.points){
             GameObject touchGO = Instantiate(TouchPrefab);
@@ -40,6 +39,21 @@ public class CapacitiveTangiblesMonitor : MonoBehaviour {
             Vector2 thisPos = new Vector2(rectTransform.position.x - rectTransform.sizeDelta.x/2,
                                           rectTransform.position.y + rectTransform.sizeDelta.y/2);
             (touchGO.transform as RectTransform).position = thisPos + point;
+            touchPositions.Add(touchGO.transform.position);
         }
+
+        Vector2 center = MathHelper.ComputeCenter(touchPositions);
+
+
+
+        for (int i = 1; i < touchPositions.Count; i++)
+        {
+            Debug.DrawLine(touchPositions[i-1],
+                           center,
+                          Color.cyan, 30);
+        }
+
+
+        MathHelper.DrawCircle(center, pattern.radius, 50);
     }
 }
