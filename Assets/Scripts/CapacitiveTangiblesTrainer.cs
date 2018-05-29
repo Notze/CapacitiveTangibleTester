@@ -34,7 +34,9 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
 
         Vector2 center = ComputeCenter(patternPoints);
         for (int i = 0; i < patternPoints.Count; i++){
-            Debug.DrawLine(patternPoints[i], patternPoints[i] - center, Color.green, 10);
+            Debug.DrawLine(Camera.main.ScreenToWorldPoint(patternPoints[i]), 
+                           Camera.main.ScreenToWorldPoint(patternPoints[i] - center), 
+                           Color.green, 30);
 
             patternPoints[i] = patternPoints[i] - center;
 
@@ -62,7 +64,7 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
 
         foreach (Vector2 p in points)
         {
-            Debug.DrawLine(center, p, Color.red, 10);
+            Debug.DrawLine(center, p, Color.red, 30);
         }
 
         return center;
