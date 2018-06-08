@@ -13,7 +13,12 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
     public InputModality modality;
     public Text statusText;
 
-    private void Update()
+	private void Start ()
+	{
+		SetStatusText ();
+	}
+
+	private void Update()
     {
         if(Input.GetKeyDown(KeyCode.M)){
             modality++;

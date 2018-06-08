@@ -5,7 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class DbscanPoint
 {
-
+	public long pointID;
     public Vector2 point;
 
     /// <summary>
@@ -36,9 +36,10 @@ public class DbscanPoint
     /// <summary>
     /// Initializes a new instance of the <see cref="DbscanPoint"/> class.
     /// </summary>
-    public DbscanPoint(Vector2 p)
+    public DbscanPoint(Vector2 p, long id)
     {
         point = p;
+		pointID = id;
     }
 
 

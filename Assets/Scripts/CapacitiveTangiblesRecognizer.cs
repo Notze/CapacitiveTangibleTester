@@ -7,10 +7,10 @@ using System.IO;
 
 
 public class CapacitiveTangiblesRecognizer : MonoBehaviour{
-
+	public static long pointID;
     public GameObject patternPrefab;
     public GameObject patternFootPrefab;
-
+	public GameObject touchPrefab;
     public List<TangiblePattern> patterns;
     public List<DbscanPoint> dbscanPoints = new List<DbscanPoint>();
     public int clusterCount = 0;
@@ -18,6 +18,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
     Dictionary<int, List<DbscanPoint>> clusterPointsDict = new Dictionary<int, List<DbscanPoint>>();
     public List<GameObject> patternObjects;
+	public List<ClusterTouch> touchObjects = new List<ClusterTouch>();
 
     public List<RectTransform> avoidRecognitionAreas;
      
@@ -146,8 +147,15 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
         foreach (Vector2 tp in touchPoints)
         {
-            DbscanPoint dbscanPoint = new DbscanPoint(tp);
+			DbscanPoint dbscanPoint = new DbscanPoint(tp, pointID++);
             dbscanPoints.Add(dbscanPoint);
+			GameObject touchObj = Instantiate (touchPrefab);
+			touchObj.transform.position = tp;
+
+			ClusterTouch clusterTouch = touchObj.GetComponent<ClusterTouch> ();
+			clusterTouch.pointID = dbscanPoint.pointID;
+			clusterTouch.dbscanPoint = dbscanPoint;
+			touchObjects.Add (clusterTouch);
         }
 
         DoClustering();
@@ -176,6 +184,15 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
                 clusterPointsDict[p.ClusterId].Add(p);
             }
         }
+		foreach(ClusterTouch ct in touchObjects){
+			Color color = Color.black;
+			if(!ct.dbscanPoint.IsNoise){
+				print ("noise");
+				ct.ClusterId = ct.dbscanPoint.ClusterId;
+				color = clusterColors [ct.ClusterId - 1];
+			}
+			ct.SetClusterColor (color);
+		}
     }
 
     public void ResetClusters(){
