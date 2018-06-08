@@ -114,7 +114,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
                 GameObject footObj = Instantiate(patternFootPrefab);
                 Vector3 pos = patternObj.transform.position + new Vector3(point.x, point.y, 0);
                 footObj.transform.position = pos;
-                //footObj.transform.SetParent(patternObj.transform);
+                footObj.transform.SetParent(patternObj.transform);
             }
             MathHelper.DrawCircle(center, pattern.radius, 50, Color.blue);
             patternObj.transform.position = Vector3.zero;
