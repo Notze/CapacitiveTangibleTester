@@ -19,6 +19,8 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
     Dictionary<int, List<DbscanPoint>> clusterPointsDict = new Dictionary<int, List<DbscanPoint>>();
     public List<GameObject> patternObjects;
 
+    public List<RectTransform> avoidRecognitionAreas;
+     
     void OnEnable()
     {
 
@@ -30,7 +32,45 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         LoadTangiblesPatterns();
     }
     
+    void HandleMouseInput(ref List<Vector2> touchPoints){
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector2 pos = Input.mousePosition;
+            HandleInput(ref touchPoints, pos);
+        }
+    }
 
+    void HandleTouchInput(ref List<Vector2> touchPoints){
+        //if(Input.touchCount >= 3){
+        foreach (Touch touch in Input.touches)
+        {
+            HandleInput(ref touchPoints, touch.position, false);
+            //touchPoints.Add(Camera.main.ScreenToWorldPoint(touch.position));
+        }
+
+        RecognizeTangiblesPattern(patterns[0], touchPoints);
+        //}
+    }
+
+    void HandleInput(ref List<Vector2> touchPoints, Vector2 screenPoint, bool recognize = true){
+        bool inAvoidArea = false;
+        foreach (RectTransform rt in avoidRecognitionAreas)
+        {
+            if (RectTransformUtility.RectangleContainsScreenPoint(rt, screenPoint))
+            {
+                inAvoidArea = true;
+            }
+
+        }
+        if (!inAvoidArea)
+        {
+            touchPoints.Add(Camera.main.ScreenToWorldPoint(screenPoint));
+            if(recognize){
+                RecognizeTangiblesPattern(patterns[0], touchPoints);    
+            }
+
+        }
+    }
 
     void Update()
     {
@@ -52,20 +92,13 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         }
 
         List<Vector2> touchPoints = new List<Vector2>();
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            touchPoints.Add(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-            RecognizeTangiblesPattern(patterns[0], touchPoints);
+        switch(GlobalSettings.Instance.modality){
+            case InputModality.Mouse:
+                HandleMouseInput(ref touchPoints);
+                break;
+            case InputModality.Touch:
+                break;
         }
-
-        //if(Input.touchCount >= 3){
-            //foreach(Touch touch in Input.touches){
-            //    touchPoints.Add(Camera.main.ScreenToWorldPoint(touch.position));
-            //}
-
-            //RecognizeTangiblesPattern(patterns[0], touchPoints);
-        //}
     }
 
     public void LoadTangiblesPatterns()
