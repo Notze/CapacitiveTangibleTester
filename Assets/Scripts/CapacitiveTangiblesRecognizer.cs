@@ -111,7 +111,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
             patternObj.transform.localScale = new Vector3(pattern.radius, pattern.radius, 1);
             foreach(Vector2 point in pattern.points){
                 GameObject footObj = Instantiate(patternFootPrefab);
-                Vector3 pos = patternObj.transform.position - new Vector3(point.x, point.y, 0);
+                Vector3 pos = patternObj.transform.position + new Vector3(point.x, point.y, 0);
                 footObj.transform.position = pos;
                 //footObj.transform.SetParent(patternObj.transform);
             }
