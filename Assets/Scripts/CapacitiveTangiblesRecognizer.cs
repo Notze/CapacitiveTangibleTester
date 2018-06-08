@@ -93,6 +93,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
                 HandleMouseInput(ref touchPoints);
                 break;
             case InputModality.Touch:
+                HandleTouchInput(ref touchPoints);
                 break;
         }
     }
