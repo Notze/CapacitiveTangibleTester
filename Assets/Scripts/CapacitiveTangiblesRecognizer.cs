@@ -108,7 +108,8 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
             patterns.Add(pattern);
             GameObject patternObj = Instantiate(patternPrefab);
             Vector2 center = MathHelper.ComputeCenter(pattern.points, Color.green);
-            patternObj.transform.localScale = new Vector3(pattern.radius, pattern.radius, 1);
+            float xSize = patternObj.GetComponent<SpriteRenderer>().bounds.size.x/2;
+            patternObj.transform.localScale = new Vector3(pattern.radius, pattern.radius, 1)/xSize;
             foreach(Vector2 point in pattern.points){
                 GameObject footObj = Instantiate(patternFootPrefab);
                 Vector3 pos = patternObj.transform.position + new Vector3(point.x, point.y, 0);
