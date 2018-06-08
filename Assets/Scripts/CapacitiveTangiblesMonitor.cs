@@ -34,11 +34,12 @@ public class CapacitiveTangiblesMonitor : MonoBehaviour {
         List<Vector2> touchPositions = new List<Vector2>();
 
         foreach(Vector2 point in pattern.points){
+            Vector2 sPoint = Camera.main.WorldToScreenPoint(new Vector3(point.x, point.y, 0));
             GameObject touchGO = Instantiate(TouchPrefab);
             touchGO.transform.SetParent(this.transform);
             Vector2 thisPos = new Vector2(rectTransform.position.x - rectTransform.sizeDelta.x/2,
                                           rectTransform.position.y + rectTransform.sizeDelta.y/2);
-            (touchGO.transform as RectTransform).position = thisPos + point;
+            (touchGO.transform as RectTransform).position = thisPos + sPoint;
             touchPositions.Add(touchGO.transform.position);
         }
 
