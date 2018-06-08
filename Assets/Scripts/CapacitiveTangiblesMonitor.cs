@@ -32,11 +32,14 @@ public class CapacitiveTangiblesMonitor : MonoBehaviour {
         TangiblePattern pattern = JsonUtility.FromJson<TangiblePattern>(json);
 
         List<Vector2> touchPositions = new List<Vector2>();
-
+        Vector3[] corners = new Vector3[4];
+        rectTransform.GetWorldCorners(corners);
         foreach(Vector2 point in pattern.points){
+            
+
             //Vector2 sPoint = Camera.main.WorldToScreenPoint(new Vector3(point.x, point.y, 0));
             GameObject touchGO = Instantiate(TouchPrefab);
-            touchGO.transform.position = transform.position + new Vector3 (point.x, point.y, 0);
+            touchGO.transform.position = transform.position + corners[3]/2 + new Vector3 (point.x, point.y, 0);
             touchGO.transform.SetParent(this.transform);
             //Vector2 thisPos = new Vector2(rectTransform.position.x - rectTransform.sizeDelta.x/2,
             //                              rectTransform.position.y + rectTransform.sizeDelta.y/2);
