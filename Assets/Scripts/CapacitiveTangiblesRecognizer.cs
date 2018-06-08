@@ -72,7 +72,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         if (Input.GetKeyDown(KeyCode.C))
         {
             DoClustering();
-            print(clusterPointsDict);
+            //print(clusterPointsDict);
         }
 
         if (Input.GetKeyDown(KeyCode.R))
@@ -107,6 +107,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
             TangiblePattern pattern = JsonUtility.FromJson<TangiblePattern>(json);
             patterns.Add(pattern);
             GameObject patternObj = Instantiate(patternPrefab);
+            patternObj.transform.localScale = new Vector3(pattern.radius, pattern.radius, 1);
             foreach(Vector2 point in pattern.points){
                 GameObject footObj = Instantiate(patternFootPrefab);
                 Vector3 pos = patternObj.transform.position - new Vector3(point.x, point.y, 0);
