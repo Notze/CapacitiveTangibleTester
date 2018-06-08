@@ -28,4 +28,9 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
         statusText.text = string.Format("modality: {0}", modality);
     }
 
+	public void SetModality(int m){
+		modality = (InputModality)m;
+		SetStatusText();
+	}
+
 }

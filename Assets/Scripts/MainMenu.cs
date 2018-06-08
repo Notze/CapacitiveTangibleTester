@@ -39,8 +39,8 @@ public class MainMenu : MonoBehaviour {
 		}
 	}
 
-	//public void SetModality(){
-	//	GlobalSettings.Instance.SetModality (modalityDropdown.value);
-	//}
+	public void SetModality(){
+		GlobalSettings.Instance.SetModality (modalityDropdown.value);
+	}
 
 }
