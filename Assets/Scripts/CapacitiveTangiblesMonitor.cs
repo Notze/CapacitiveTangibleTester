@@ -59,6 +59,6 @@ public class CapacitiveTangiblesMonitor : MonoBehaviour {
         }
 
 
-        MathHelper.DrawCircle(center, pattern.radius, 50);
+        MathHelper.DrawCircle(center, pattern.radius, 50, Color.blue);
     }
 }

@@ -21,7 +21,7 @@ public static class MathHelper{
         return center;
     }
 
-    public static void DrawCircle(Vector2 center, float radius, int segments)
+    public static void DrawCircle(Vector2 center, float radius, int segments, Color color)
     {
         float angle = 360 / segments;
         List<Vector3> points = new List<Vector3>();
@@ -35,7 +35,7 @@ public static class MathHelper{
         }
         for (int i = 1; i < points.Count; i++)
         {
-            Debug.DrawLine(points[i - 1], points[i], Color.blue, 30);
+            Debug.DrawLine(points[i - 1], points[i], color, 30);
         }
     }
 }

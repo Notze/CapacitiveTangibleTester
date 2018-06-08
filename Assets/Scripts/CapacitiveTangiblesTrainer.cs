@@ -54,14 +54,16 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
 
             // compute radius
             float dist = Vector2.Distance(center, patternPoints[i]);
+            MathHelper.DrawCircle (center, dist, 50, Color.red);
             if(dist > radius){
                 radius = dist;
             }
+
             // move point relative to center
             patternPoints [i] = patternPoints [i] - center;
         }
+        MathHelper.DrawCircle (center, radius, 50, Color.blue);
 
-        MathHelper.DrawCircle(center, radius, 50);
 
         TangiblePattern pattern = new TangiblePattern();
         pattern.id = patternID.text;
