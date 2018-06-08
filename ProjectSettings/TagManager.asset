@@ -42,3 +42,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: TangiblePattern
+    uniqueID: 4209260397
+    locked: 0
+  - name: TangiblePatternFoot
+    uniqueID: 1686211009
+    locked: 0

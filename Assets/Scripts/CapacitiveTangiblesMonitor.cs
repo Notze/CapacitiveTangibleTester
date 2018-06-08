@@ -42,7 +42,7 @@ public class CapacitiveTangiblesMonitor : MonoBehaviour {
             touchPositions.Add(touchGO.transform.position);
         }
 
-        Vector2 center = MathHelper.ComputeCenter(touchPositions);
+        Vector2 center = MathHelper.ComputeCenter(touchPositions, Color.red);
 
 
 

@@ -41,6 +41,13 @@ public class DbscanPoint
         point = p;
     }
 
+
+    public void Reset(){
+        IsNoise = false;
+        IsVisited = false;
+        ClusterId = -1;
+    }
+
     /// <summary>
     /// Determines whether the specified point neighbors the current instance using the specified value.
     /// </summary>

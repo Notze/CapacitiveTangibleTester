@@ -1,16 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+
 using System.IO;
 
 
-public class CapacitiveTangiblesRecognizer : MonoBehaviour
-{
+public class CapacitiveTangiblesRecognizer : MonoBehaviour{
+
+    public GameObject patternPrefab;
+    public GameObject patternFootPrefab;
 
     public List<TangiblePattern> patterns;
     public List<DbscanPoint> dbscanPoints = new List<DbscanPoint>();
     public int clusterCount = 0;
     public List<Color> clusterColors = new List<Color>();
+
+    Dictionary<int, List<DbscanPoint>> clusterPointsDict = new Dictionary<int, List<DbscanPoint>>();
+    public List<GameObject> patternObjects;
+
     void OnEnable()
     {
 
@@ -21,18 +29,26 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour
 
         LoadTangiblesPatterns();
     }
-    // Update is called once per frame
+    
+
+
     void Update()
     {
 
         if (Input.GetKeyDown(KeyCode.C))
         {
-            clusterCount = DensityBasedClustering.DBScan(dbscanPoints, 1, 3);
-            clusterColors = ClusterColors(clusterCount);
+            DoClustering();
+            print(clusterPointsDict);
         }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ResetClusters();
+        }
+
         if (Input.GetKeyDown(KeyCode.X))
         {
-            dbscanPoints.Clear();
+            ClearClusters();
         }
 
         List<Vector2> touchPoints = new List<Vector2>();
@@ -44,23 +60,34 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour
         }
 
         //if(Input.touchCount >= 3){
-        //    foreach(Touch touch in Input.touches){
-        //        touchPoints.Add(Camera.main.ScreenToWorldPoint(touch.position));
-        //    }
+            //foreach(Touch touch in Input.touches){
+            //    touchPoints.Add(Camera.main.ScreenToWorldPoint(touch.position));
+            //}
 
-        //    RecognizeTangiblesPattern(patterns[0], touchPoints);
+            //RecognizeTangiblesPattern(patterns[0], touchPoints);
         //}
     }
 
     public void LoadTangiblesPatterns()
     {
         patterns = new List<TangiblePattern>();
+        patternObjects = new List<GameObject>();
         string[] filenames = TangiblesFileUtils.LoadTangiblesJSON();
         foreach (string filename in filenames)
         {
             string json = System.IO.File.ReadAllText(filename);
             TangiblePattern pattern = JsonUtility.FromJson<TangiblePattern>(json);
             patterns.Add(pattern);
+            GameObject patternObj = Instantiate(patternPrefab);
+            foreach(Vector2 point in pattern.points){
+                GameObject footObj = Instantiate(patternFootPrefab);
+                Vector3 pos = patternObj.transform.position - new Vector3(point.x, point.y, 0);
+                footObj.transform.position = pos;
+                //footObj.transform.SetParent(patternObj.transform);
+            }
+
+            patternObj.transform.position = Vector3.zero;
+            patternObjects.Add(patternObj);
         }
     }
 
@@ -82,6 +109,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour
 
     public float RecognizeTangiblesPattern(TangiblePattern pattern, List<Vector2> touchPoints)
     {
+        ResetClusters();
         //recognizerTouches = new List<RecognizerTouch>();
         float probability = 0;
 
@@ -90,8 +118,46 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour
             DbscanPoint dbscanPoint = new DbscanPoint(tp);
             dbscanPoints.Add(dbscanPoint);
         }
+
+        DoClustering();
+
+
+        foreach(int clusterId in clusterPointsDict.Keys){
+            List<Vector2> clusterPoints = new List<Vector2>();
+            List<DbscanPoint> clsPts = clusterPointsDict[clusterId];
+            clusterPoints.AddRange(clsPts.Select(item => item.point).ToList<Vector2>());
+            Vector2 clusterCenter = MathHelper.ComputeCenter(clusterPoints, clusterColors[clusterId-1]);
+        }
+
         return probability;
     }
+
+
+    public void DoClustering(){
+        clusterCount = DensityBasedClustering.DBScan(dbscanPoints, 1, 3);
+        clusterColors = ClusterColors(clusterCount);
+        clusterPointsDict = new Dictionary<int, List<DbscanPoint>>();
+        for (int i = 1; i <= clusterCount; i++){
+            clusterPointsDict.Add(i, new List<DbscanPoint>());
+        }
+        foreach(DbscanPoint p in dbscanPoints){
+            if(!p.IsNoise){
+                clusterPointsDict[p.ClusterId].Add(p);
+            }
+        }
+    }
+
+    public void ResetClusters(){
+        foreach (DbscanPoint dsp in dbscanPoints)
+        {
+            dsp.Reset();
+        }
+    }
+
+    public void ClearClusters(){
+        dbscanPoints.Clear();
+    }
+
 
     List<Color> ClusterColors(int N){
         List<Color> colors = new List<Color>();

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class MathHelper{
 
-    public static Vector2 ComputeCenter(List<Vector2> points)
+    public static Vector2 ComputeCenter(List<Vector2> points, Color color)
     {
         Vector2 center = Vector2.zero;
         foreach (Vector2 p in points)
@@ -15,7 +15,7 @@ public static class MathHelper{
 
         foreach (Vector2 p in points)
         {
-            Debug.DrawLine(center, p, Color.red, 30);
+            Debug.DrawLine(center, p, color, 30);
         }
 
         return center;

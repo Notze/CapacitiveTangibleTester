@@ -19,9 +19,20 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
 	}
 
 
+
+
     public void SavePattern() {
         List<Vector2> patternPoints = new List<Vector2>();
         Touch[] touches = Input.touches;
+
+        if(Input.GetMouseButtonDown(0)){
+            Vector2 pos = Input.mousePosition;
+            if (RectTransformUtility.RectangleContainsScreenPoint(rectTransform, pos))
+            {
+                patternPoints.Add(pos);
+            }
+        }
+
         foreach (Touch touch in touches)
         {
             Vector2 pos = touch.position;
@@ -32,10 +43,10 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
         }
 
 
-        Vector2 center = MathHelper.ComputeCenter(patternPoints);
+        Vector2 center = MathHelper.ComputeCenter(patternPoints, Color.red);
         float radius = 0;
         for (int i = 0; i < patternPoints.Count; i++){
-            Debug.DrawLine(patternPoints[i], 
+            Debug.DrawLine(patternPoints[i],
                            patternPoints[i] - center, 
                            Color.green, 30);
 

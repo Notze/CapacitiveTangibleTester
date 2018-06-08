@@ -848,7 +848,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d213ff6786174593bfc7bfe79f7d665, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  patternPrefab: {fileID: 1527434426564146, guid: e166a53e9890c444580a66e53a723c40,
+    type: 2}
+  patternFootPrefab: {fileID: 1769098112884112, guid: 4f6b41eb92b4f4beabf57ad940972f59,
+    type: 2}
   patterns: []
+  dbscanPoints: []
+  clusterCount: 0
+  clusterColors: []
+  patternObjects: []
 --- !u!114 &1264501270
 MonoBehaviour:
   m_ObjectHideFlags: 0
