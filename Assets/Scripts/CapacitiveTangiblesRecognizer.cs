@@ -45,6 +45,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         foreach (Touch touch in Input.touches)
         {
             HandleInput(ref touchPoints, touch.position, false);
+            print("touch " + touch);
             //touchPoints.Add(Camera.main.ScreenToWorldPoint(touch.position));
         }
 
@@ -54,26 +55,21 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
     void HandleInput(ref List<Vector2> touchPoints, Vector2 screenPoint, bool recognize = true){
         bool inAvoidArea = false;
-        foreach (RectTransform rt in avoidRecognitionAreas)
-        {
+        foreach (RectTransform rt in avoidRecognitionAreas) {
             if (RectTransformUtility.RectangleContainsScreenPoint(rt, screenPoint))
             {
                 inAvoidArea = true;
             }
-
         }
-        if (!inAvoidArea)
-        {
+        if (!inAvoidArea) {
             touchPoints.Add(Camera.main.ScreenToWorldPoint(screenPoint));
             if(recognize){
                 RecognizeTangiblesPattern(patterns[0], touchPoints);    
             }
-
         }
     }
 
-    void Update()
-    {
+    void Update() {
 
         if (Input.GetKeyDown(KeyCode.C))
         {
