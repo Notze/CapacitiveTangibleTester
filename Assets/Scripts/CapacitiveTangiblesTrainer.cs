@@ -52,11 +52,13 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
                            Color.green, 30);
             
 
-            patternPoints[i] = patternPoints[i] - center;
+            // compute radius
             float dist = Vector2.Distance(center, patternPoints[i]);
             if(dist > radius){
                 radius = dist;
             }
+            // move point relative to center
+            patternPoints [i] = patternPoints [i] - center;
         }
 
         MathHelper.DrawCircle(center, radius, 50);
