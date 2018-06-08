@@ -107,6 +107,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
             TangiblePattern pattern = JsonUtility.FromJson<TangiblePattern>(json);
             patterns.Add(pattern);
             GameObject patternObj = Instantiate(patternPrefab);
+            Vector2 center = MathHelper.ComputeCenter(pattern.points, Color.green);
             patternObj.transform.localScale = new Vector3(pattern.radius, pattern.radius, 1);
             foreach(Vector2 point in pattern.points){
                 GameObject footObj = Instantiate(patternFootPrefab);
