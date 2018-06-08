@@ -49,6 +49,7 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
             Debug.DrawLine(patternPoints[i],
                            patternPoints[i] - center, 
                            Color.green, 30);
+            
 
             patternPoints[i] = patternPoints[i] - center;
             float dist = Vector2.Distance(center, patternPoints[i]);
