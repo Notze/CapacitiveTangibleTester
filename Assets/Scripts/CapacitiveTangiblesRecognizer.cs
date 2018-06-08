@@ -45,8 +45,6 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         foreach (Touch touch in Input.touches)
         {
             HandleInput(ref touchPoints, touch.position, false);
-            print("touch " + touch);
-            //touchPoints.Add(Camera.main.ScreenToWorldPoint(touch.position));
         }
 
         RecognizeTangiblesPattern(patterns[0], touchPoints);

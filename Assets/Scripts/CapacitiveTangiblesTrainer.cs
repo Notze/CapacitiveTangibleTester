@@ -29,7 +29,7 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
             Vector2 pos = Input.mousePosition;
             if (RectTransformUtility.RectangleContainsScreenPoint(rectTransform, pos))
             {
-                patternPoints.Add(pos);
+                patternPoints.Add(Camera.main.ScreenToWorldPoint(pos));
             }
         }
 
@@ -38,7 +38,8 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
             Vector2 pos = touch.position;
             if (RectTransformUtility.RectangleContainsScreenPoint(rectTransform, pos))
             {
-                patternPoints.Add(pos);
+                //patternPoints.Add(pos);
+                patternPoints.Add (Camera.main.ScreenToWorldPoint (pos));
             }
         }
 
