@@ -27,8 +27,8 @@ public static class MathHelper{
         List<Vector3> points = new List<Vector3>();
         for (int i = 0; i < (segments + 1); i++)
         {
-            float x = center.x + Mathf.Sin(Mathf.Deg2Rad * angle);// * radius;
-            float y = center.y + Mathf.Cos(Mathf.Deg2Rad * angle);// * radius;
+            float x = center.x + Mathf.Sin(Mathf.Deg2Rad * angle) * radius;
+            float y = center.y + Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
             points.Add(new Vector3(x, y, 0));
 
             angle += (360f / segments);
