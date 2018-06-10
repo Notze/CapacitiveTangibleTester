@@ -6,10 +6,11 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour {
 
 	public Dropdown modalityDropdown;
+	public Slider clusterRadiusSlider;
 	bool isOpen;
 	public List<RectTransform> menuPanels;
 	void Start () {
-		
+		clusterRadiusSlider.value = GlobalSettings.Instance.clusterRadiusScaler;
 	}
 	
 	// Update is called once per frame
@@ -41,6 +42,9 @@ public class MainMenu : MonoBehaviour {
 
 	public void SetModality(){
 		GlobalSettings.Instance.SetModality (modalityDropdown.value);
+	}
+	public void SetClusterRadiusScalar(){
+		GlobalSettings.Instance.SetClusterRadiusScaler (clusterRadiusSlider.value);
 	}
 
 }

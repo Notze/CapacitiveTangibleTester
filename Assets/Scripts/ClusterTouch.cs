@@ -17,10 +17,14 @@ public class ClusterTouch : MonoBehaviour {
 		GetComponent<SpriteRenderer> ().color = color;
 	}
 
+	public void Reset () {
+		ClusterId = -1;
+		GetComponent<SpriteRenderer> ().color = Color.black;
+	}
 
 	//// Update is called once per frame
 	//void Update () {
-		
+
 	//}
 
 }
