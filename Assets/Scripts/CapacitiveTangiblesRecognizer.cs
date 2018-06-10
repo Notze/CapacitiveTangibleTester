@@ -23,28 +23,33 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
     public List<RectTransform> avoidRecognitionAreas;
 
-	GameObject debugTangibleObj;
-	List<Vector2> debugClusterPoints;
-	List<Vector2> debugFeetPoints;
-	int debugCurrentRotationIdx = 0;
+	//GameObject debugTangibleObj;
+	//List<Vector2> debugClusterPoints;
+	//List<Vector2> debugFeetPoints;
+	//int debugCurrentRotationIdx = 0;
 
-	public void DebugRotateTangible(){
-		RotateTangible (debugTangibleObj, debugClusterPoints [debugCurrentRotationIdx]);
-		debugCurrentRotationIdx++;
-		debugCurrentRotationIdx %= debugClusterPoints.Count;
-
-
-		Transform [] feet = debugTangibleObj.GetComponentsInChildren<Transform> ();
-		debugFeetPoints = new List<Vector2> ();
-		foreach (Transform foot in feet) {
-			debugFeetPoints.Add (foot.position);
-		}
+	//public void DebugRotateTangible(){
+	//	RotateTangible (debugTangibleObj, debugClusterPoints [debugCurrentRotationIdx]);
+	//	debugCurrentRotationIdx++;
+	//	debugCurrentRotationIdx %= debugClusterPoints.Count;
 
 
-		GlobalSettings.Instance.SetRotationIndex (debugCurrentRotationIdx);
-		float dist = EvaluateTangiblePose (debugFeetPoints, debugClusterPoints);
-		GlobalSettings.Instance.SetDistanceSum (dist);
-	}
+	//	Transform [] feet = debugTangibleObj.GetComponentsInChildren<Transform> ();
+	//	debugFeetPoints = new List<Vector2> ();
+	//	foreach (Transform foot in feet) {
+	//		debugFeetPoints.Add (foot.position);
+	//	}
+
+
+	//	GlobalSettings.Instance.SetRotationIndex (debugCurrentRotationIdx);
+	//	float dist = EvaluateTangiblePose (debugFeetPoints, debugClusterPoints);
+	//	GlobalSettings.Instance.SetDistanceSum (dist);
+
+	//	//StartCoroutine (DebugRotateAnim ());
+
+	//}
+
+
 
     void OnEnable()
     {
@@ -235,45 +240,10 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		// translate tangible to cluster center:
 		tangibleObj.transform.position = clusterCenter;
 
-		// rotate tangible:
-		Transform [] feet = tangibleObj.GetComponentsInChildren<Transform> ();
-		List<Vector2> feetPoints = new List<Vector2> ();
-		foreach (Transform foot in feet) {
-			feetPoints.Add (foot.position);
-		}
 
-		debugTangibleObj = tangibleObj;
-		debugClusterPoints = clusterPoints;
-		debugFeetPoints = feetPoints;
-		//float minDistanceSum = float.MaxValue;
-		//int minDistI = 0;
-		//Quaternion minRotation = Quaternion.identity;
-		//for (int i = 0; i < clusterPoints.Count; i++){
-		//	RotateTangible (tangibleObj, clusterPoints [i]);
-		//	float distanceSum = 0;
-		//	foreach (Vector2 feetPoint in feetPoints) {
-		//		float minDist = float.MaxValue;
-		//		foreach (Vector2 clusterPoint in clusterPoints) {
-		//			float dist = Vector2.Distance (feetPoint, clusterPoint);
-		//			if(dist < minDist){
-		//				minDist = dist;
-		//			}
-		//		}
-		//		distanceSum += minDist;
-		//	}
-		//	distanceSum /= feetPoints.Count;
-		//	if (distanceSum < minDistanceSum) {
-		//		minDistanceSum = distanceSum;
-		//		minDistI = i;
-		//		minRotation = new Quaternion(tangibleObj.transform.rotation.x, 
-		//		                             tangibleObj.transform.rotation.y, 
-		//		                             tangibleObj.transform.rotation.z, 
-		//		                             tangibleObj.transform.rotation.w);
-		//	}
-		//}
-		//print ("minDistanceSum:" + minDistanceSum);
-		////RotateTangible (tangibleObj, clusterPoints [minDistI]);
-		//tangibleObj.transform.rotation = minRotation;
+		RotateTangible360 (tangibleObj, clusterPoints);
+
+
 		return probability;
 	}
 
@@ -296,12 +266,42 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
 	void RotateTangible(GameObject tangibleObj, Vector2 rotateTo){
 		tangibleObj.transform.rotation = Quaternion.identity;
-
-		Vector2 a = tangibleObj.transform.position - tangibleObj.transform.up;
-		Vector2 b = tangibleObj.transform.position - new Vector3 (rotateTo.x, rotateTo.y, 0);
+		Vector2 pos = tangibleObj.transform.position;
+		Vector2 up = tangibleObj.transform.up;
+		Vector2 a = pos - up;
+		Vector2 b = pos - rotateTo;
 		float angle = Vector2.Angle (a, b);
 		//print ("angle: " + angle);
 		tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, angle);
+	}
+
+
+	float RotateTangible360(GameObject tangibleObj, List<Vector2> clusterPoints)
+	{
+		int minAngle = 0;
+		float minDist = float.MaxValue;
+		for (int i = 0; i < 360; i++) {
+
+			tangibleObj.transform.rotation = Quaternion.identity;
+			tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, i);
+
+			Transform [] feet = tangibleObj.GetComponentsInChildren<Transform> ();
+			List<Vector2> feetPoints = new List<Vector2> ();
+			foreach (Transform foot in feet) {
+				feetPoints.Add (foot.position);
+			}
+
+			float dist = EvaluateTangiblePose (feetPoints, clusterPoints);
+			if (dist < minDist) {
+				minDist = dist;
+				minAngle = i;
+			}
+		}
+		tangibleObj.transform.rotation = Quaternion.identity;
+		tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, minAngle);
+		GlobalSettings.Instance.SetDistanceSum (minDist);
+
+		return minDist;
 	}
 
     public void DoClustering(float radius){
