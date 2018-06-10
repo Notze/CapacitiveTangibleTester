@@ -8,6 +8,8 @@ public class DbscanPoint
 	public long pointID;
     public Vector2 point;
 
+	[System.NonSerialized]
+	public ClusterTouch clusterTouch;
     /// <summary>
     /// Gets or sets the X component of the point.
     /// </summary>
@@ -48,6 +50,7 @@ public class DbscanPoint
         IsVisited = false;
         ClusterId = -1;
     }
+
 
     /// <summary>
     /// Determines whether the specified point neighbors the current instance using the specified value.

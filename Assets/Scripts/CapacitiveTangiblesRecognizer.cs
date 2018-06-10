@@ -35,27 +35,43 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
     }
     
     void HandleMouseInput(ref List<Vector2> touchPoints){
-        if (Input.GetMouseButtonDown(0))
-        {
+        if (Input.GetMouseButtonDown(0)) {
             Vector2 pos = Input.mousePosition;
-            HandleInput(ref touchPoints, pos);
+            bool registered = RegisterInputPoint(ref touchPoints, pos);
+			if (registered) {
+				RecognizeTangiblesPattern (patterns [0], touchPoints);
+			}
         }
     }
 
     void HandleTouchInput(ref List<Vector2> touchPoints){
-        //if(Input.touchCount >= 3){
-        foreach (Touch touch in Input.touches)
-        {
-			if(touch.phase == TouchPhase.Began){
-				HandleInput (ref touchPoints, touch.position, false);	
+		if (Input.touchCount > 0) {
+			bool registered = false;
+			foreach (Touch touch in Input.touches) {
+				bool r = false;
+				if (touch.phase == TouchPhase.Began) {
+					r = RegisterInputPoint (ref touchPoints, touch.position);
+					if(r){
+						registered = true;
+					}
+				}
 			}
-        }
+			if(registered){
+				print ("rotationPoint:" + rotationPoint);
+				RecognizeTangiblesPattern (patterns [0], touchPoints);
+			}
+			if (Input.touches [0].phase == TouchPhase.Ended) {
+				rotationPoint++;
+				rotationPoint %= clusterPointsDict[1].Count;
+				GlobalSettings.Instance.SetRotationIndex (rotationPoint);
+			}
 
-        RecognizeTangiblesPattern(patterns[0], touchPoints);
+
+		}
         
     }
 
-    void HandleInput(ref List<Vector2> touchPoints, Vector2 screenPoint, bool recognize = true){
+    bool RegisterInputPoint(ref List<Vector2> touchPoints, Vector2 screenPoint){
         bool inAvoidArea = false;
         foreach (RectTransform avoidArea in avoidRecognitionAreas) {
 			if(avoidArea.gameObject.activeSelf){
@@ -67,10 +83,9 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         }
         if (!inAvoidArea) {
             touchPoints.Add(Camera.main.ScreenToWorldPoint(screenPoint));
-            if(recognize){
-                RecognizeTangiblesPattern(patterns[0], touchPoints);    
-            }
         }
+		return !inAvoidArea;
+
     }
 
 	int rotationPoint = 0;
@@ -112,6 +127,12 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
     public void LoadTangiblesPatterns()
     {
+		if(tangibles != null){
+			foreach(Tangible t in tangibles){
+				Destroy (t.gameObject);
+			}
+		}
+
         patterns = new List<TangiblePattern>();
         tangibles = new List<Tangible>();
         string[] filenames = TangiblesFileUtils.LoadTangiblesJSON();
@@ -168,15 +189,18 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			ClusterTouch clusterTouch = touchObj.GetComponent<ClusterTouch> ();
 			clusterTouch.pointID = dbscanPoint.pointID;
 			clusterTouch.dbscanPoint = dbscanPoint;
+			dbscanPoint.clusterTouch = clusterTouch;
 			touchObjects.Add (clusterTouch);
         }
 
         DoClustering(pattern.radius);
+		if(clusterCount > 0){
+			RecognizeClusterPattern (pattern, touchPoints, 1);	
+		}
 
-
-        foreach(int clusterId in clusterPointsDict.Keys){
-			RecognizeClusterPattern (pattern, touchPoints, clusterId);
-        }
+        //foreach(int clusterId in clusterPointsDict.Keys){
+			
+        //}
         return probability;
     }
 
@@ -201,30 +225,34 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		float minDistanceSum = float.MaxValue;
 		int minDistI = 0;
 		Quaternion rotation = tangibleObj.transform.rotation;
-		RotateTangible (tangibleObj, touchPoints [rotationPoint]);
-		float distanceSum = 0;
-		foreach (Vector2 feetPoint in feetPoints) {
-			foreach (Vector2 touchPoint in touchPoints) {
-				distanceSum += Vector2.Distance (feetPoint, touchPoint);
-			}
-		}
 
-		distanceSum /= feetPoints.Count;
-		if (distanceSum < minDistanceSum) {
-			minDistanceSum = distanceSum;
-		}
-		print (minDistanceSum);
+		RotateTangible (tangibleObj, clusterPoints[rotationPoint]);
+
+		//float distanceSum = 0;
+		//foreach (Vector2 feetPoint in feetPoints) {
+		//	foreach (Vector2 touchPoint in touchPoints) {
+		//		distanceSum += Vector2.Distance (feetPoint, touchPoint);
+		//	}
+		//}
+
+		//distanceSum /= feetPoints.Count;
+		//if (distanceSum < minDistanceSum) {
+		//	minDistanceSum = distanceSum;
+		//}
+		//print (minDistanceSum);
 
 
 		return probability;
 	}
 
 	void RotateTangible(GameObject tangibleObj, Vector2 rotateTo){
-		Vector2 a = tangibleObj.transform.position - tangibleObj.transform.right;
+		tangibleObj.transform.rotation = Quaternion.identity;
+
+		Vector2 a = tangibleObj.transform.position - tangibleObj.transform.up;
 		Vector2 b = tangibleObj.transform.position - new Vector3 (rotateTo.x, rotateTo.y, 0);
 		float angle = Vector2.Angle (a, b);
-
-		tangibleObj.transform.RotateAround (transform.position, Vector3.forward, angle);
+		print ("angle: " + angle);
+		tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, angle);
 	}
 
     public void DoClustering(float radius){
