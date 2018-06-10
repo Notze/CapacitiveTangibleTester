@@ -111,12 +111,16 @@ public static class DensityBasedClustering{
                 n.IsVisited = true;
 
                 DbscanPoint[] ns = DensityBasedClustering.GetNeighors(points, n, eps);
-                if (ns.Length >= minimumClusterCount)
-                    foreach (DbscanPoint item in ns)
-                        q.Enqueue(item);
+				if (ns.Length >= minimumClusterCount) {
+					foreach (DbscanPoint item in ns) {
+						q.Enqueue (item);
+					}
+				}
             }
-            else if (n.ClusterId == -1)
-                n.ClusterId = cid;
+			else if (n.ClusterId == -1){
+				n.ClusterId = cid;
+			}
+                
         }
     }
 

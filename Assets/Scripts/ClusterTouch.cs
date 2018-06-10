@@ -8,9 +8,12 @@ public class ClusterTouch : MonoBehaviour {
 	public int ClusterId;
 	public DbscanPoint dbscanPoint;
 
-	void Start () {
+	public Vector2 clusterCenter;
+
+
+	//void Start () {
 		
-	}
+	//}
 
 
 	public void SetClusterColor(Color color){

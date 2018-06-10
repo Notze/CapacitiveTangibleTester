@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-
 using System.IO;
 
 
@@ -16,6 +15,8 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
     public List<DbscanPoint> dbscanPoints = new List<DbscanPoint>();
     public int clusterCount = 0;
     public List<Color> clusterColors = new List<Color>();
+	public float clusterRadius;
+	public int minNumOfPointsInCluster = 4;
 
     Dictionary<int, List<DbscanPoint>> clusterPointsDict = new Dictionary<int, List<DbscanPoint>>();
     public List<Tangible> tangibles;
@@ -67,7 +68,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
             Vector2 pos = Input.mousePosition;
             bool registered = RegisterInputPoint(ref touchPoints, pos);
 			if (registered) {
-				RecognizeTangiblesPattern (patterns [0], touchPoints);
+				RecognizeTangibles(patterns, touchPoints);
 			}
         }
     }
@@ -86,7 +87,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			}
 			if(registered){
 				//print ("rotationPoint:" + rotationPoint);
-				RecognizeTangiblesPattern (patterns [0], touchPoints);
+				RecognizeTangibles(patterns, touchPoints);
 			}
 			if (Input.touches [0].phase == TouchPhase.Ended) {
 				//rotationPoint++;
@@ -133,7 +134,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
 		if (Input.GetKeyDown(KeyCode.C))
         {
-            DoClustering(patterns[0].radius * GlobalSettings.Instance.clusterRadiusScaler);
+			DoClustering(clusterRadius * GlobalSettings.Instance.clusterRadiusScaler, minNumOfPointsInCluster);
             //print(clusterPointsDict);
         }
 
@@ -166,6 +167,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
             patterns.Add(pattern);
             GameObject patternObj = Instantiate(patternPrefab);
 			Tangible tangible = patternObj.GetComponent<Tangible> ();
+			tangible.SetIDText(pattern.id);
 			tangible.pattern = pattern;
             Vector2 center = MathHelper.ComputeCenter(pattern.points, Color.green);
             float xSize = patternObj.GetComponent<SpriteRenderer>().bounds.size.x/2;
@@ -180,11 +182,13 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
             patternObj.transform.position = Vector3.zero;
 			tangibles.Add(tangible);
         }
+		clusterRadius = patterns.Max (ptn => ptn.radius);
+		print ("clusterRadius: " + clusterRadius);
     }
 
     private void OnDrawGizmos() {
         foreach (DbscanPoint point in dbscanPoints) {
-            if(point.ClusterId > -1){
+			if(!point.IsNoise && point.ClusterId != -1){
                 Gizmos.color = clusterColors[point.ClusterId-1];    
             }else{
                 Gizmos.color = Color.black;
@@ -193,19 +197,13 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         }
     }
 
+	public void RecognizeTangibles(List<TangiblePattern> patterns, List<Vector2> touchPoints){
+		List <Dictionary<int, float>> patternFitnessList = new List<Dictionary<int, float>> ();
 
-
-    public float RecognizeTangiblesPattern(TangiblePattern pattern, List<Vector2> touchPoints)
-	{
-		
-        ResetClusters();
-        //recognizerTouches = new List<RecognizerTouch>();
-        float probability = 0;
-
-        foreach (Vector2 tp in touchPoints)
-        {
-			DbscanPoint dbscanPoint = new DbscanPoint(tp, pointID++);
-            dbscanPoints.Add(dbscanPoint);
+		ResetClusters();
+		foreach (Vector2 tp in touchPoints) {
+			DbscanPoint dbscanPoint = new DbscanPoint (tp, pointID++);
+			dbscanPoints.Add (dbscanPoint);
 			GameObject touchObj = Instantiate (touchPrefab);
 			touchObj.transform.position = tp;
 
@@ -214,20 +212,44 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			clusterTouch.dbscanPoint = dbscanPoint;
 			dbscanPoint.clusterTouch = clusterTouch;
 			touchObjects.Add (clusterTouch);
-        }
+		}
+		DoClustering (clusterRadius * GlobalSettings.Instance.clusterRadiusScaler, minNumOfPointsInCluster);
 
-        DoClustering(pattern.radius);
-		if(clusterCount > 0){
-			RecognizeClusterPattern (pattern, touchPoints, 1);	
+		foreach(TangiblePattern pattern in patterns){
+			Dictionary<int, float> fitnessDict = RecognizeTangiblesPattern (pattern, touchPoints);
+			patternFitnessList.Add(fitnessDict);
+		}
+		for (int i = 0; i < patternFitnessList.Count; i++){
+			Dictionary<int, float> fitnessDict = patternFitnessList[i];
+			KeyValuePair<int, float> fit = fitnessDict.Aggregate ((l, r) => l.Value < r.Value ? l : r);
+			print (string.Format ("pattern{0} cluster: {1} distance{2}", i, fit.Key, fit.Value));
+			if(fitnessDict.Count > 1){
+				
+				//tangibles[i].transform.position = clusterPointsDict [clusterID] [0].clusterTouch.clusterCenter;
+				//print (clusterID);	
+			}
 		}
 
-        //foreach(int clusterId in clusterPointsDict.Keys){
-			
-        //}
-        return probability;
+	}
+	/// <summary>
+	/// Recognizes the tangibles pattern.
+	/// </summary>
+	/// <returns>Fites dictionary <clusterID distance> </returns>
+	/// <param name="pattern">Pattern.</param>
+	/// <param name="touchPoints">Touch points.</param>
+	Dictionary<int, float> RecognizeTangiblesPattern(TangiblePattern pattern, List<Vector2> touchPoints)
+	{
+		Dictionary<int, float> clusterDistances = new Dictionary<int, float> ();
+        
+
+        foreach(int clusterId in clusterPointsDict.Keys){
+			float dist = RecognizeClusterPattern (pattern, clusterId);
+			clusterDistances.Add (clusterId, dist);
+        }
+		return clusterDistances;
     }
 
-	public float RecognizeClusterPattern (TangiblePattern pattern, List<Vector2> touchPoints, int clusterId)
+	float RecognizeClusterPattern (TangiblePattern pattern, int clusterId)
 	{
 		float probability = 0;
 		GameObject tangibleObj = tangibles.Find (t => t.pattern.id == pattern.id).gameObject;
@@ -236,7 +258,11 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		List<DbscanPoint> clsPts = clusterPointsDict [clusterId];
 		clusterPoints.AddRange (clsPts.Select (item => item.point).ToList<Vector2> ());
 		Vector2 clusterCenter = MathHelper.ComputeCenter (clusterPoints, clusterColors [clusterId - 1]);
-
+		foreach(DbscanPoint scanPoint in clsPts){
+			if(!scanPoint.IsNoise){
+				scanPoint.clusterTouch.clusterCenter = clusterCenter;	
+			}
+		}
 		// translate tangible to cluster center:
 		tangibleObj.transform.position = clusterCenter;
 
@@ -304,9 +330,9 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		return minDist;
 	}
 
-    public void DoClustering(float radius){
+    public void DoClustering(float radius, int minNumOfPoints){
 		GlobalSettings.Instance.SetNumClusterPoints(dbscanPoints.Count);
-		clusterCount = DensityBasedClustering.DBScan(dbscanPoints, radius, 3);
+		clusterCount = DensityBasedClustering.DBScan(dbscanPoints, radius, minNumOfPoints);
         clusterColors = ClusterColors(clusterCount);
         clusterPointsDict = new Dictionary<int, List<DbscanPoint>>();
         for (int i = 1; i <= clusterCount; i++){
@@ -315,7 +341,9 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         foreach(DbscanPoint p in dbscanPoints){
             if(!p.IsNoise){
                 clusterPointsDict[p.ClusterId].Add(p);
-            }
+			}else{
+				//print ("is Noise");
+			}
         }
 		foreach(ClusterTouch ct in touchObjects){
 			Color color = Color.black;

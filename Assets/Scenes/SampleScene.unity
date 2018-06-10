@@ -1808,6 +1808,8 @@ MonoBehaviour:
   dbscanPoints: []
   clusterCount: 0
   clusterColors: []
+  clusterRadius: 0
+  minNumOfPointsInCluster: 4
   tangibles: []
   touchObjects: []
   avoidRecognitionAreas:
@@ -2329,7 +2331,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1376128669
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2344,10 +2346,10 @@ RectTransform:
   m_Father: {fileID: 1977540053}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 60}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 100, y: -446.4226}
+  m_SizeDelta: {x: 196, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1376128670
 MonoBehaviour:
@@ -2462,9 +2464,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   modality: 0
-  clusterRadiusScaler: 1.5
+  clusterRadiusScaler: 1.12
   numOfclusterPoints: 0
   rotationIdx: 0
+  tangibleDistance: 3.4028235e+38
   statusText: {fileID: 92158284}
 --- !u!4 &1400903535
 Transform:
