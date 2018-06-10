@@ -14,6 +14,7 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
 	public float clusterRadiusScaler = 1.5f;
 	public int numOfclusterPoints = 0;
 	public int rotationIdx;
+	public float tangibleDistance = float.MaxValue;
 	public Text statusText;
 
 	private void Start ()
@@ -33,8 +34,12 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
     }
 
     void SetStatusText(){
-		statusText.text = string.Format("modality: {0} # cluster points: {1}; cluster radius scalar: {2}; rotation idx: {3}", 
-		                                modality, numOfclusterPoints, clusterRadiusScaler, rotationIdx);
+		statusText.text = string.Format("modality: {0} cluster points: {1}; cluster radius scalar: {2}; rotation idx: {3} distance: {4}",
+		                                modality, 
+		                                numOfclusterPoints, 
+		                                clusterRadiusScaler, 
+		                                rotationIdx,
+		                                tangibleDistance);
     }
 
 	public void SetModality(int m){
@@ -54,6 +59,10 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
 	public void SetRotationIndex (int idx)
 	{
 		rotationIdx = idx;
+		SetStatusText ();
+	}
+	public void SetDistanceSum(float dist){
+		tangibleDistance = dist;
 		SetStatusText ();
 	}
 
