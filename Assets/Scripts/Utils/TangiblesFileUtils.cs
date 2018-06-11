@@ -25,6 +25,10 @@ public static class TangiblesFileUtils{
     }
 
 	public static void DeleteTangibles(){
-		Directory.Delete (Application.persistentDataPath + "/" + tangibledirectory);
+
+		DirectoryInfo di = new DirectoryInfo (Application.persistentDataPath + "/" + tangibledirectory);
+		foreach (FileInfo file in di.GetFiles ()) {
+			file.Delete ();
+		}
 	}
 }
