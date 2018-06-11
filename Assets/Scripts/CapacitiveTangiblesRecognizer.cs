@@ -201,8 +201,35 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         }
     }
 
+
+	private void OnGUI ()
+	{
+		GUIStyle style = new GUIStyle ();
+		style.fontSize = 32;
+		GUILayout.BeginVertical (style);
+		string header = "";
+		header += "pattern\t";
+		for (int i = 1; i <= clusterPointsDict.Count; i++) {
+			header += i + "\t";
+		}
+		GUILayout.Label (header, style);
+
+		if (patternFitnessList != null) {
+			for (int i = 0; i < patternFitnessList.Count; i++){
+				string fitnessString = patterns[i].id + "\t";
+				Dictionary<int, float> fitnessDict = patternFitnessList [i];
+				foreach(int clusterID in fitnessDict.Keys){
+					fitnessString += fitnessDict[clusterID].ToString("0.00") + "\t";
+				}
+				GUILayout.Label (fitnessString, style);
+			}
+		}
+		GUILayout.EndVertical ();
+	}
+
+	List<Dictionary<int, float>> patternFitnessList;
 	public void RecognizeTangibles(List<TangiblePattern> patterns, List<Vector2> touchPoints){
-		List <Dictionary<int, float>> patternFitnessList = new List<Dictionary<int, float>> ();
+		patternFitnessList = new List<Dictionary<int, float>> ();
 
 		ResetClusters();
 		foreach (Vector2 tp in touchPoints) {
@@ -271,6 +298,8 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         }
 		return clusterDistances;
     }
+
+
 
 	float RecognizeClusterPattern (TangiblePattern pattern, int clusterId)
 	{
