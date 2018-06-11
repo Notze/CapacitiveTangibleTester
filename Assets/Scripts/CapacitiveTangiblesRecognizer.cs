@@ -219,15 +219,34 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			Dictionary<int, float> fitnessDict = RecognizeTangiblesPattern (pattern, touchPoints);
 			patternFitnessList.Add(fitnessDict);
 		}
-		for (int i = 0; i < patternFitnessList.Count; i++){
-			Dictionary<int, float> fitnessDict = patternFitnessList[i];
-			KeyValuePair<int, float> fit = fitnessDict.Aggregate ((l, r) => l.Value < r.Value ? l : r);
-			print (string.Format ("pattern{0} cluster: {1} distance{2}", i, fit.Key, fit.Value));
-			if(fitnessDict.Count > 1){
-				
-				//tangibles[i].transform.position = clusterPointsDict [clusterID] [0].clusterTouch.clusterCenter;
-				//print (clusterID);	
+		for (int i = 0; i < patternFitnessList.Count; i++) {
+			Dictionary<int, float> fitnessDict = patternFitnessList [i];
+			int minClusterID = 0;
+			float minDist = float.MaxValue;
+			foreach (int clusterId in fitnessDict.Keys) {
+				if (fitnessDict [clusterId] < minDist) {
+					minDist = fitnessDict [clusterId];
+					minClusterID = clusterId;
+				}
 			}
+			print (string.Format ("pattern: {0} cluster: {1} distance: {2}", i, minClusterID, minDist));
+			if (minDist < 2.5f){
+				if (clusterPointsDict.ContainsKey (minClusterID)) {
+					tangibles [i].UpdatePosition (clusterPointsDict [minClusterID] [0].clusterTouch.clusterCenter);
+				}	
+			}else{
+				tangibles [i].ResetPosition();
+			}
+
+
+
+
+
+			//if(fitnessDict.Count > 1){
+				
+			//	//
+			//	//print (clusterID);	
+			//}
 		}
 
 	}
@@ -251,8 +270,9 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
 	float RecognizeClusterPattern (TangiblePattern pattern, int clusterId)
 	{
-		float probability = 0;
-		GameObject tangibleObj = tangibles.Find (t => t.pattern.id == pattern.id).gameObject;
+		
+		Tangible tangible = tangibles.Find (t => t.pattern.id == pattern.id);
+		//GameObject tangibleObj = tangible.gameObject;
 		List<Vector2> clusterPoints = new List<Vector2> ();
 
 		List<DbscanPoint> clsPts = clusterPointsDict [clusterId];
@@ -264,13 +284,10 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			}
 		}
 		// translate tangible to cluster center:
-		tangibleObj.transform.position = clusterCenter;
+		tangible.UpdatePosition(clusterCenter);
 
-
-		RotateTangible360 (tangibleObj, clusterPoints);
-
-
-		return probability;
+		float minDistanceSum = RotateTangible360 (tangible.gameObject, clusterPoints);
+		return minDistanceSum;
 	}
 
 
