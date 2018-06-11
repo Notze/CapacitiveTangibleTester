@@ -5,6 +5,11 @@ using System.Linq;
 using System.IO;
 
 
+public struct Tuple<T,K>{
+	public T first;
+	public K second;
+}
+
 public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 	
 	public static long pointID;
@@ -54,7 +59,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
     void OnEnable()
     {
-
+		
     }
 
     void Start()
@@ -164,7 +169,9 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         patterns = new List<TangiblePattern>();
         tangibles = new List<Tangible>();
         string[] filenames = TangiblesFileUtils.LoadTangiblesJSON();
-        foreach (string filename in filenames)
+#warning loading only one file! Unsave!
+		string filename = filenames [0];
+        //foreach (string filename in filenames)
         {
             string json = System.IO.File.ReadAllText(filename);
             TangiblePattern pattern = JsonUtility.FromJson<TangiblePattern>(json);
@@ -324,19 +331,23 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 	}
 
 
-	float EvaluateTangiblePose(List<Vector2> feetPoints, List<Vector2> clusterPoints){
+	float EvaluateTangiblePose(List<Vector2> feetPoints, List<Vector2> clusterPoints, out List<Tuple<int, int>> closestPoints){
 		float minDistanceSum = 0;
+		closestPoints = new List<Tuple<int, int>> ();
 		for (int i = 0; i < feetPoints.Count; i++){
+			Tuple<int, int> tuple = new Tuple<int, int> ();
+			tuple.first = i;
 			float minDist = float.MaxValue;
 			for (int j = 0; j < clusterPoints.Count; j++){
 				float dist = Vector2.Distance (feetPoints [i], clusterPoints [j]);
 				if(dist < minDist){
 					minDist = dist;
+					tuple.first = j;
 				}
 			}
+			closestPoints.Add (tuple);
 			minDistanceSum += minDist;
 		}
-
 		return minDistanceSum;
 	}
 
@@ -356,8 +367,9 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 	{
 		int minAngle = 0;
 		float minDist = float.MaxValue;
+		List<Tuple<int, int>> closestPoints = null;
 		for (int i = 0; i < 360; i++) {
-
+			List<Tuple<int, int>> tmpClosestPoints;
 			tangibleObj.transform.rotation = Quaternion.identity;
 			tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, i);
 
@@ -367,16 +379,25 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 				feetPoints.Add (foot.position);
 			}
 
-			float dist = EvaluateTangiblePose (feetPoints, clusterPoints);
+			float dist = EvaluateTangiblePose (feetPoints, clusterPoints, out tmpClosestPoints);
 			if (dist < minDist) {
 				minDist = dist;
 				minAngle = i;
+				closestPoints = tmpClosestPoints;
 			}
 		}
 		tangibleObj.transform.rotation = Quaternion.identity;
 		tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, minAngle);
 		GlobalSettings.Instance.SetDistanceSum (minDist);
+		Transform [] feet2 = tangibleObj.GetComponentsInChildren<Transform> ();
+		List<Vector2> feetPoints2 = new List<Vector2> ();
+		foreach (Transform foot in feet2) {
+			feetPoints2.Add (foot.position);
+		}
 
+		foreach(Tuple<int, int> pair in closestPoints){
+			Debug.DrawLine (feetPoints2[pair.first], clusterPoints [pair.second], Color.cyan, 30);
+		}
 		return minDist;
 	}
 
