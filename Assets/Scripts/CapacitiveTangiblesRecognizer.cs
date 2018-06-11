@@ -59,7 +59,11 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
     void Start()
     {
-
+		GameObject [] avoidGOs = GameObject.FindGameObjectsWithTag("Avoid");
+		avoidRecognitionAreas = new List<RectTransform>();
+		foreach(GameObject avoidGO in avoidGOs){
+			avoidRecognitionAreas.Add (avoidGO.transform as RectTransform);
+		}
         LoadTangiblesPatterns();
     }
     
@@ -235,7 +239,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 					tangibles [i].UpdatePosition (clusterPointsDict [minClusterID] [0].clusterTouch.clusterCenter);
 				}	
 			}else{
-				tangibles [i].ResetPosition();
+				tangibles[i].ResetPosition();
 			}
 
 
@@ -284,7 +288,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			}
 		}
 		// translate tangible to cluster center:
-		tangible.UpdatePosition(clusterCenter);
+		tangible.transform.position = clusterCenter;
 
 		float minDistanceSum = RotateTangible360 (tangible.gameObject, clusterPoints);
 		return minDistanceSum;
@@ -356,7 +360,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
             clusterPointsDict.Add(i, new List<DbscanPoint>());
         }
         foreach(DbscanPoint p in dbscanPoints){
-            if(!p.IsNoise){
+            if(!p.IsNoise && p.ClusterId != -1){
                 clusterPointsDict[p.ClusterId].Add(p);
 			}else{
 				//print ("is Noise");
@@ -364,7 +368,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         }
 		foreach(ClusterTouch ct in touchObjects){
 			Color color = Color.black;
-			if(!ct.dbscanPoint.IsNoise){
+			if(!ct.dbscanPoint.IsNoise && ct.dbscanPoint.ClusterId != -1){
 				ct.ClusterId = ct.dbscanPoint.ClusterId;
 				color = clusterColors [ct.ClusterId - 1];
 			}

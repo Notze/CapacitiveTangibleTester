@@ -7,6 +7,8 @@ public class MainMenu : MonoBehaviour {
 
 	public Dropdown modalityDropdown;
 	public Slider clusterRadiusSlider;
+
+
 	bool isOpen;
 	public List<RectTransform> menuPanels;
 	void Start () {
@@ -46,5 +48,4 @@ public class MainMenu : MonoBehaviour {
 	public void SetClusterRadiusScalar(){
 		GlobalSettings.Instance.SetClusterRadiusScaler (clusterRadiusSlider.value);
 	}
-
 }
