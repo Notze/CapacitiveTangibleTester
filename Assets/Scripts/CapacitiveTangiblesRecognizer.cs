@@ -158,6 +158,10 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         }
     }
 
+	public void DeleteTangiblesPatterns(){
+		TangiblesFileUtils.DeleteTangibles();
+	}
+
     public void LoadTangiblesPatterns()
     {
 		if(tangibles != null){
@@ -169,9 +173,8 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         patterns = new List<TangiblePattern>();
         tangibles = new List<Tangible>();
         string[] filenames = TangiblesFileUtils.LoadTangiblesJSON();
-#warning loading only one file! Unsave!
-		string filename = filenames [0];
-        //foreach (string filename in filenames)
+
+        foreach (string filename in filenames)
         {
             string json = System.IO.File.ReadAllText(filename);
             TangiblePattern pattern = JsonUtility.FromJson<TangiblePattern>(json);

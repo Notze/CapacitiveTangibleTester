@@ -23,4 +23,8 @@ public static class TangiblesFileUtils{
             return Directory.GetFiles(Application.persistentDataPath + "/" + tangibledirectory);
         }
     }
+
+	public static void DeleteTangibles(){
+		Directory.Delete (Application.persistentDataPath + "/" + tangibledirectory);
+	}
 }
