@@ -362,12 +362,15 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 				}
 			}
 		}
+
+		// find translation and rotation:
+
 		Vector2 a = clsPts [firstAnchor].point - clsPts[secondAnchor].point;
 		Vector2 b = tangible.anchor1.position - tangible.anchor2.position;
 		float angle = Vector2.SignedAngle(b, a);
 		GlobalSettings.Instance.SetRotationAngle(angle);
 		Quaternion rot = Quaternion.Euler(0, 0, angle);
-		//Matrix4x4 matrix = Matrix4x4.TRS (clsPts [secondAnchor].point, rot, Vector3.one);
+
 
 		Transform [] feet = tangible.GetComponentsInChildren<Transform> ();
 		List<Vector2> feetPoints = new List<Vector2> ();
@@ -376,11 +379,11 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 				feetPoints.Add (foot.position);
 			}
 		}
-		tangible.transform.rotation = rot; //matrix.rotation;
+		tangible.transform.rotation = rot;
 		Vector2 tangibleOffset = new Vector2 (tangible.transform.position.x - tangible.anchor1.position.x, 
 		                                      tangible.transform.position.y - tangible.anchor1.position.y);
 		Vector2 pos = clsPts [firstAnchor].point + tangibleOffset;
-		tangible.transform.position = pos; //matrix.MultiplyPoint(tangible.transform.position);
+		tangible.transform.position = pos;
 
 
 
