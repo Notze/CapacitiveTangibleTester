@@ -298,10 +298,17 @@
     <Compile Include="Assets\Scripts\CapacitiveTangiblesMonitor.cs" />
     <Compile Include="Assets\Scripts\CapacitiveTangiblesRecognizer.cs" />
     <Compile Include="Assets\Scripts\CapacitiveTangiblesTrainer.cs" />
+    <Compile Include="Assets\Scripts\ClusterTouch.cs" />
+    <Compile Include="Assets\Scripts\DensityBasedClustering.cs" />
+    <Compile Include="Assets\Scripts\GlobalSettings.cs" />
+    <Compile Include="Assets\Scripts\MainMenu.cs" />
+    <Compile Include="Assets\Scripts\Tangible.cs" />
     <Compile Include="Assets\Scripts\TangiblePattern.cs" />
     <Compile Include="Assets\Scripts\TouchMonitor.cs" />
     <Compile Include="Assets\Scripts\Utils\MathHelper.cs" />
+    <Compile Include="Assets\Scripts\Utils\SingletonBehaviour.cs" />
     <Compile Include="Assets\Scripts\Utils\TangiblesFileUtils.cs" />
+    <Compile Include="Assets\Scripts\Utils\Tuple.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="\Users\dmitryalexandrovsky\development\CapacitiveTangiblesRecognizer\Packages\com.unity.package-manager-ui\Editor\Resources\Styles\Main_Dark.uss" />

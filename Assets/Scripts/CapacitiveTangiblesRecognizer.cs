@@ -411,7 +411,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			//	}	
 			//}
 		}
-		minDistSum /= clusterRadius* GlobalSettings.Instance.clusterRadiusScaler;
+		//minDistSum /= clusterRadius* GlobalSettings.Instance.clusterRadiusScaler;
 
 
 		// translate tangible to cluster center:
