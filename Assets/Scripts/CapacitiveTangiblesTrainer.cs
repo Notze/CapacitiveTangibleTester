@@ -97,6 +97,7 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
         pattern.points = patternPoints;
         pattern.radius = radius;
 		pattern.meanDistance = meanDistance;
+		pattern.anchorDistance = minDist;
 		pattern.anchorPoint1 = minDistancePair.first;
 		pattern.anchorPoint2 = minDistancePair.second;
 

@@ -10,6 +10,7 @@ public struct TangiblePattern{
     public List<Vector2> points;
     public float radius;
 	public float meanDistance;
+	public float anchorDistance;
 	public int anchorPoint1;
 	public int anchorPoint2;
 }
