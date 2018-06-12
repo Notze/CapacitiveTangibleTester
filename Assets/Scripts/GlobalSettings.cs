@@ -12,6 +12,7 @@ public enum InputModality{
 public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
     public InputModality modality;
 	public float clusterRadiusScaler = 1.5f;
+	public float anchorTolerance = 0.1f;
 	public int numOfclusterPoints = 0;
 	public int rotationIdx;
 	public Text statusText;
@@ -33,11 +34,11 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
     }
 
     void SetStatusText(){
-		statusText.text = string.Format("modality: {0} cluster points: {1}; cluster radius scalar: {2}; rotation idx: {3}",
+		statusText.text = string.Format("modality: {0} cluster points: {1}; cluster radius scalar: {2}; tolerance: {3}",
 		                                modality, 
 		                                numOfclusterPoints, 
 		                                clusterRadiusScaler, 
-		                                rotationIdx);
+		                                anchorTolerance);
     }
 
 	public void SetModality(int m){
@@ -54,6 +55,13 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
 		clusterRadiusScaler = scaler;
 		SetStatusText ();
 	}
+
+	public void SetAnchorTolerance (float scaler)
+	{
+		anchorTolerance = scaler;
+		SetStatusText ();
+	}
+
 	public void SetRotationIndex (int idx) {
 		rotationIdx = idx;
 		SetStatusText ();

@@ -205,16 +205,16 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		print ("clusterRadius: " + clusterRadius);
     }
 
-    private void OnDrawGizmos() {
-        foreach (DbscanPoint point in dbscanPoints) {
-			if(!point.IsNoise && point.ClusterId != -1){
-                Gizmos.color = clusterColors[point.ClusterId-1];    
-            }else{
-                Gizmos.color = Color.black;
-            }
-            Gizmos.DrawSphere(point.point, 0.25f);
-        }
-    }
+   // private void OnDrawGizmos() {
+   //     foreach (DbscanPoint point in dbscanPoints) {
+			//if(!point.IsNoise && point.ClusterId != -1){
+    //            Gizmos.color = clusterColors[point.ClusterId-1];    
+    //        }else{
+    //            Gizmos.color = Color.black;
+    //        }
+    //        Gizmos.DrawSphere(point.point, 0.25f);
+    //    }
+    //}
 
 
 	private void OnGUI ()
@@ -331,11 +331,41 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 				scanPoint.clusterTouch.clusterCenter = clusterCenter;	
 			}
 		}
-		// translate tangible to cluster center:
-		tangible.transform.position = clusterCenter;
 
-		float minDistanceSum = RotateTangible360 (tangible.gameObject, clusterPoints);
-		return minDistanceSum;
+		// find anchor points:
+		for (int i = 0; i < clsPts.Count; i++){
+			for (int j = 0; j < clsPts.Count; j++){
+				if(i == j){
+					continue;
+				}
+				float distance = Vector2.Distance (clsPts [i].point, clsPts [j].point);
+				if(Mathf.Abs(distance - pattern.anchorDistance) < GlobalSettings.Instance.anchorTolerance){
+					clsPts [i].clusterTouch.GetComponent<SpriteRenderer> ().color = Color.white;
+					clsPts [j].clusterTouch.GetComponent<SpriteRenderer> ().color = Color.white;
+
+					float firstDistFromCenter = Vector2.Distance(clsPts [i].point, clusterCenter);
+					float secondDistFromCenter = Vector2.Distance(clsPts [j].point, clusterCenter);
+					int firstAnchor = i;
+					int secondAnchor = j;
+					if(secondDistFromCenter > firstDistFromCenter){
+						int tmp = firstAnchor;
+						firstAnchor = secondAnchor;
+						secondAnchor = tmp;
+					}
+					clsPts [firstAnchor].clusterTouch.GetComponent<SpriteRenderer> ().color = Color.green;
+					clsPts [secondAnchor].clusterTouch.GetComponent<SpriteRenderer> ().color = Color.yellow;
+
+				}
+			}
+		}
+
+		// translate tangible to cluster center:
+		//tangible.transform.position = clusterCenter;
+
+		//float minDistanceSum = RotateTangible360 (tangible.gameObject, clusterPoints);
+		//return minDistanceSum;
+
+		return float.MaxValue;
 	}
 
 

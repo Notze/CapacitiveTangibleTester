@@ -7,12 +7,13 @@ public class MainMenu : MonoBehaviour {
 
 	public Dropdown modalityDropdown;
 	public Slider clusterRadiusSlider;
-
+	public Slider anchorToleranceSlider;
 
 	bool isOpen;
 	public List<RectTransform> menuPanels;
 	void Start () {
 		clusterRadiusSlider.value = GlobalSettings.Instance.clusterRadiusScaler;
+		anchorToleranceSlider.value = GlobalSettings.Instance.anchorTolerance;
 	}
 	
 	// Update is called once per frame
@@ -47,5 +48,9 @@ public class MainMenu : MonoBehaviour {
 	}
 	public void SetClusterRadiusScalar(){
 		GlobalSettings.Instance.SetClusterRadiusScaler (clusterRadiusSlider.value);
+	}
+	public void SetAnchorTolerance ()
+	{
+		GlobalSettings.Instance.SetAnchorTolerance(anchorToleranceSlider.value);
 	}
 }
