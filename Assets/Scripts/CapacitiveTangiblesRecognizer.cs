@@ -372,7 +372,13 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
 		Vector2 a = clsPts [firstAnchor].point - clsPts[secondAnchor].point;
 		Vector2 b = tangible.anchor1.position - tangible.anchor2.position;
-		float angle = Vector2.SignedAngle(b, a);
+		float angle = 0;
+		if(GlobalSettings.Instance.flipRotation){
+			angle = Vector2.SignedAngle (a, b);
+		}else{
+			angle = Vector2.SignedAngle (b, a);
+		}
+
 		GlobalSettings.Instance.SetRotationAngle(angle);
 		Quaternion rot = Quaternion.Euler(0, 0, angle);
 

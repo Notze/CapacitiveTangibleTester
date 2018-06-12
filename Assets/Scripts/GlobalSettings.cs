@@ -16,6 +16,7 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
 	public int numOfclusterPoints = 0;
 	public float rotationAngle;
 	public Text statusText;
+	public bool flipRotation;
 
 	private void Start ()
 	{
@@ -34,12 +35,13 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
     }
 
     void SetStatusText(){
-		statusText.text = string.Format("modality: {0} cluster points: {1}; cluster radius scalar: {2}; tolerance: {3}; angle: {4}",
+		statusText.text = string.Format("modality: {0} cluster points: {1}; cluster radius scalar: {2}; tolerance: {3}; angle: {4}; flip: {5}",
 		                                modality, 
 		                                numOfclusterPoints, 
 		                                clusterRadiusScaler, 
 		                                anchorTolerance,
-		                                rotationAngle);
+		                                rotationAngle,
+		                               	flipRotation);
     }
 
 	public void SetModality(int m){
@@ -67,6 +69,10 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
 	public void SetRotationAngle (float angle)
 	{
 		rotationAngle = angle;
+		SetStatusText ();
+	}
+	public void FlipRotation(){
+		flipRotation = !flipRotation;
 		SetStatusText ();
 	}
 }
