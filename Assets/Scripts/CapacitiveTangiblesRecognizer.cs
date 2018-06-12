@@ -25,7 +25,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 	public List<ClusterTouch> touchObjects = new List<ClusterTouch>();
 
     public List<RectTransform> avoidRecognitionAreas;
-
+	public float castRadius;
 	//GameObject debugTangibleObj;
 	//List<Vector2> debugClusterPoints;
 	//List<Vector2> debugFeetPoints;
@@ -66,6 +66,9 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		foreach(GameObject avoidGO in avoidGOs){
 			avoidRecognitionAreas.Add (avoidGO.transform as RectTransform);
 		}
+
+		castRadius = touchPrefab.GetComponent<CircleCollider2D> ().radius;
+
         LoadTangiblesPatterns();
     }
     
@@ -114,7 +117,6 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 					inAvoidArea = true;
 				}	
 			}
-
         }
         if (!inAvoidArea) {
             touchPoints.Add(Camera.main.ScreenToWorldPoint(screenPoint));
@@ -159,8 +161,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		TangiblesFileUtils.DeleteTangibles();
 	}
 
-    public void LoadTangiblesPatterns()
-    {
+    public void LoadTangiblesPatterns() {
 		if(tangibles != null){
 			foreach(Tangible t in tangibles){
 				Destroy (t.gameObject);
@@ -322,7 +323,11 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 	{
 		
 		Tangible tangible = tangibles.Find (t => t.pattern.id == pattern.id);
-		//GameObject tangibleObj = tangible.gameObject;
+#warning reset position of tangible
+		tangible.transform.position = Vector3.zero;
+		tangible.transform.rotation = Quaternion.identity;
+
+
 		List<Vector2> clusterPoints = new List<Vector2> ();
 
 		List<DbscanPoint> clsPts = clusterPointsDict [clusterId];
@@ -372,13 +377,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		Quaternion rot = Quaternion.Euler(0, 0, angle);
 
 
-		Transform [] feet = tangible.GetComponentsInChildren<Transform> ();
-		List<Vector2> feetPoints = new List<Vector2> ();
-		foreach (Transform foot in feet) {
-			if (foot.CompareTag ("Foot")) {
-				feetPoints.Add (foot.position);
-			}
-		}
+
 		tangible.transform.rotation = rot;
 		Vector2 tangibleOffset = new Vector2 (tangible.transform.position.x - tangible.anchor1.position.x, 
 		                                      tangible.transform.position.y - tangible.anchor1.position.y);
@@ -386,14 +385,33 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		tangible.transform.position = pos;
 
 
+		Transform [] feet = tangible.GetComponentsInChildren<Transform> ();
+		List<Vector2> feetPoints = new List<Vector2> ();
+		foreach (Transform foot in feet) {
+			if (foot.CompareTag ("Foot")) {
+				feetPoints.Add (foot.position);
+			}
+		}
 
-
-		//for (int i = 0; i < feetPoints.Count; i++){
-		//	Vector2 foot = matrix.MultiplyPoint (feetPoints [i]);
-		//	for (int j = 0; j < clsPts.Capacity; j++) {
-		//	}
-		//}
-
+		float minDistSum = 0;
+		for (int i = 0; i < feetPoints.Count; i++){
+			float minDist = float.MaxValue;
+			for (int j = 0; j < clsPts.Count; j++){
+				float dist = (feetPoints [i] - clsPts [j].point).sqrMagnitude;
+				if(dist < minDist){
+					minDist = dist;
+				}
+			}
+			minDistSum += minDist;
+			//RaycastHit2D[] hits = Physics2D.CircleCastAll(feetPoints [i], castRadius, Vector2.zero);
+			//foreach(RaycastHit2D hit in hits){
+			//	if (hit.transform.CompareTag ("Touch")) {
+			//		hitCount++;
+			//		hit.transform.GetComponent<SpriteRenderer> ().color = Color.blue;
+			//	}	
+			//}
+		}
+		minDistSum /= clusterRadius* GlobalSettings.Instance.clusterRadiusScaler;
 
 
 		// translate tangible to cluster center:
@@ -402,7 +420,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		//float minDistanceSum = RotateTangible360 (tangible.gameObject, clusterPoints);
 		//return minDistanceSum;
 
-		return anchorDistance - pattern.anchorDistance;
+		return minDistSum;
 	}
 
 
