@@ -11,6 +11,7 @@ public struct TangiblePattern{
     public float radius;
 	public float meanDistance;
 	public float anchorDistance;
+	public float gridStep;
 	public int anchorPoint1;
 	public int anchorPoint2;
 }

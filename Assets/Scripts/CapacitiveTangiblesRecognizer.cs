@@ -192,9 +192,11 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
                 footObj.transform.SetParent(patternObj.transform);
 				if(i == pattern.anchorPoint1){
 					footObj.GetComponent<SpriteRenderer> ().color = Color.green;
+					tangible.anchor1 = footObj.transform;
 				}
 				if (i == pattern.anchorPoint2) {
 					footObj.GetComponent<SpriteRenderer> ().color = Color.yellow;
+					tangible.anchor2 = footObj.transform;
 				}
             }
             MathHelper.DrawCircle(center, pattern.radius, 50, Color.blue);
@@ -275,14 +277,14 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 					minClusterID = clusterId;
 				}
 			}
-			print (string.Format ("pattern: {0} cluster: {1} distance: {2}", i, minClusterID, minDist));
-			if (minDist < 2.5f){
-				if (clusterPointsDict.ContainsKey (minClusterID)) {
-					tangibles [i].UpdatePosition (clusterPointsDict [minClusterID] [0].clusterTouch.clusterCenter);
-				}	
-			}else{
-				tangibles[i].ResetPosition();
-			}
+			//print (string.Format ("pattern: {0} cluster: {1} distance: {2}", i, minClusterID, minDist));
+			//if (minDist < 2.5f){
+			//	if (clusterPointsDict.ContainsKey (minClusterID)) {
+			//		tangibles [i].UpdatePosition (clusterPointsDict [minClusterID] [0].clusterTouch.clusterCenter);
+			//	}	
+			//}else{
+			//	tangibles[i].ResetPosition();
+			//}
 
 
 
@@ -333,6 +335,9 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		}
 
 		// find anchor points:
+		float anchorDistance = float.MaxValue;
+		int firstAnchor = 0;
+		int secondAnchor = 0;
 		for (int i = 0; i < clsPts.Count; i++){
 			for (int j = 0; j < clsPts.Count; j++){
 				if(i == j){
@@ -342,11 +347,11 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 				if(Mathf.Abs(distance - pattern.anchorDistance) < GlobalSettings.Instance.anchorTolerance){
 					clsPts [i].clusterTouch.GetComponent<SpriteRenderer> ().color = Color.white;
 					clsPts [j].clusterTouch.GetComponent<SpriteRenderer> ().color = Color.white;
-
+					anchorDistance = distance;
 					float firstDistFromCenter = Vector2.Distance(clsPts [i].point, clusterCenter);
 					float secondDistFromCenter = Vector2.Distance(clsPts [j].point, clusterCenter);
-					int firstAnchor = i;
-					int secondAnchor = j;
+					firstAnchor = i;
+					secondAnchor = j;
 					if(secondDistFromCenter > firstDistFromCenter){
 						int tmp = firstAnchor;
 						firstAnchor = secondAnchor;
@@ -354,10 +359,39 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 					}
 					clsPts [firstAnchor].clusterTouch.GetComponent<SpriteRenderer> ().color = Color.green;
 					clsPts [secondAnchor].clusterTouch.GetComponent<SpriteRenderer> ().color = Color.yellow;
-
 				}
 			}
 		}
+		Vector2 a = clsPts [firstAnchor].point - clsPts[secondAnchor].point;
+		Vector2 b = tangible.anchor1.position - tangible.anchor2.position;
+		float angle = Vector2.SignedAngle(b, a);
+		GlobalSettings.Instance.SetRotationAngle(angle);
+		Quaternion rot = Quaternion.Euler(0, 0, angle);
+		//Matrix4x4 matrix = Matrix4x4.TRS (clsPts [secondAnchor].point, rot, Vector3.one);
+
+		Transform [] feet = tangible.GetComponentsInChildren<Transform> ();
+		List<Vector2> feetPoints = new List<Vector2> ();
+		foreach (Transform foot in feet) {
+			if (foot.CompareTag ("Foot")) {
+				feetPoints.Add (foot.position);
+			}
+		}
+		tangible.transform.rotation = rot; //matrix.rotation;
+		Vector2 tangibleOffset = new Vector2 (tangible.transform.position.x - tangible.anchor1.position.x, 
+		                                      tangible.transform.position.y - tangible.anchor1.position.y);
+		Vector2 pos = clsPts [firstAnchor].point + tangibleOffset;
+		tangible.transform.position = pos; //matrix.MultiplyPoint(tangible.transform.position);
+
+
+
+
+		//for (int i = 0; i < feetPoints.Count; i++){
+		//	Vector2 foot = matrix.MultiplyPoint (feetPoints [i]);
+		//	for (int j = 0; j < clsPts.Capacity; j++) {
+		//	}
+		//}
+
+
 
 		// translate tangible to cluster center:
 		//tangible.transform.position = clusterCenter;
@@ -365,7 +399,47 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		//float minDistanceSum = RotateTangible360 (tangible.gameObject, clusterPoints);
 		//return minDistanceSum;
 
-		return float.MaxValue;
+		return anchorDistance - pattern.anchorDistance;
+	}
+
+
+	float RotateTangible360 (GameObject tangibleObj, List<Vector2> clusterPoints)
+	{
+		int minAngle = 0;
+		float minDist = float.MaxValue;
+		List<Tuple<int, int>> closestPoints = null;
+		for (int i = 0; i < 360; i++) {
+			List<Tuple<int, int>> tmpClosestPoints;
+			tangibleObj.transform.rotation = Quaternion.identity;
+			tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, i);
+
+			Transform [] feet = tangibleObj.GetComponentsInChildren<Transform> ();
+			List<Vector2> feetPoints = new List<Vector2> ();
+			foreach (Transform foot in feet) {
+				if (foot.CompareTag ("Foot")) {
+					feetPoints.Add (foot.position);
+				}
+			}
+
+			float dist = EvaluateTangiblePose (feetPoints, clusterPoints, out tmpClosestPoints);
+			if (dist < minDist) {
+				minDist = dist;
+				minAngle = i;
+				closestPoints = tmpClosestPoints;
+			}
+		}
+		tangibleObj.transform.rotation = Quaternion.identity;
+		tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, minAngle);
+		Transform [] feet2 = tangibleObj.GetComponentsInChildren<Transform> ();
+		List<Vector2> feetPoints2 = new List<Vector2> ();
+		foreach (Transform foot in feet2) {
+			feetPoints2.Add (foot.position);
+		}
+
+		foreach (Tuple<int, int> pair in closestPoints) {
+			Debug.DrawLine (feetPoints2 [pair.first], clusterPoints [pair.second], Color.cyan, 30);
+		}
+		return minDist;
 	}
 
 
@@ -391,54 +465,19 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		return minDistanceSum;
 	}
 
-	void RotateTangible(GameObject tangibleObj, Vector2 rotateTo){
-		tangibleObj.transform.rotation = Quaternion.identity;
-		Vector2 pos = tangibleObj.transform.position;
-		Vector2 up = tangibleObj.transform.up;
-		Vector2 a = pos - up;
-		Vector2 b = pos - rotateTo;
-		float angle = Vector2.Angle (a, b);
-		//print ("angle: " + angle);
-		tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, angle);
-	}
+	//void RotateTangible(GameObject tangibleObj, Vector2 rotateTo){
+	//	tangibleObj.transform.rotation = Quaternion.identity;
+	//	Vector2 pos = tangibleObj.transform.position;
+	//	Vector2 up = tangibleObj.transform.up;
+	//	Vector2 a = pos - up;
+	//	Vector2 b = pos - rotateTo;
+	//	float angle = Vector2.Angle (a, b);
+	//	//print ("angle: " + angle);
+	//	tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, angle);
+	//}
 
 
-	float RotateTangible360(GameObject tangibleObj, List<Vector2> clusterPoints)
-	{
-		int minAngle = 0;
-		float minDist = float.MaxValue;
-		List<Tuple<int, int>> closestPoints = null;
-		for (int i = 0; i < 360; i++) {
-			List<Tuple<int, int>> tmpClosestPoints;
-			tangibleObj.transform.rotation = Quaternion.identity;
-			tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, i);
 
-			Transform [] feet = tangibleObj.GetComponentsInChildren<Transform> ();
-			List<Vector2> feetPoints = new List<Vector2> ();
-			foreach (Transform foot in feet) {
-				feetPoints.Add (foot.position);
-			}
-
-			float dist = EvaluateTangiblePose (feetPoints, clusterPoints, out tmpClosestPoints);
-			if (dist < minDist) {
-				minDist = dist;
-				minAngle = i;
-				closestPoints = tmpClosestPoints;
-			}
-		}
-		tangibleObj.transform.rotation = Quaternion.identity;
-		tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, minAngle);
-		Transform [] feet2 = tangibleObj.GetComponentsInChildren<Transform> ();
-		List<Vector2> feetPoints2 = new List<Vector2> ();
-		foreach (Transform foot in feet2) {
-			feetPoints2.Add (foot.position);
-		}
-
-		foreach(Tuple<int, int> pair in closestPoints){
-			Debug.DrawLine (feetPoints2[pair.first], clusterPoints [pair.second], Color.cyan, 30);
-		}
-		return minDist;
-	}
 
     public void DoClustering(float radius, int minNumOfPoints){
 		GlobalSettings.Instance.SetNumClusterPoints(dbscanPoints.Count);

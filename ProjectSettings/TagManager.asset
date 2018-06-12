@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Touch
   - Avoid
+  - Foot
   layers:
   - Default
   - TransparentFX

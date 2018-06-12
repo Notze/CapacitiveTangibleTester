@@ -9,7 +9,8 @@ public class Tangible : MonoBehaviour {
 	public Text idText;
 	public Vector3 lastKnownPosition;
 	public Quaternion lastKnownRotation;
-
+	public Transform anchor1;
+	public Transform anchor2;
 	public void SetIDText (string id){
 		idText.text = id;
 	}
