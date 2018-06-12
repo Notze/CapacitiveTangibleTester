@@ -9,4 +9,5 @@ public struct TangiblePattern{
     public string id;
     public List<Vector2> points;
     public float radius;
+	public float meanDistance;
 }

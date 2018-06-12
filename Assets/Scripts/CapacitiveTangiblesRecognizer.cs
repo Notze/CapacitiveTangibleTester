@@ -329,12 +329,12 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		// translate tangible to cluster center:
 		tangible.transform.position = clusterCenter;
 
-		float minDistanceSum = RotateTangible360 (tangible.gameObject, clusterPoints);
+		float minDistanceSum = RotateTangible360 (pattern, tangible.gameObject, clusterPoints);
 		return minDistanceSum;
 	}
 
 
-	float EvaluateTangiblePose(List<Vector2> feetPoints, List<Vector2> clusterPoints, out List<Tuple<int, int>> closestPoints){
+	float EvaluateTangiblePose(TangiblePattern pattern, List<Vector2> feetPoints, List<Vector2> clusterPoints, out List<Tuple<int, int>> closestPoints){
 		float minDistanceSum = 0;
 		closestPoints = new List<Tuple<int, int>> ();
 		for (int i = 0; i < feetPoints.Count; i++){
@@ -351,7 +351,8 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			closestPoints.Add (tuple);
 			minDistanceSum += minDist;
 		}
-		minDistanceSum /= feetPoints.Count;
+		//minDistanceSum /= feetPoints.Count;
+		minDistanceSum /= pattern.meanDistance;
 		return minDistanceSum;
 	}
 
@@ -367,7 +368,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 	}
 
 
-	float RotateTangible360(GameObject tangibleObj, List<Vector2> clusterPoints)
+	float RotateTangible360(TangiblePattern pattern, GameObject tangibleObj, List<Vector2> clusterPoints)
 	{
 		int minAngle = 0;
 		float minDist = float.MaxValue;
@@ -383,7 +384,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 				feetPoints.Add (foot.position);
 			}
 
-			float dist = EvaluateTangiblePose (feetPoints, clusterPoints, out tmpClosestPoints);
+			float dist = EvaluateTangiblePose (pattern, feetPoints, clusterPoints, out tmpClosestPoints);
 			if (dist < minDist) {
 				minDist = dist;
 				minAngle = i;
@@ -392,7 +393,6 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		}
 		tangibleObj.transform.rotation = Quaternion.identity;
 		tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, minAngle);
-		GlobalSettings.Instance.SetDistanceSum (minDist);
 		Transform [] feet2 = tangibleObj.GetComponentsInChildren<Transform> ();
 		List<Vector2> feetPoints2 = new List<Vector2> ();
 		foreach (Transform foot in feet2) {

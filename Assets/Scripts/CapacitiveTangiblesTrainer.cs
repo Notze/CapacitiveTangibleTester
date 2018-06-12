@@ -46,6 +46,7 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
 
         Vector2 center = MathHelper.ComputeCenter(patternPoints, Color.red);
         float radius = 0;
+		float meanDistance = 0;
         for (int i = 0; i < patternPoints.Count; i++){
             Debug.DrawLine(patternPoints[i],
                            patternPoints[i] - center, 
@@ -55,6 +56,7 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
             // compute radius
             float dist = Vector2.Distance(center, patternPoints[i]);
             MathHelper.DrawCircle (center, dist, 50, Color.red);
+			meanDistance += dist;
             if(dist > radius){
                 radius = dist;
             }
@@ -62,13 +64,16 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
             // move point relative to center
             patternPoints [i] = patternPoints [i] - center;
         }
+		meanDistance /= patternPoints.Count;
         MathHelper.DrawCircle (center, radius, 50, Color.blue);
 
 
         TangiblePattern pattern = new TangiblePattern();
-        pattern.id = patternID.text;
+        
+		pattern.id = patternID.text;
         pattern.points = patternPoints;
         pattern.radius = radius;
+		pattern.meanDistance = meanDistance;
 
         string json = JsonUtility.ToJson(pattern, true);
         string fullfilepath = TangiblesFileUtils.PatternFilename(patternID.text);
