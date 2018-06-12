@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using System.IO;
 
 
-public struct Tuple<T,K>{
-	public T first;
-	public K second;
-}
+
+
 
 public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 	
@@ -186,11 +183,19 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
             Vector2 center = MathHelper.ComputeCenter(pattern.points, Color.green);
             float xSize = patternObj.GetComponent<SpriteRenderer>().bounds.size.x/2;
             patternObj.transform.localScale = new Vector3(pattern.radius, pattern.radius, 1)/xSize;
-            foreach(Vector2 point in pattern.points){
+			for (int i = 0; i < pattern.points.Count; i++){
+				Vector2 point = pattern.points [i];
+			
                 GameObject footObj = Instantiate(patternFootPrefab);
                 Vector3 pos = patternObj.transform.position + new Vector3(point.x, point.y, 0);
                 footObj.transform.position = pos;
                 footObj.transform.SetParent(patternObj.transform);
+				if(i == pattern.anchorPoint1){
+					footObj.GetComponent<SpriteRenderer> ().color = Color.green;
+				}
+				if (i == pattern.anchorPoint2) {
+					footObj.GetComponent<SpriteRenderer> ().color = Color.yellow;
+				}
             }
             MathHelper.DrawCircle(center, pattern.radius, 50, Color.blue);
             patternObj.transform.position = Vector3.zero;
@@ -329,12 +334,12 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		// translate tangible to cluster center:
 		tangible.transform.position = clusterCenter;
 
-		float minDistanceSum = RotateTangible360 (pattern, tangible.gameObject, clusterPoints);
+		float minDistanceSum = RotateTangible360 (tangible.gameObject, clusterPoints);
 		return minDistanceSum;
 	}
 
 
-	float EvaluateTangiblePose(TangiblePattern pattern, List<Vector2> feetPoints, List<Vector2> clusterPoints, out List<Tuple<int, int>> closestPoints){
+	float EvaluateTangiblePose(List<Vector2> feetPoints, List<Vector2> clusterPoints, out List<Tuple<int, int>> closestPoints){
 		float minDistanceSum = 0;
 		closestPoints = new List<Tuple<int, int>> ();
 		for (int i = 0; i < feetPoints.Count; i++){
@@ -345,14 +350,14 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 				float dist = Vector2.Distance (feetPoints [i], clusterPoints [j]);
 				if(dist < minDist){
 					minDist = dist;
-					tuple.first = j;
+					tuple.second = j;
 				}
 			}
 			closestPoints.Add (tuple);
 			minDistanceSum += minDist;
 		}
 		//minDistanceSum /= feetPoints.Count;
-		minDistanceSum /= clusterRadius * GlobalSettings.Instance.clusterRadiusScaler; //pattern.meanDistance;
+		minDistanceSum /= clusterRadius * GlobalSettings.Instance.clusterRadiusScaler;
 		return minDistanceSum;
 	}
 
@@ -368,7 +373,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 	}
 
 
-	float RotateTangible360(TangiblePattern pattern, GameObject tangibleObj, List<Vector2> clusterPoints)
+	float RotateTangible360(GameObject tangibleObj, List<Vector2> clusterPoints)
 	{
 		int minAngle = 0;
 		float minDist = float.MaxValue;
@@ -384,7 +389,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 				feetPoints.Add (foot.position);
 			}
 
-			float dist = EvaluateTangiblePose (pattern, feetPoints, clusterPoints, out tmpClosestPoints);
+			float dist = EvaluateTangiblePose (feetPoints, clusterPoints, out tmpClosestPoints);
 			if (dist < minDist) {
 				minDist = dist;
 				minAngle = i;

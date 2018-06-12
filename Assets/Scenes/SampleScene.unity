@@ -322,7 +322,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Menu
+  m_Text: Main Menu
 --- !u!222 &282125984
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2334,7 +2334,6 @@ MonoBehaviour:
   clusterRadiusScaler: 1.5
   numOfclusterPoints: 0
   rotationIdx: 0
-  tangibleDistance: 3.4028235e+38
   statusText: {fileID: 92158284}
 --- !u!4 &1400903535
 Transform:

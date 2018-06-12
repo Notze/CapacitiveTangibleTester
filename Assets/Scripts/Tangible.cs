@@ -8,7 +8,7 @@ public class Tangible : MonoBehaviour {
 	public TangiblePattern pattern;
 	public Text idText;
 	public Vector3 lastKnownPosition;
-	//public Quaternion lastKnownRotation;
+	public Quaternion lastKnownRotation;
 
 	public void SetIDText (string id){
 		idText.text = id;
@@ -31,6 +31,7 @@ public class Tangible : MonoBehaviour {
 
 	public void ResetPosition(){
 		gameObject.transform.position = lastKnownPosition;
+		//gameObject.transform.rotation = lastKnownRotation;
 	}
 
 	//public void UpdateRotation(Quaternion rot){
