@@ -352,7 +352,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			minDistanceSum += minDist;
 		}
 		//minDistanceSum /= feetPoints.Count;
-		minDistanceSum /= pattern.meanDistance;
+		minDistanceSum /= clusterRadius * GlobalSettings.Instance.clusterRadiusScaler; //pattern.meanDistance;
 		return minDistanceSum;
 	}
 
