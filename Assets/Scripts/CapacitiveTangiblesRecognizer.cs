@@ -351,6 +351,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			closestPoints.Add (tuple);
 			minDistanceSum += minDist;
 		}
+		minDistanceSum /= feetPoints.Count;
 		return minDistanceSum;
 	}
 
