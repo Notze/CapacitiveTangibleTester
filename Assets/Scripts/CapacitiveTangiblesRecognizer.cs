@@ -25,7 +25,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 	public List<ClusterTouch> touchObjects = new List<ClusterTouch>();
 
     public List<RectTransform> avoidRecognitionAreas;
-	public float castRadius;
+
 
 
 
@@ -42,8 +42,6 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		foreach(GameObject avoidGO in avoidGOs){
 			avoidRecognitionAreas.Add (avoidGO.transform as RectTransform);
 		}
-
-		castRadius = touchPrefab.GetComponent<CircleCollider2D> ().radius;
 
         LoadTangiblesPatterns();
     }
@@ -380,102 +378,12 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 					minDist = dist;
 				}
 			}
-			minDistSum += minDist;
-			//RaycastHit2D[] hits = Physics2D.CircleCastAll(feetPoints [i], castRadius, Vector2.zero);
-			//foreach(RaycastHit2D hit in hits){
-			//	if (hit.transform.CompareTag ("Touch")) {
-			//		hitCount++;
-			//		hit.transform.GetComponent<SpriteRenderer> ().color = Color.blue;
-			//	}	
-			//}
+			minDistSum += minDist * minDist;
 		}
 		//minDistSum /= clusterRadius* GlobalSettings.Instance.clusterRadiusScaler;
 
-
-		// translate tangible to cluster center:
-		//tangible.transform.position = clusterCenter;
-
-		//float minDistanceSum = RotateTangible360 (tangible.gameObject, clusterPoints);
-		//return minDistanceSum;
-
 		return minDistSum;
 	}
-
-
-	float RotateTangible360 (GameObject tangibleObj, List<Vector2> clusterPoints)
-	{
-		int minAngle = 0;
-		float minDist = float.MaxValue;
-		List<Tuple<int, int>> closestPoints = null;
-		for (int i = 0; i < 360; i++) {
-			List<Tuple<int, int>> tmpClosestPoints;
-			tangibleObj.transform.rotation = Quaternion.identity;
-			tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, i);
-
-			Transform [] feet = tangibleObj.GetComponentsInChildren<Transform> ();
-			List<Vector2> feetPoints = new List<Vector2> ();
-			foreach (Transform foot in feet) {
-				if (foot.CompareTag ("Foot")) {
-					feetPoints.Add (foot.position);
-				}
-			}
-
-			float dist = EvaluateTangiblePose (feetPoints, clusterPoints, out tmpClosestPoints);
-			if (dist < minDist) {
-				minDist = dist;
-				minAngle = i;
-				closestPoints = tmpClosestPoints;
-			}
-		}
-		tangibleObj.transform.rotation = Quaternion.identity;
-		tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, minAngle);
-		Transform [] feet2 = tangibleObj.GetComponentsInChildren<Transform> ();
-		List<Vector2> feetPoints2 = new List<Vector2> ();
-		foreach (Transform foot in feet2) {
-			feetPoints2.Add (foot.position);
-		}
-
-		foreach (Tuple<int, int> pair in closestPoints) {
-			Debug.DrawLine (feetPoints2 [pair.first], clusterPoints [pair.second], Color.cyan, 30);
-		}
-		return minDist;
-	}
-
-
-	float EvaluateTangiblePose(List<Vector2> feetPoints, List<Vector2> clusterPoints, out List<Tuple<int, int>> closestPoints){
-		float minDistanceSum = 0;
-		closestPoints = new List<Tuple<int, int>> ();
-		for (int i = 0; i < feetPoints.Count; i++){
-			Tuple<int, int> tuple = new Tuple<int, int> ();
-			tuple.first = i;
-			float minDist = float.MaxValue;
-			for (int j = 0; j < clusterPoints.Count; j++){
-				float dist = Vector2.Distance (feetPoints [i], clusterPoints [j]);
-				if(dist < minDist){
-					minDist = dist;
-					tuple.second = j;
-				}
-			}
-			closestPoints.Add (tuple);
-			minDistanceSum += minDist;
-		}
-		//minDistanceSum /= feetPoints.Count;
-		minDistanceSum /= clusterRadius * GlobalSettings.Instance.clusterRadiusScaler;
-		return minDistanceSum;
-	}
-
-	//void RotateTangible(GameObject tangibleObj, Vector2 rotateTo){
-	//	tangibleObj.transform.rotation = Quaternion.identity;
-	//	Vector2 pos = tangibleObj.transform.position;
-	//	Vector2 up = tangibleObj.transform.up;
-	//	Vector2 a = pos - up;
-	//	Vector2 b = pos - rotateTo;
-	//	float angle = Vector2.Angle (a, b);
-	//	//print ("angle: " + angle);
-	//	tangibleObj.transform.RotateAround (tangibleObj.transform.position, Vector3.forward, angle);
-	//}
-
-
 
 
     public void DoClustering(float radius, int minNumOfPoints){
