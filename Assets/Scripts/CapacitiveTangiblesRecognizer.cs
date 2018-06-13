@@ -9,6 +9,7 @@ public struct ClusterAssociation{
 	public Quaternion rotation;
 	public float distance;
 	public int clusterId;
+	public TangiblePattern pattern;
 }
 
 
@@ -138,7 +139,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		}
 
 		// move tangibles to the new position
-
+		AssignTangiblesPositions();
 
 
 		if (Input.GetKeyDown(KeyCode.C))
@@ -296,6 +297,8 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 	ClusterAssociation RecognizeClusterPattern (TangiblePattern pattern, int clusterId)
 	{
 		ClusterAssociation association = new ClusterAssociation();
+
+
 		Tangible tangible = tangibles.Find (t => t.pattern.id == pattern.id);
 #warning reset position of tangible
 		tangible.transform.position = Vector3.zero;
@@ -381,13 +384,25 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			minDistSum += minDist * minDist;
 		}
 		//minDistSum /= clusterRadius* GlobalSettings.Instance.clusterRadiusScaler;
+
+		association.pattern = pattern;
 		association.position = pos;
 		association.rotation = rot;
 		association.distance = minDistSum;
 		association.clusterId = clusterId;
+
 		return association;
 	}
 
+
+	public void AssignTangiblesPositions(){
+		foreach(TangiblePattern pattern in patternFitnessDict.Keys){
+			List<ClusterAssociation> associations = patternFitnessDict[pattern];
+			foreach(ClusterAssociation association in associations){
+				
+			}
+		}
+	}
 
     public void DoClustering(float radius, int minNumOfPoints){
 		GlobalSettings.Instance.SetNumClusterPoints(dbscanPoints.Count);
