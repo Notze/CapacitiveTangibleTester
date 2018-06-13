@@ -18,7 +18,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
     public int clusterCount = 0;
     public List<Color> clusterColors = new List<Color>();
 	public float clusterRadius;
-	public int minNumOfPointsInCluster = 4;
+
 
     Dictionary<int, List<DbscanPoint>> clusterPointsDict = new Dictionary<int, List<DbscanPoint>>();
     public List<Tangible> tangibles;
@@ -50,10 +50,11 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
         if (Input.GetMouseButtonDown(0)) {
             Vector2 pos = Input.mousePosition;
             bool registered = RegisterInputPoint(ref touchPoints, pos);
-			if (registered) {
-				RecognizeTangibles(patterns, touchPoints);
-			}
+			//if (registered) {
+			//	RecognizeTangibles(patterns, touchPoints);
+			//}
         }
+
     }
 
     void HandleTouchInput(ref List<Vector2> touchPoints){
@@ -68,10 +69,10 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 					}
 				}
 			}
-			if(registered){
-				//print ("rotationPoint:" + rotationPoint);
-				RecognizeTangibles(patterns, touchPoints);
-			}
+			//if(registered){
+			//	//print ("rotationPoint:" + rotationPoint);
+			//	RecognizeTangibles(patterns, touchPoints);
+			//}
 		}
         
     }
@@ -125,9 +126,15 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		}
 
 
+		if (touchPoints.Count >= GlobalSettings.Instance.minNumOfPointsInCluster) {
+			//print ("rotationPoint:" + rotationPoint);
+			RecognizeTangibles (patterns, touchPoints);
+		}
+
+
 		if (Input.GetKeyDown(KeyCode.C))
         {
-			DoClustering(clusterRadius * GlobalSettings.Instance.clusterRadiusScaler, minNumOfPointsInCluster);
+			DoClustering(clusterRadius * GlobalSettings.Instance.clusterRadiusScaler, GlobalSettings.Instance.minNumOfPointsInCluster);
             //print(clusterPointsDict);
         }
 
@@ -248,7 +255,8 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			dbscanPoint.clusterTouch = clusterTouch;
 			touchObjects.Add (clusterTouch);
 		}
-		DoClustering (clusterRadius * GlobalSettings.Instance.clusterRadiusScaler, minNumOfPointsInCluster);
+		DoClustering (clusterRadius * GlobalSettings.Instance.clusterRadiusScaler, 
+		              GlobalSettings.Instance.minNumOfPointsInCluster);
 
 		foreach(TangiblePattern pattern in patterns){
 			Dictionary<int, float> fitnessDict = RecognizeTangiblesPattern (pattern, touchPoints);

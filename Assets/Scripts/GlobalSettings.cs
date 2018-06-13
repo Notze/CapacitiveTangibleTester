@@ -14,6 +14,7 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
 	public float clusterRadiusScaler = 1.5f;
 	public float anchorTolerance = 0.1f;
 	public int numOfclusterPoints = 0;
+	public int minNumOfPointsInCluster = 4;
 	public float rotationAngle;
 	public Text statusText;
 	public bool flipRotation;
