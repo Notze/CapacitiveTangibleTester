@@ -26,31 +26,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
     public List<RectTransform> avoidRecognitionAreas;
 	public float castRadius;
-	//GameObject debugTangibleObj;
-	//List<Vector2> debugClusterPoints;
-	//List<Vector2> debugFeetPoints;
-	//int debugCurrentRotationIdx = 0;
 
-	//public void DebugRotateTangible(){
-	//	RotateTangible (debugTangibleObj, debugClusterPoints [debugCurrentRotationIdx]);
-	//	debugCurrentRotationIdx++;
-	//	debugCurrentRotationIdx %= debugClusterPoints.Count;
-
-
-	//	Transform [] feet = debugTangibleObj.GetComponentsInChildren<Transform> ();
-	//	debugFeetPoints = new List<Vector2> ();
-	//	foreach (Transform foot in feet) {
-	//		debugFeetPoints.Add (foot.position);
-	//	}
-
-
-	//	GlobalSettings.Instance.SetRotationIndex (debugCurrentRotationIdx);
-	//	float dist = EvaluateTangiblePose (debugFeetPoints, debugClusterPoints);
-	//	GlobalSettings.Instance.SetDistanceSum (dist);
-
-	//	//StartCoroutine (DebugRotateAnim ());
-
-	//}
 
 
 
@@ -373,11 +349,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		Vector2 a = clsPts [firstAnchor].point - clsPts[secondAnchor].point;
 		Vector2 b = tangible.anchor1.position - tangible.anchor2.position;
 		float angle = 0;
-		if(GlobalSettings.Instance.flipRotation){
-			angle = Vector2.SignedAngle (a, b);
-		}else{
-			angle = Vector2.SignedAngle (b, a);
-		}
+		angle = Vector2.SignedAngle (b, a);
 
 		GlobalSettings.Instance.SetRotationAngle(angle);
 		Quaternion rot = Quaternion.Euler(0, 0, angle);

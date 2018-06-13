@@ -84,7 +84,9 @@ public class CapacitiveTangiblesTrainer : MonoBehaviour {
 		float firstDistFromCenter = Vector2.Distance (patternPoints [minDistancePair.first], center);
 		float secondDistFromCenter = Vector2.Distance (patternPoints [minDistancePair.second], center);
 
-		if(secondDistFromCenter > firstDistFromCenter){
+
+
+		if(secondDistFromCenter > firstDistFromCenter && GlobalSettings.Instance.flipRotation){
 			int tmp = minDistancePair.first;
 			minDistancePair.first = minDistancePair.second;
 			minDistancePair.second = tmp;
