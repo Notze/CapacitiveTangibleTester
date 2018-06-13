@@ -17,7 +17,7 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
 	public float rotationAngle;
 	public Text statusText;
 	public bool flipRotation;
-
+	public float minDistanceBetweenTouchPoints = 0.1f;
 	private void Start ()
 	{
 		SetStatusText ();
@@ -35,13 +35,14 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
     }
 
     void SetStatusText(){
-		statusText.text = string.Format("modality: {0} cluster points: {1}; cluster radius scalar: {2}; tolerance: {3}; angle: {4}; flip: {5}",
+		statusText.text = string.Format("modality: {0} cluster points: {1}; cluster radius scalar: {2}; tolerance: {3}; angle: {4}; flip: {5}; min dist: {6}",
 		                                modality, 
 		                                numOfclusterPoints, 
 		                                clusterRadiusScaler, 
 		                                anchorTolerance,
 		                                rotationAngle,
-		                               	flipRotation);
+		                               	flipRotation,
+		                                minDistanceBetweenTouchPoints);
     }
 
 	public void SetModality(int m){
@@ -73,6 +74,10 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
 	}
 	public void FlipRotation(){
 		flipRotation = !flipRotation;
+		SetStatusText ();
+	}
+	public void SetMinDistanceBetweenTouchPoints(float dist){
+		minDistanceBetweenTouchPoints = dist;
 		SetStatusText ();
 	}
 }

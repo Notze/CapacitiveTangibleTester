@@ -29,10 +29,14 @@ public class Tangible : MonoBehaviour {
 		gameObject.transform.position = pos;
 	}
 
+	public void SavePosition(){
+		lastKnownPosition = gameObject.transform.position;
+		lastKnownRotation = gameObject.transform.rotation;
+	}
 
 	public void ResetPosition(){
 		gameObject.transform.position = lastKnownPosition;
-		//gameObject.transform.rotation = lastKnownRotation;
+		gameObject.transform.rotation = lastKnownRotation;
 	}
 
 	//public void UpdateRotation(Quaternion rot){

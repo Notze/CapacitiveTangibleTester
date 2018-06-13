@@ -61,7 +61,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			bool registered = false;
 			foreach (Touch touch in Input.touches) {
 				bool r = false;
-				if (touch.phase == TouchPhase.Began) {
+				if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved) {
 					r = RegisterInputPoint (ref touchPoints, touch.position);
 					if(r){
 						registered = true;
@@ -72,19 +72,13 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 				//print ("rotationPoint:" + rotationPoint);
 				RecognizeTangibles(patterns, touchPoints);
 			}
-			if (Input.touches [0].phase == TouchPhase.Ended) {
-				//rotationPoint++;
-				//rotationPoint %= clusterPointsDict[1].Count;
-				//GlobalSettings.Instance.SetRotationIndex (rotationPoint);
-			}
-
-
 		}
         
     }
 
     bool RegisterInputPoint(ref List<Vector2> touchPoints, Vector2 screenPoint){
         bool inAvoidArea = false;
+		bool inAcceptableDistance = true;
         foreach (RectTransform avoidArea in avoidRecognitionAreas) {
 			if(avoidArea.gameObject.activeSelf){
 				if (RectTransformUtility.RectangleContainsScreenPoint (avoidArea, screenPoint)) {
@@ -93,15 +87,32 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			}
         }
         if (!inAvoidArea) {
-            touchPoints.Add(Camera.main.ScreenToWorldPoint(screenPoint));
+			
+			Vector2 wPoint = Camera.main.ScreenToWorldPoint (screenPoint);
+			for (int i = 0; i < touchObjects.Count; i++){
+				if(Vector2.Distance(touchObjects[i].transform.position, wPoint) < GlobalSettings.Instance.minDistanceBetweenTouchPoints){
+					inAcceptableDistance = false;
+					break;
+				}
+			}
+			touchPoints.Add(wPoint);
         }
-		return !inAvoidArea;
-
+		return !inAvoidArea && inAcceptableDistance;
     }
 
 	//int rotationPoint = 0;
 
     void Update() {
+
+		// validate old tangible position
+		foreach(Tangible tangible in tangibles){
+			tangible.SavePosition();
+		}
+		// handle input. prefilter it
+
+		// do the recognition
+
+		// move tangibles to the new position
 
 		List<Vector2> touchPoints = new List<Vector2> ();
 		switch (GlobalSettings.Instance.modality) {
@@ -109,7 +120,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			HandleMouseInput (ref touchPoints);
 			break;
 		case InputModality.Touch:
-			HandleTouchInput (ref touchPoints);
+			HandleTouchInput(ref touchPoints);
 			break;
 		}
 
@@ -223,7 +234,8 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 	public void RecognizeTangibles(List<TangiblePattern> patterns, List<Vector2> touchPoints){
 		patternFitnessList = new List<Dictionary<int, float>> ();
 
-		ResetClusters();
+		//ResetClusters();
+		ClearClusters ();
 		foreach (Vector2 tp in touchPoints) {
 			DbscanPoint dbscanPoint = new DbscanPoint (tp, pointID++);
 			dbscanPoints.Add (dbscanPoint);

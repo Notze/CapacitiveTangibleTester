@@ -8,12 +8,13 @@ public class MainMenu : MonoBehaviour {
 	public Dropdown modalityDropdown;
 	public Slider clusterRadiusSlider;
 	public Slider anchorToleranceSlider;
-
+	public Slider minDistanceSlider;
 	bool isOpen;
 	public List<RectTransform> menuPanels;
 	void Start () {
 		clusterRadiusSlider.value = GlobalSettings.Instance.clusterRadiusScaler;
 		anchorToleranceSlider.value = GlobalSettings.Instance.anchorTolerance;
+		minDistanceSlider.value = GlobalSettings.Instance.minDistanceBetweenTouchPoints;
 	}
 	
 	// Update is called once per frame
@@ -52,5 +53,10 @@ public class MainMenu : MonoBehaviour {
 	public void SetAnchorTolerance ()
 	{
 		GlobalSettings.Instance.SetAnchorTolerance(anchorToleranceSlider.value);
+	}
+
+	public void SetMinDistanceTolerance ()
+	{
+		GlobalSettings.Instance.SetMinDistanceBetweenTouchPoints (minDistanceSlider.value);
 	}
 }
