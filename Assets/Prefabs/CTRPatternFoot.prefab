@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4946870266811120}
   - component: {fileID: 212474813973033658}
   m_Layer: 0
-  m_Name: PatternFoot
+  m_Name: CTRPatternFoot
   m_TagString: Foot
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

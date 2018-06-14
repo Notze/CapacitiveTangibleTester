@@ -40,7 +40,7 @@ GameObject:
   - component: {fileID: 212007270954219314}
   - component: {fileID: 114886004827084990}
   m_Layer: 0
-  m_Name: Pattern
+  m_Name: CTRPattern
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -162,7 +162,16 @@ MonoBehaviour:
     id: 
     points: []
     radius: 0
+    meanDistance: 0
+    anchorDistance: 0
+    gridStep: 0
+    anchorPoint1: 0
+    anchorPoint2: 0
   idText: {fileID: 114355877943662200}
+  lastKnownPosition: {x: 0, y: 0, z: 0}
+  lastKnownRotation: {x: 0, y: 0, z: 0, w: 0}
+  anchor1: {fileID: 0}
+  anchor2: {fileID: 0}
 --- !u!212 &212007270954219314
 SpriteRenderer:
   m_ObjectHideFlags: 1

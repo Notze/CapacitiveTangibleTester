@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 114825397238332564}
   - component: {fileID: 58220816890635720}
   m_Layer: 0
-  m_Name: ClusterTouchSprite
+  m_Name: CTRClusterTouchSprite
   m_TagString: Touch
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36,7 +36,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1644437243994196}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.666522, y: -4.987741, z: -20}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
