@@ -2987,7 +2987,7 @@ MonoBehaviour:
   modality: 1
   clusterRadiusScaler: 2
   anchorTolerance: 0.1
-  patternFitThreshold: 0.05
+  patternFitThreshold: 0.001
   numOfclusterPoints: 0
   minNumOfPointsInCluster: 4
   rotationAngle: 0
