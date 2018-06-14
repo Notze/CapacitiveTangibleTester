@@ -238,7 +238,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 					string fitnessString = pattern.id + "\t";
 					List<ClusterAssociation> associations = patternFitnessDict [pattern];
 					foreach (ClusterAssociation association in associations) {
-						fitnessString += association.distance.ToString ("0.00") + "\t";
+						fitnessString += association.distance.ToString ("0.0000") + "\t";
 					}
 					GUILayout.Label (fitnessString, style);
 				}
@@ -380,7 +380,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 					minDist = dist;
 				}
 			}
-			minDistSum += minDist * minDist;
+			minDistSum += minDist; // * minDist;
 		}
 		//minDistSum /= clusterRadius* GlobalSettings.Instance.clusterRadiusScaler;
 
