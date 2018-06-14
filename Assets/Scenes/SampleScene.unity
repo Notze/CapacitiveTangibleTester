@@ -4170,7 +4170,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: fitenss threshold
+  m_Text: fitness threshold
 --- !u!222 &1767203494
 CanvasRenderer:
   m_ObjectHideFlags: 0

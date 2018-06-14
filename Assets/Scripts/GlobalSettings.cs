@@ -11,7 +11,7 @@ public enum InputModality{
 
 public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
 	public InputModality modality = InputModality.Touch;
-	public float clusterRadiusScaler = 1.5f;
+	public float clusterRadiusScaler = 2.0f;
 	public float anchorTolerance = 0.1f;
 	public float patternFitThreshold = 0.05f;
 	public int numOfclusterPoints = 0;
