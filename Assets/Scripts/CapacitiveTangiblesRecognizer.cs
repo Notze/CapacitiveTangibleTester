@@ -380,7 +380,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 					minDist = dist;
 				}
 			}
-			minDistSum += minDist * minDist * Screen.dpi/Screen.width; // * minDist;
+			minDistSum += 100*minDist * minDist; // * Screen.dpi/Screen.width; // * minDist;
 		}
 
 
