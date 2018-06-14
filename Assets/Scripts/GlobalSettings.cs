@@ -13,7 +13,7 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
 	public InputModality modality = InputModality.Touch;
 	public float clusterRadiusScaler = 2.0f;
 	public float anchorTolerance = 0.1f;
-	public float patternFitThreshold = 0.05f;
+	public float patternFitThreshold = 0.001f;
 	public int numOfclusterPoints = 0;
 	public int minNumOfPointsInCluster = 4;
 	public float rotationAngle;
