@@ -37,7 +37,7 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
     }
 
     void SetStatusText(){
-		statusText.text = string.Format("modality: {0} cluster points: {1}; cluster radius scalar: {2}; tolerance: {3}; angle: {4}; flip: {5}; min dist: {6}; fitness threshold: {7}",
+		statusText.text = string.Format("modality: {0} cluster points: {1}; cluster radius scalar: {2}; tolerance: {3}; angle: {4}; flip: {5}; min dist: {6}; fitness threshold: {7}; screen DPI {8}",
 		                                modality, 
 		                                numOfclusterPoints, 
 		                                clusterRadiusScaler, 
@@ -45,7 +45,8 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
 		                                rotationAngle,
 		                               	flipRotation,
 		                                minDistanceBetweenTouchPoints,
-		                                patternFitThreshold);
+		                                patternFitThreshold,
+		                                Screen.dpi);
     }
 
 	public void SetModality(int m){
