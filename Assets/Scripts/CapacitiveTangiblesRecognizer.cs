@@ -252,8 +252,8 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 	public void RecognizeTangibles(List<TangiblePattern> patterns, List<Vector2> touchPoints){
 		patternFitnessDict = new Dictionary<TangiblePattern, List<ClusterAssociation>> ();
 
-		ResetClusters();
-		//ClearClusters ();
+		//ResetClusters();
+		ClearClusters ();
 		foreach (Vector2 tp in touchPoints) {
 			DbscanPoint dbscanPoint = new DbscanPoint (tp, pointID++);
 			dbscanPoints.Add (dbscanPoint);
