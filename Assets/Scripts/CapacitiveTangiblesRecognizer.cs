@@ -32,7 +32,7 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
     public List<RectTransform> avoidRecognitionAreas;
 
-	Dictionary<TangiblePattern, List<ClusterAssociation>> patternFitnessDict;
+	Dictionary<TangiblePattern, List<ClusterAssociation>> patternFitnessDict = new Dictionary<TangiblePattern, List<ClusterAssociation>>();
 
 
 
@@ -116,11 +116,6 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 			tangible.SavePosition();
 		}
 
-
-
-
-
-
 		// handle input. prefilter it
 		List<Vector2> touchPoints = new List<Vector2> ();
 		switch (GlobalSettings.Instance.modality) {
@@ -136,10 +131,12 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 		if (touchPoints.Count >= GlobalSettings.Instance.minNumOfPointsInCluster) {
 			//print ("rotationPoint:" + rotationPoint);
 			RecognizeTangibles (patterns, touchPoints);
+
+			// move tangibles to the new position
+			AssignTangiblesPositions ();
 		}
 
-		// move tangibles to the new position
-		AssignTangiblesPositions();
+
 
 
 		if (Input.GetKeyDown(KeyCode.C))
@@ -236,13 +233,15 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
 		if(patternFitnessDict != null){
 			for (int i = 0; i < patterns.Count; i++) {
-				TangiblePattern pattern = patterns[i];
-				string fitnessString = pattern.id + "\t";
-				List<ClusterAssociation> associations = patternFitnessDict[pattern];
-				foreach(ClusterAssociation association in associations){
-					fitnessString += association.distance.ToString ("0.00") + "\t";
+				TangiblePattern pattern = patterns [i];
+				if(patternFitnessDict.ContainsKey(pattern)){
+					string fitnessString = pattern.id + "\t";
+					List<ClusterAssociation> associations = patternFitnessDict [pattern];
+					foreach (ClusterAssociation association in associations) {
+						fitnessString += association.distance.ToString ("0.00") + "\t";
+					}
+					GUILayout.Label (fitnessString, style);
 				}
-				GUILayout.Label (fitnessString, style);
 			}
 		}
 
@@ -396,11 +395,25 @@ public class CapacitiveTangiblesRecognizer : MonoBehaviour{
 
 
 	public void AssignTangiblesPositions(){
+
+		List<ClusterAssociation> bestFits = new List<ClusterAssociation>();
 		foreach(TangiblePattern pattern in patternFitnessDict.Keys){
 			List<ClusterAssociation> associations = patternFitnessDict[pattern];
-			foreach(ClusterAssociation association in associations){
-				
+			float minDist = float.MaxValue;
+			int minDistI = 0;
+			for (int i = 0; i < associations.Count; i++){
+				if(associations[i].distance < minDist){
+					minDistI = i;
+					minDist = associations [i].distance;
+				}
 			}
+			Tangible tangible = tangibles.Find (t => t.pattern.id == pattern.id);
+			if(minDist < GlobalSettings.Instance.patternFitThreshold){
+				tangible.UpdatePosition (associations [minDistI].position, associations [minDistI].rotation);
+			}else{
+				tangible.ResetPosition();
+			}
+
 		}
 	}
 

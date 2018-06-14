@@ -24,9 +24,9 @@ public class Tangible : MonoBehaviour {
 		
 	}
 
-	public void UpdatePosition(Vector3 pos){
-		lastKnownPosition = gameObject.transform.position;
+	public void UpdatePosition(Vector3 pos, Quaternion rot){
 		gameObject.transform.position = pos;
+		gameObject.transform.rotation = rot;
 	}
 
 	public void SavePosition(){
@@ -38,10 +38,4 @@ public class Tangible : MonoBehaviour {
 		gameObject.transform.position = lastKnownPosition;
 		gameObject.transform.rotation = lastKnownRotation;
 	}
-
-	//public void UpdateRotation(Quaternion rot){
-	//	lastKnownRotation = gameObject.transform.rotation;
-	//	gameObject.transform.rotation = rot;
-	//}
-
 }

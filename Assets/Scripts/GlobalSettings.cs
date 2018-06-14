@@ -13,6 +13,7 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
 	public InputModality modality = InputModality.Touch;
 	public float clusterRadiusScaler = 1.5f;
 	public float anchorTolerance = 0.1f;
+	public float patternFitThreshold = 0.05f;
 	public int numOfclusterPoints = 0;
 	public int minNumOfPointsInCluster = 4;
 	public float rotationAngle;
@@ -36,14 +37,15 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
     }
 
     void SetStatusText(){
-		statusText.text = string.Format("modality: {0} cluster points: {1}; cluster radius scalar: {2}; tolerance: {3}; angle: {4}; flip: {5}; min dist: {6}",
+		statusText.text = string.Format("modality: {0} cluster points: {1}; cluster radius scalar: {2}; tolerance: {3}; angle: {4}; flip: {5}; min dist: {6}; fitness threshold: {7}",
 		                                modality, 
 		                                numOfclusterPoints, 
 		                                clusterRadiusScaler, 
 		                                anchorTolerance,
 		                                rotationAngle,
 		                               	flipRotation,
-		                                minDistanceBetweenTouchPoints);
+		                                minDistanceBetweenTouchPoints,
+		                                patternFitThreshold);
     }
 
 	public void SetModality(int m){
@@ -80,5 +82,10 @@ public class GlobalSettings : SingletonBehaviour<GlobalSettings> {
 	public void SetMinDistanceBetweenTouchPoints(float dist){
 		minDistanceBetweenTouchPoints = dist;
 		SetStatusText ();
+	}
+
+	public void SetPatternFitThreshold(float threshold){
+		patternFitThreshold = threshold;
+		SetStatusText();
 	}
 }
