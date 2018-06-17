@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 
-namespace CTR{
+namespace CTR {
 	public class CapacitiveTangiblesTrainer : MonoBehaviour {
 		
 		public Text patternID;
