@@ -24,7 +24,7 @@ namespace CTR {
 
 		public List<Color> clusterColors = new List<Color> ();
 		public float clusterRadius;
-
+		public bool debugOutput;
 
 		Dictionary<int, List<DbscanPoint>> clusterPointsDict = new Dictionary<int, List<DbscanPoint>> ();
 		public List<Tangible> tangibles;
@@ -226,6 +226,10 @@ namespace CTR {
 
 		private void OnGUI ()
 		{
+			if(!debugOutput){
+				return;
+			}
+
 			GUIStyle style = new GUIStyle ();
 			style.fontSize = 32;
 			GUILayout.BeginVertical (style);
