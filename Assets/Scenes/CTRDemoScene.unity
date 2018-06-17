@@ -1994,7 +1994,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1400903536}
         m_MethodName: LoadTangiblesPatterns
         m_Mode: 1
         m_Arguments:
@@ -2956,14 +2956,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3530c276799c84d7e84a4b122662f8a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  numOfClusterPoints: 0
+  rotationAngle: 0
+  statusText: {fileID: 92158284}
   modality: 1
   clusterRadiusScaler: 2
   anchorTolerance: 0.1
   patternFitThreshold: 0.001
-  numOfclusterPoints: 0
   minNumOfPointsInCluster: 4
-  rotationAngle: 0
-  statusText: {fileID: 92158284}
   flipRotation: 0
   minDistanceBetweenTouchPoints: 0.1
 --- !u!4 &1400903535
@@ -3000,7 +3000,7 @@ MonoBehaviour:
   dbscanPoints: []
   clusterColors: []
   clusterRadius: 0
-  debugOutput: 1
+  debugOutput: 0
   tangibles: []
   touchObjects: []
   avoidRecognitionAreas:
@@ -4526,7 +4526,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1400903536}
         m_MethodName: DeleteTangiblesPatterns
         m_Mode: 1
         m_Arguments:
