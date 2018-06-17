@@ -1,10 +1,10 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-namespace CTR{
-	public struct ClusterAssociation {
+namespace CTR {
+	public struct ClusterAssociation{
 		public Vector3 position;
 		public Quaternion rotation;
 		public float distance;
@@ -13,15 +13,15 @@ namespace CTR{
 	}
 
 
-	public class CapacitiveTangiblesRecognizer : MonoBehaviour {
-
+	public class CapacitiveTangiblesRecognizer : SingletonBehaviour<CapacitiveTangiblesRecognizer> {
+		
 		public static long pointID;
 		public GameObject patternPrefab;
 		public GameObject patternFootPrefab;
 		public GameObject touchPrefab;
 		public List<TangiblePattern> patterns;
 		public List<DbscanPoint> dbscanPoints = new List<DbscanPoint> ();
-		public int clusterCount = 0;
+
 		public List<Color> clusterColors = new List<Color> ();
 		public float clusterRadius;
 
@@ -35,6 +35,19 @@ namespace CTR{
 		Dictionary<TangiblePattern, List<ClusterAssociation>> patternFitnessDict = new Dictionary<TangiblePattern, List<ClusterAssociation>> ();
 
 
+		public event Action<int, Vector3, Quaternion> OnTangibleUpdated;
+
+
+		int clusterCount;
+		public int ClusterCount {
+			get {
+				return clusterCount;
+			}
+
+			set {
+				clusterCount = value;
+			}
+		}
 
 		void OnEnable ()
 		{
@@ -414,10 +427,10 @@ namespace CTR{
 		public void DoClustering (float radius, int minNumOfPoints)
 		{
 			GlobalSettings.Instance.SetNumClusterPoints (dbscanPoints.Count);
-			clusterCount = DensityBasedClustering.DBScan (dbscanPoints, radius, minNumOfPoints);
-			clusterColors = ClusterColors (clusterCount);
+			ClusterCount = DensityBasedClustering.DBScan (dbscanPoints, radius, minNumOfPoints);
+			clusterColors = ClusterColors (ClusterCount);
 			clusterPointsDict = new Dictionary<int, List<DbscanPoint>> ();
-			for (int i = 1; i <= clusterCount; i++) {
+			for (int i = 1; i <= ClusterCount; i++) {
 				clusterPointsDict.Add (i, new List<DbscanPoint> ());
 			}
 			foreach (DbscanPoint p in dbscanPoints) {

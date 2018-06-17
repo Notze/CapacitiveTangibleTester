@@ -2,32 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ClusterTouch : MonoBehaviour {
 
-	public long pointID;
-	public int ClusterId;
-	public DbscanPoint dbscanPoint;
+namespace CTR{
+	public class ClusterTouch : MonoBehaviour {
 
-	public Vector2 clusterCenter;
+		public long pointID;
+		public int ClusterId;
+		public DbscanPoint dbscanPoint;
 
-
-	//void Start () {
-		
-	//}
+		public Vector2 clusterCenter;
 
 
-	public void SetClusterColor(Color color){
-		GetComponent<SpriteRenderer> ().color = color;
+		public void SetClusterColor (Color color)
+		{
+			GetComponent<SpriteRenderer> ().color = color;
+		}
+
+		public void Reset ()
+		{
+			ClusterId = -1;
+			GetComponent<SpriteRenderer> ().color = Color.black;
+		}
 	}
-
-	public void Reset () {
-		ClusterId = -1;
-		GetComponent<SpriteRenderer> ().color = Color.black;
-	}
-
-	//// Update is called once per frame
-	//void Update () {
-
-	//}
-
 }
+
