@@ -14,8 +14,11 @@ namespace CTR {
 
 
 	public class CapacitiveTangiblesRecognizer : SingletonBehaviour<CapacitiveTangiblesRecognizer> {
-		
+
+		public Action<List<TangiblePattern>> OnPatternsLoaded;
+
 		public static long pointID;
+		public bool patternsLoaded;
 		public GameObject patternPrefab;
 		public GameObject patternFootPrefab;
 		public GameObject touchPrefab;
@@ -176,40 +179,47 @@ namespace CTR {
 			patterns = new List<TangiblePattern> ();
 			tangibles = new List<Tangible> ();
 			string [] filenames = TangiblesFileUtils.LoadTangiblesJSON ();
+			if(filenames != null){
+				foreach (string filename in filenames) {
+					string json = System.IO.File.ReadAllText (filename);
+					TangiblePattern pattern = JsonUtility.FromJson<TangiblePattern> (json);
+					patterns.Add (pattern);
+					GameObject patternObj = Instantiate (patternPrefab);
+					Tangible tangible = patternObj.GetComponent<Tangible> ();
+					tangible.SetIDText (pattern.id);
+					tangible.pattern = pattern;
+					Vector2 center = MathHelper.ComputeCenter (pattern.points, Color.green);
+					float xSize = patternObj.GetComponent<SpriteRenderer> ().bounds.size.x / 2;
+					patternObj.transform.localScale = new Vector3 (pattern.radius, pattern.radius, 1) / xSize;
+					for (int i = 0; i < pattern.points.Count; i++) {
+						Vector2 point = pattern.points [i];
 
-			foreach (string filename in filenames) {
-				string json = System.IO.File.ReadAllText (filename);
-				TangiblePattern pattern = JsonUtility.FromJson<TangiblePattern> (json);
-				patterns.Add (pattern);
-				GameObject patternObj = Instantiate (patternPrefab);
-				Tangible tangible = patternObj.GetComponent<Tangible> ();
-				tangible.SetIDText (pattern.id);
-				tangible.pattern = pattern;
-				Vector2 center = MathHelper.ComputeCenter (pattern.points, Color.green);
-				float xSize = patternObj.GetComponent<SpriteRenderer> ().bounds.size.x / 2;
-				patternObj.transform.localScale = new Vector3 (pattern.radius, pattern.radius, 1) / xSize;
-				for (int i = 0; i < pattern.points.Count; i++) {
-					Vector2 point = pattern.points [i];
-
-					GameObject footObj = Instantiate (patternFootPrefab);
-					Vector3 pos = patternObj.transform.position + new Vector3 (point.x, point.y, 0);
-					footObj.transform.position = pos;
-					footObj.transform.SetParent (patternObj.transform);
-					if (i == pattern.anchorPoint1) {
-						footObj.GetComponent<SpriteRenderer> ().color = Color.green;
-						tangible.anchor1 = footObj.transform;
+						GameObject footObj = Instantiate (patternFootPrefab);
+						Vector3 pos = patternObj.transform.position + new Vector3 (point.x, point.y, 0);
+						footObj.transform.position = pos;
+						footObj.transform.SetParent (patternObj.transform);
+						if (i == pattern.anchorPoint1) {
+							footObj.GetComponent<SpriteRenderer> ().color = Color.green;
+							tangible.anchor1 = footObj.transform;
+						}
+						if (i == pattern.anchorPoint2) {
+							footObj.GetComponent<SpriteRenderer> ().color = Color.yellow;
+							tangible.anchor2 = footObj.transform;
+						}
 					}
-					if (i == pattern.anchorPoint2) {
-						footObj.GetComponent<SpriteRenderer> ().color = Color.yellow;
-						tangible.anchor2 = footObj.transform;
-					}
+					MathHelper.DrawCircle (center, pattern.radius, 50, Color.blue);
+					patternObj.transform.position = Vector3.zero;
+					tangibles.Add (tangible);
 				}
-				MathHelper.DrawCircle (center, pattern.radius, 50, Color.blue);
-				patternObj.transform.position = Vector3.zero;
-				tangibles.Add (tangible);
 			}
-			clusterRadius = patterns.Max (ptn => ptn.radius);
+			if(patterns.Count > 0){
+				clusterRadius = patterns.Max (ptn => ptn.radius);	
+			}
 			print ("clusterRadius: " + clusterRadius);
+			patternsLoaded = true;
+			if(OnPatternsLoaded != null){
+				OnPatternsLoaded.Invoke (patterns);	
+			}
 		}
 
 		// private void OnDrawGizmos() {
