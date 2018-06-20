@@ -92,7 +92,7 @@ namespace CTR{
 			PlayerPrefs.SetFloat (kClusterRadiusScaler, clusterRadiusScaler);
 			PlayerPrefs.SetFloat (kAnchorTolerance, anchorTolerance);
 			PlayerPrefs.SetFloat(kPatternFitThreshold, patternFitThreshold);
-			PlayerPrefs.SetFloat (kMinNumOfPointsInCluster, minNumOfPointsInCluster);
+			PlayerPrefs.SetInt(kMinNumOfPointsInCluster, minNumOfPointsInCluster);
 			PlayerPrefs.SetInt (kFlipRotation, flipRotation == true ? 1: 0);
 			PlayerPrefs.SetFloat (kMinDistanceBetweenTouchPoints, minDistanceBetweenTouchPoints);
 			PlayerPrefs.SetInt (kDebugOutput, debugOutput == true ? 1 : 0);

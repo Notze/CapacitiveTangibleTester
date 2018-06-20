@@ -82,13 +82,13 @@ namespace CTR{
 				if (!p.IsVisited) {
 					p.IsVisited = true;
 
-					DbscanPoint [] neighbors = DensityBasedClustering.GetNeighors (points, p, eps);
+					DbscanPoint [] neighbors = GetNeighors (points, p, eps);
 
 					if (neighbors.Length < minimumClusterCount)
 						p.IsNoise = true;
 					else {
 						cid++;
-						DensityBasedClustering.ExpandCluster (points, p, neighbors, cid, eps, minimumClusterCount);
+						ExpandCluster (points, p, neighbors, cid, eps, minimumClusterCount);
 					}
 				}
 			}
@@ -107,7 +107,7 @@ namespace CTR{
 				if (!n.IsVisited) {
 					n.IsVisited = true;
 
-					DbscanPoint [] ns = DensityBasedClustering.GetNeighors (points, n, eps);
+					DbscanPoint [] ns = GetNeighors (points, n, eps);
 					if (ns.Length >= minimumClusterCount) {
 						foreach (DbscanPoint item in ns) {
 							q.Enqueue (item);

@@ -159,7 +159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pattern:
-    id: 
+    id: 0
     points: []
     radius: 0
     meanDistance: 0

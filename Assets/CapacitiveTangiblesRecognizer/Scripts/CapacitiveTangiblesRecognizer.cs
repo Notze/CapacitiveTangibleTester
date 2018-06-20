@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.UI;
 
 namespace CTR {
 	public struct ClusterAssociation{
 		public Vector3 position;
-		public Quaternion rotation;
+		public Vector3 rotation;
 		public float distance;
 		public int clusterId;
 		public TangiblePattern pattern;
@@ -47,10 +48,6 @@ namespace CTR {
 			get {
 				return clusterCount;
 			}
-
-			set {
-				clusterCount = value;
-			}
 		}
 
 		void OnEnable ()
@@ -69,30 +66,27 @@ namespace CTR {
 			LoadTangiblesPatterns ();
 		}
 
-		void HandleMouseInput (ref List<Vector2> touchPoints)
+		void HandleMouseInput ()
 		{
 			if (Input.GetMouseButtonDown (0)) {
 				Vector2 pos = Input.mousePosition;
-				bool registered = RegisterInputPoint (ref touchPoints, pos);
-				//if (registered) {
-				//	RecognizeTangibles(patterns, touchPoints);
-				//}
+				bool registered = RegisterInputPoint (pos);
 			}
 
 		}
 
-		void HandleTouchInput (ref List<Vector2> touchPoints)
+		void HandleTouchInput ()
 		{
 			if (Input.touchCount > 0) {
 				foreach (Touch touch in Input.touches) {
 					if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved) {
-						RegisterInputPoint (ref touchPoints, touch.position);
+						RegisterInputPoint (touch.position);
 					}
 				}
 			}
 		}
 
-		bool RegisterInputPoint (ref List<Vector2> touchPoints, Vector2 screenPoint)
+		bool RegisterInputPoint (Vector2 screenPoint)
 		{
 			bool inAvoidArea = false;
 			bool inAcceptableDistance = true;
@@ -104,21 +98,30 @@ namespace CTR {
 				}
 			}
 			if (!inAvoidArea) {
-
-				Vector2 wPoint = Camera.main.ScreenToWorldPoint (screenPoint);
 				for (int i = 0; i < touchObjects.Count; i++) {
-					if (Vector2.Distance (touchObjects [i].transform.position, wPoint) < GlobalSettings.Instance.minDistanceBetweenTouchPoints) {
+					if (Vector2.Distance (touchObjects [i].transform.position, screenPoint) < GlobalSettings.Instance.minDistanceBetweenTouchPoints) {
 						inAcceptableDistance = false;
 						break;
 					}
 				}
-				touchPoints.Add (wPoint);
+
+				DbscanPoint dbscanPoint = new DbscanPoint (screenPoint, pointID++);
+				dbscanPoints.Add (dbscanPoint);
+				GameObject touchObj = Instantiate (touchPrefab);
+				Vector3 wPos = Camera.main.ScreenToWorldPoint (screenPoint);
+				wPos.z = 0;
+				touchObj.transform.position = wPos;
+
+				ClusterTouch clusterTouch = touchObj.GetComponent<ClusterTouch> ();
+				clusterTouch.pointID = dbscanPoint.pointID;
+				clusterTouch.dbscanPoint = dbscanPoint;
+				dbscanPoint.clusterTouch = clusterTouch;
+				touchObjects.Add (clusterTouch);
 			}
 			return !inAvoidArea && inAcceptableDistance;
 		}
 
 		//int rotationPoint = 0;
-
 		void Update ()
 		{
 
@@ -131,21 +134,21 @@ namespace CTR {
 			List<Vector2> touchPoints = new List<Vector2> ();
 			switch (GlobalSettings.Instance.modality) {
 			case InputModality.Mouse:
-				HandleMouseInput (ref touchPoints);
+				HandleMouseInput ();
 				break;
 			case InputModality.Touch:
-				HandleTouchInput (ref touchPoints);
+				HandleTouchInput ();
 				break;
 			}
 
 			// do the recognition
-			if (touchPoints.Count >= GlobalSettings.Instance.minNumOfPointsInCluster) {
+			//if (touchPoints.Count >= GlobalSettings.Instance.minNumOfPointsInCluster) {
 				//print ("rotationPoint:" + rotationPoint);
-				RecognizeTangibles (patterns, touchPoints);
+				//RecognizeTangibles (patterns, touchPoints);
 
 				// move tangibles to the new position
-				AssignTangiblesPositions ();
-			}
+				//AssignTangiblesPositions ();
+			//}
 
 
 
@@ -157,6 +160,9 @@ namespace CTR {
 
 			if (Input.GetKeyDown (KeyCode.R)) {
 				ResetClusters ();
+			}
+			if (Input.GetKeyDown (KeyCode.T)) {
+				RecognizeTangibles(patterns);
 			}
 
 			if (Input.GetKeyDown (KeyCode.X)) {
@@ -190,27 +196,32 @@ namespace CTR {
 					tangible.SetIDText (pattern.id.ToString());
 					tangible.pattern = pattern;
 					Vector2 center = MathHelper.ComputeCenter (pattern.points, Color.green);
-					float xSize = patternObj.GetComponent<SpriteRenderer> ().bounds.size.x / 2;
-					patternObj.transform.localScale = new Vector3 (pattern.radius, pattern.radius, 1) / xSize;
+					RectTransform patternRectTransform = patternObj.transform as RectTransform;
+					patternRectTransform.SetParent (recognizerPanel);
+					patternRectTransform.sizeDelta = new Vector2 (2*pattern.radius, 2*pattern.radius);
+					patternRectTransform.localPosition = new Vector3(0, 0, 0);
+
+
 					for (int i = 0; i < pattern.points.Count; i++) {
 						Vector2 point = pattern.points [i];
 
 						GameObject footObj = Instantiate (patternFootPrefab);
+						RectTransform footRectTransform = footObj.transform as RectTransform;
 						Vector3 pos = patternObj.transform.position + new Vector3 (point.x, point.y, 0);
-						footObj.transform.position = pos;
-						footObj.transform.SetParent (patternObj.transform);
+						footRectTransform.position = pos;
+						footRectTransform.SetParent (patternRectTransform);
+						Image footImage = footObj.GetComponent<Image> ();
 						if (i == pattern.anchorPoint1) {
-							footObj.GetComponent<SpriteRenderer> ().color = Color.green;
+							footImage.color = Color.green;
 							tangible.anchor1 = footObj.transform;
-						}
-						if (i == pattern.anchorPoint2) {
-							footObj.GetComponent<SpriteRenderer> ().color = Color.yellow;
+						}else if (i == pattern.anchorPoint2) {
+							footImage.color = Color.yellow;
 							tangible.anchor2 = footObj.transform;
+						} else {
+							footImage.color = Color.grey;
 						}
 					}
 					MathHelper.DrawCircle (center, pattern.radius, 50, Color.blue);
-					patternObj.transform.position = Vector3.zero;
-					patternObj.transform.SetParent(recognizerPanel);
 					tangibles.Add (tangible);
 				}
 			}
@@ -270,24 +281,13 @@ namespace CTR {
 		}
 
 
-		public void RecognizeTangibles (List<TangiblePattern> patterns, List<Vector2> touchPoints)
+		public void RecognizeTangibles (List<TangiblePattern> patterns)
 		{
 			patternFitnessDict = new Dictionary<TangiblePattern, List<ClusterAssociation>> ();
 
 			//ResetClusters();
-			ClearClusters ();
-			foreach (Vector2 tp in touchPoints) {
-				DbscanPoint dbscanPoint = new DbscanPoint (tp, pointID++);
-				dbscanPoints.Add (dbscanPoint);
-				GameObject touchObj = Instantiate (touchPrefab);
-				touchObj.transform.position = tp;
+			//ClearClusters ();
 
-				ClusterTouch clusterTouch = touchObj.GetComponent<ClusterTouch> ();
-				clusterTouch.pointID = dbscanPoint.pointID;
-				clusterTouch.dbscanPoint = dbscanPoint;
-				dbscanPoint.clusterTouch = clusterTouch;
-				touchObjects.Add (clusterTouch);
-			}
 			DoClustering (clusterRadius * GlobalSettings.Instance.clusterRadiusScaler,
 						  GlobalSettings.Instance.minNumOfPointsInCluster);
 
@@ -321,9 +321,9 @@ namespace CTR {
 
 
 			Tangible tangible = tangibles.Find (t => t.pattern.id == pattern.id);
-#warning reset position of tangible
-			tangible.transform.position = Vector3.zero;
-			tangible.transform.rotation = Quaternion.identity;
+//#warning reset position of tangible
+			//tangible.transform.position = Vector3.zero;
+			//tangible.transform.rotation = Quaternion.identity;
 
 
 			List<Vector2> clusterPoints = new List<Vector2> ();
@@ -370,15 +370,15 @@ namespace CTR {
 
 			Vector2 a = clsPts [firstAnchor].point - clsPts [secondAnchor].point;
 			Vector2 b = tangible.anchor1.position - tangible.anchor2.position;
-			float angle = 0;
-			angle = Vector2.SignedAngle (b, a);
+
+			float angle = Vector2.SignedAngle (b, a);
 
 			GlobalSettings.Instance.SetRotationAngle (angle);
-			Quaternion rot = Quaternion.Euler (0, 0, angle);
+			Vector3 rot = new Vector3(0, 0, angle);
 
 
 
-			tangible.transform.rotation = rot;
+			(tangible.transform as RectTransform).eulerAngles = rot;
 			Vector2 tangibleOffset = new Vector2 (tangible.transform.position.x - tangible.anchor1.position.x,
 												  tangible.transform.position.y - tangible.anchor1.position.y);
 			Vector2 pos = clsPts [firstAnchor].point + tangibleOffset;
@@ -419,51 +419,55 @@ namespace CTR {
 		public void AssignTangiblesPositions ()
 		{
 
-			List<ClusterAssociation> bestFits = new List<ClusterAssociation> ();
-			foreach (TangiblePattern pattern in patternFitnessDict.Keys) {
-				List<ClusterAssociation> associations = patternFitnessDict [pattern];
-				float minDist = float.MaxValue;
-				int minDistI = 0;
-				for (int i = 0; i < associations.Count; i++) {
-					if (associations [i].distance < minDist) {
-						minDistI = i;
-						minDist = associations [i].distance;
-					}
-				}
-				Tangible tangible = tangibles.Find (t => t.pattern.id == pattern.id);
-				if (minDist < GlobalSettings.Instance.patternFitThreshold) {
-					tangible.UpdatePosition (associations [minDistI].position, associations [minDistI].rotation);
-				} else {
-					tangible.ResetPosition ();
-				}
-
-			}
+			//List<ClusterAssociation> bestFits = new List<ClusterAssociation> ();
+			//foreach (TangiblePattern pattern in patternFitnessDict.Keys) {
+			//	List<ClusterAssociation> associations = patternFitnessDict [pattern];
+			//	float minDist = float.MaxValue;
+			//	int minDistI = 0;
+			//	for (int i = 0; i < associations.Count; i++) {
+			//		if (associations [i].distance < minDist) {
+			//			minDistI = i;
+			//			minDist = associations [i].distance;
+			//		}
+			//	}
+			//	Tangible tangible = tangibles.Find (t => t.pattern.id == pattern.id);
+			//	if (minDist < GlobalSettings.Instance.patternFitThreshold) {
+			//		tangible.UpdatePosition (associations [minDistI].position, associations [minDistI].rotation);
+			//	} else {
+			//		tangible.ResetPosition ();
+			//	}
+			//}
 		}
 
 		public void DoClustering (float radius, int minNumOfPoints)
 		{
+			ResetClusters ();
 			GlobalSettings.Instance.SetNumClusterPoints (dbscanPoints.Count);
-			ClusterCount = DensityBasedClustering.DBScan (dbscanPoints, radius, minNumOfPoints);
-			clusterColors = ClusterColors (ClusterCount);
-			clusterPointsDict = new Dictionary<int, List<DbscanPoint>> ();
-			for (int i = 1; i <= ClusterCount; i++) {
-				clusterPointsDict.Add (i, new List<DbscanPoint> ());
-			}
-			foreach (DbscanPoint p in dbscanPoints) {
-				if (!p.IsNoise && p.ClusterId != -1) {
-					clusterPointsDict [p.ClusterId].Add (p);
-				} else {
-					//print ("is Noise");
+			clusterCount = DensityBasedClustering.DBScan (dbscanPoints, radius, minNumOfPoints);
+			if(clusterCount > 0){
+				clusterColors = ClusterColors (ClusterCount);
+				//clusterPointsDict = new Dictionary<int, List<DbscanPoint>> ();
+				//for (int i = 1; i <= ClusterCount; i++) {
+				//	clusterPointsDict.Add (i, new List<DbscanPoint> ());
+				//}
+				//foreach (DbscanPoint p in dbscanPoints) {
+				//	if (!p.IsNoise && p.ClusterId != -1) {
+				//		clusterPointsDict [p.ClusterId].Add (p);
+				//	} else {
+				//		//print ("is Noise");
+				//	}
+				//}
+				foreach (ClusterTouch ct in touchObjects) {
+					Color color = Color.black;
+					if (!ct.dbscanPoint.IsNoise && ct.dbscanPoint.ClusterId != -1) {
+						ct.ClusterId = ct.dbscanPoint.ClusterId;
+						color = clusterColors [ct.ClusterId - 1];
+					}
+					ct.SetClusterColor (color);
 				}
 			}
-			foreach (ClusterTouch ct in touchObjects) {
-				Color color = Color.black;
-				if (!ct.dbscanPoint.IsNoise && ct.dbscanPoint.ClusterId != -1) {
-					ct.ClusterId = ct.dbscanPoint.ClusterId;
-					color = clusterColors [ct.ClusterId - 1];
-				}
-				ct.SetClusterColor (color);
-			}
+
+
 		}
 
 		public void ResetClusters ()

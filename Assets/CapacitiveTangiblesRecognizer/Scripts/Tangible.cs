@@ -19,10 +19,10 @@ namespace CTR{
 
 
 
-		public void UpdatePosition (Vector3 pos, Quaternion rot)
+		public void UpdatePosition (Vector3 pos, Vector3 rot)
 		{
 			gameObject.transform.position = pos;
-			gameObject.transform.rotation = rot;
+			(gameObject.transform as RectTransform).eulerAngles = rot;
 
 		}
 
@@ -34,8 +34,8 @@ namespace CTR{
 
 		public void ResetPosition ()
 		{
-			gameObject.transform.position = lastKnownPosition;
-			gameObject.transform.rotation = lastKnownRotation;
+			//gameObject.transform.position = lastKnownPosition;
+			//gameObject.transform.rotation = lastKnownRotation;
 		}
 	}
 }
