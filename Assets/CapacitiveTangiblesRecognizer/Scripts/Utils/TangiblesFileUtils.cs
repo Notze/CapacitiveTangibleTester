@@ -22,7 +22,7 @@ namespace CTR{
 			if (!Directory.Exists (Application.persistentDataPath + "/" + tangibledirectory)) {
 				return null;
 			} else {
-				return Directory.GetFiles (Application.persistentDataPath + "/" + tangibledirectory);
+				return Directory.GetFiles (Application.persistentDataPath + "/" + tangibledirectory, "*.json");
 			}
 		}
 

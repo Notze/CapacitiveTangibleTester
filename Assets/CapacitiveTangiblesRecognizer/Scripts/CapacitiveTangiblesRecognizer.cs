@@ -18,6 +18,8 @@ namespace CTR {
 		public Action<List<TangiblePattern>> OnPatternsLoaded;
 
 		public static long pointID;
+		public RectTransform recognizerPanel;
+
 		public bool patternsLoaded;
 		public GameObject patternPrefab;
 		public GameObject patternFootPrefab;
@@ -27,7 +29,6 @@ namespace CTR {
 
 		public List<Color> clusterColors = new List<Color> ();
 		public float clusterRadius;
-		public bool debugOutput;
 
 		Dictionary<int, List<DbscanPoint>> clusterPointsDict = new Dictionary<int, List<DbscanPoint>> ();
 		public List<Tangible> tangibles;
@@ -186,7 +187,7 @@ namespace CTR {
 					patterns.Add (pattern);
 					GameObject patternObj = Instantiate (patternPrefab);
 					Tangible tangible = patternObj.GetComponent<Tangible> ();
-					tangible.SetIDText (pattern.id);
+					tangible.SetIDText (pattern.id.ToString());
 					tangible.pattern = pattern;
 					Vector2 center = MathHelper.ComputeCenter (pattern.points, Color.green);
 					float xSize = patternObj.GetComponent<SpriteRenderer> ().bounds.size.x / 2;
@@ -209,6 +210,7 @@ namespace CTR {
 					}
 					MathHelper.DrawCircle (center, pattern.radius, 50, Color.blue);
 					patternObj.transform.position = Vector3.zero;
+					patternObj.transform.SetParent(recognizerPanel);
 					tangibles.Add (tangible);
 				}
 			}
@@ -236,7 +238,7 @@ namespace CTR {
 
 		private void OnGUI ()
 		{
-			if(!debugOutput){
+			if(!GlobalSettings.Instance.debugOutput){
 				return;
 			}
 

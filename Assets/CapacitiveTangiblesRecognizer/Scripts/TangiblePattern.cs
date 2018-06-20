@@ -7,7 +7,7 @@ using System;
 namespace CTR{
 	[Serializable]
 	public struct TangiblePattern {
-		public string id;
+		public int id;
 		public List<Vector2> points;
 		public float radius;
 		public float meanDistance;

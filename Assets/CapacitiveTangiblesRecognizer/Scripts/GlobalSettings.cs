@@ -17,6 +17,7 @@ namespace CTR{
 		public const string kMinNumOfPointsInCluster = "kMinNumOfPointsInCluster";
 		public const string kFlipRotation = "kFlipRotation";
 		public const string kMinDistanceBetweenTouchPoints = "kMinDistanceBetweenTouchPoints";
+		public const string kDebugOutput = "kDebugOutput";
 
 		public int numOfClusterPoints = 0;
 		public float rotationAngle;
@@ -29,7 +30,7 @@ namespace CTR{
 		public int minNumOfPointsInCluster = 4;
 		public bool flipRotation;
 		public float minDistanceBetweenTouchPoints = 0.1f;
-
+		public bool debugOutput;
 
 		private void Start () {
 
@@ -54,6 +55,9 @@ namespace CTR{
 			if (PlayerPrefs.HasKey (kMinDistanceBetweenTouchPoints)) {
 				minDistanceBetweenTouchPoints = PlayerPrefs.GetFloat(kMinDistanceBetweenTouchPoints);
 			}
+			if (PlayerPrefs.HasKey (kDebugOutput)) {
+				debugOutput = PlayerPrefs.GetInt (kDebugOutput) > 0;
+			}
 
 
 			SetStatusText ();
@@ -72,16 +76,16 @@ namespace CTR{
 
 		void SetStatusText ()
 		{
-			statusText.text = string.Format ("modality: {0} cluster points: {1}; cluster radius scalar: {2}; tolerance: {3}; angle: {4}; flip: {5}; min dist: {6}; fitness threshold: {7}; screen DPI {8}",
-											modality,
-											numOfClusterPoints,
-											clusterRadiusScaler,
-											anchorTolerance,
-											rotationAngle,
-											   flipRotation,
-											minDistanceBetweenTouchPoints,
-											patternFitThreshold,
-											Screen.dpi);
+			statusText.text = string.Format ("modality: {0} cluster points: {1}; cluster radius scalar: {2}; tolerance: {3}; angle: {4}; flip: {5}; min dist: {6}; fitness threshold: {7}; debug output {8}",
+			                                 modality,
+											 numOfClusterPoints,
+											 clusterRadiusScaler,
+											 anchorTolerance,
+											 rotationAngle,
+											 flipRotation,
+											 minDistanceBetweenTouchPoints,
+											 patternFitThreshold,
+			                                 debugOutput);
 
 
 			PlayerPrefs.SetInt (kModality, (int)modality);
@@ -91,6 +95,7 @@ namespace CTR{
 			PlayerPrefs.SetFloat (kMinNumOfPointsInCluster, minNumOfPointsInCluster);
 			PlayerPrefs.SetInt (kFlipRotation, flipRotation == true ? 1: 0);
 			PlayerPrefs.SetFloat (kMinDistanceBetweenTouchPoints, minDistanceBetweenTouchPoints);
+			PlayerPrefs.SetInt (kDebugOutput, debugOutput == true ? 1 : 0);
 		}
 
 		public void SetModality (int m)
@@ -138,6 +143,10 @@ namespace CTR{
 		{
 			patternFitThreshold = threshold;
 			SetStatusText ();
+		}
+		public void ToggleDebugOutput(){
+			debugOutput = !debugOutput;
+			SetStatusText();
 		}
 	}
 }

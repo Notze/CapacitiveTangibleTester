@@ -20,7 +20,7 @@ namespace CTR {
 			if (Input.GetMouseButtonDown (0)) {
 				Vector2 pos = Input.mousePosition;
 				if (RectTransformUtility.RectangleContainsScreenPoint (rectTransform, pos)) {
-					patternPoints.Add (Camera.main.ScreenToWorldPoint (pos));
+					patternPoints.Add (pos);
 				}
 			}
 
@@ -28,7 +28,7 @@ namespace CTR {
 				Vector2 pos = touch.position;
 				if (RectTransformUtility.RectangleContainsScreenPoint (rectTransform, pos)) {
 					//patternPoints.Add(pos);
-					patternPoints.Add (Camera.main.ScreenToWorldPoint (pos));
+					patternPoints.Add (pos);
 				}
 			}
 
@@ -83,8 +83,12 @@ namespace CTR {
 
 
 			TangiblePattern pattern = new TangiblePattern ();
-
-			pattern.id = patternID.text;
+			int id = 0;
+			if(int.TryParse(patternID.text, out id)){
+				pattern.id = id;
+			}else{
+				id = 0;
+			}
 			pattern.points = patternPoints;
 			pattern.radius = radius;
 			pattern.meanDistance = meanDistance;
