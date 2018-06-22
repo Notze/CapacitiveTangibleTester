@@ -63,7 +63,7 @@ namespace CTR {
 				avoidRecognitionAreas.Add (avoidGO.transform as RectTransform);
 			}
 
-			LoadTangiblesPatterns ();
+			LoadTangiblesPatterns();
 		}
 
 		void HandleMouseInput ()
@@ -154,7 +154,7 @@ namespace CTR {
 
 
 			if (Input.GetKeyDown (KeyCode.C)) {
-				DoClustering (clusterRadius * GlobalSettings.Instance.clusterRadiusScaler, GlobalSettings.Instance.minNumOfPointsInCluster);
+				DoClustering ();
 				//print(clusterPointsDict);
 			}
 
@@ -162,7 +162,7 @@ namespace CTR {
 				ResetClusters ();
 			}
 			if (Input.GetKeyDown (KeyCode.T)) {
-				RecognizeTangibles(patterns);
+				RecognizeTangibles();
 			}
 
 			if (Input.GetKeyDown (KeyCode.X)) {
@@ -210,6 +210,7 @@ namespace CTR {
 						Vector3 pos = patternObj.transform.position + new Vector3 (point.x, point.y, 0);
 						footRectTransform.position = pos;
 						footRectTransform.SetParent (patternRectTransform);
+						footRectTransform.localScale = Vector3.one;
 						Image footImage = footObj.GetComponent<Image> ();
 						if (i == pattern.anchorPoint1) {
 							footImage.color = Color.green;
@@ -221,7 +222,15 @@ namespace CTR {
 							footImage.color = Color.grey;
 						}
 					}
+					print ("anchorDistance" + pattern.anchorDistance);
 					MathHelper.DrawCircle (center, pattern.radius, 50, Color.blue);
+
+					Vector2 a = tangible.anchor1.localPosition - tangible.anchor2.localPosition;
+					Vector2 b = Vector2.up;
+					float angle = Vector2.SignedAngle (b, a);
+					print ("angle:" + angle);
+					GlobalSettings.Instance.SetRotationAngle (angle);
+
 					tangibles.Add (tangible);
 				}
 			}
@@ -280,16 +289,18 @@ namespace CTR {
 			GUILayout.EndVertical ();
 		}
 
+		public void RecognizeTangibles(){
+			RecognizeTangibles (patterns);
+		}
 
-		public void RecognizeTangibles (List<TangiblePattern> patterns)
+		void RecognizeTangibles (List<TangiblePattern> patterns)
 		{
 			patternFitnessDict = new Dictionary<TangiblePattern, List<ClusterAssociation>> ();
 
 			//ResetClusters();
 			//ClearClusters ();
 
-			DoClustering (clusterRadius * GlobalSettings.Instance.clusterRadiusScaler,
-						  GlobalSettings.Instance.minNumOfPointsInCluster);
+			DoClustering();
 
 			foreach (TangiblePattern pattern in patterns) {
 				List<ClusterAssociation> associations = RecognizeTangiblesPattern (pattern);
@@ -347,9 +358,12 @@ namespace CTR {
 						continue;
 					}
 					float distance = Vector2.Distance (clsPts [i].point, clsPts [j].point);
-					if (Mathf.Abs (distance - pattern.anchorDistance) < GlobalSettings.Instance.anchorTolerance) {
-						clsPts [i].clusterTouch.GetComponent<SpriteRenderer> ().color = Color.white;
-						clsPts [j].clusterTouch.GetComponent<SpriteRenderer> ().color = Color.white;
+					print ("anchor dist: " + distance);
+					float anchorTolerance = pattern.anchorDistance * GlobalSettings.Instance.anchorTolerance;
+					if (Mathf.Abs (distance - pattern.anchorDistance) < anchorTolerance) {
+						print ("found anchor" + i + " " + j + " " + distance);
+						clsPts [i].clusterTouch.SetColor(Color.white);
+						clsPts [j].clusterTouch.SetColor(Color.white);
 						anchorDistance = distance;
 						float firstDistFromCenter = Vector2.Distance (clsPts [i].point, clusterCenter);
 						float secondDistFromCenter = Vector2.Distance (clsPts [j].point, clusterCenter);
@@ -360,20 +374,20 @@ namespace CTR {
 							firstAnchor = secondAnchor;
 							secondAnchor = tmp;
 						}
-						clsPts [firstAnchor].clusterTouch.GetComponent<SpriteRenderer> ().color = Color.green;
-						clsPts [secondAnchor].clusterTouch.GetComponent<SpriteRenderer> ().color = Color.yellow;
+						clsPts[firstAnchor].clusterTouch.SetColor(Color.green);
+						clsPts[secondAnchor].clusterTouch.SetColor(Color.yellow);
 					}
 				}
 			}
 
 			// find translation and rotation:
 
-			Vector2 a = clsPts [firstAnchor].point - clsPts [secondAnchor].point;
-			Vector2 b = tangible.anchor1.position - tangible.anchor2.position;
+			Vector2 a = clsPts[firstAnchor].point - clsPts[secondAnchor].point;
+			Vector2 b = tangible.anchor1.localPosition - tangible.anchor2.localPosition;
 
-			float angle = Vector2.SignedAngle (b, a);
-
-			GlobalSettings.Instance.SetRotationAngle (angle);
+			float angle = Vector2.SignedAngle(b, a);
+			print("angle:" + angle);
+			GlobalSettings.Instance.SetRotationAngle(angle);
 			Vector3 rot = new Vector3(0, 0, angle);
 
 
@@ -402,7 +416,7 @@ namespace CTR {
 						minDist = dist;
 					}
 				}
-				minDistSum += 100 * minDist * minDist; // * Screen.dpi/Screen.width; // * minDist;
+				minDistSum += 100 * minDist * minDist;
 			}
 
 
@@ -439,31 +453,36 @@ namespace CTR {
 			//}
 		}
 
-		public void DoClustering (float radius, int minNumOfPoints)
+		public void DoClustering(){
+			DoClustering (clusterRadius * GlobalSettings.Instance.clusterRadiusScaler,
+						  GlobalSettings.Instance.minNumOfPointsInCluster);
+		}
+
+		void DoClustering (float radius, int minNumOfPoints)
 		{
 			ResetClusters ();
 			GlobalSettings.Instance.SetNumClusterPoints (dbscanPoints.Count);
 			clusterCount = DensityBasedClustering.DBScan (dbscanPoints, radius, minNumOfPoints);
 			if(clusterCount > 0){
 				clusterColors = ClusterColors (ClusterCount);
-				//clusterPointsDict = new Dictionary<int, List<DbscanPoint>> ();
-				//for (int i = 1; i <= ClusterCount; i++) {
-				//	clusterPointsDict.Add (i, new List<DbscanPoint> ());
-				//}
-				//foreach (DbscanPoint p in dbscanPoints) {
-				//	if (!p.IsNoise && p.ClusterId != -1) {
-				//		clusterPointsDict [p.ClusterId].Add (p);
-				//	} else {
-				//		//print ("is Noise");
-				//	}
-				//}
+				clusterPointsDict = new Dictionary<int, List<DbscanPoint>> ();
+				for (int i = 1; i <= ClusterCount; i++) {
+					clusterPointsDict.Add (i, new List<DbscanPoint> ());
+				}
+				foreach (DbscanPoint p in dbscanPoints) {
+					if (!p.IsNoise && p.ClusterId != -1) {
+						clusterPointsDict [p.ClusterId].Add (p);
+					} else {
+						//print ("is Noise");
+					}
+				}
 				foreach (ClusterTouch ct in touchObjects) {
 					Color color = Color.black;
 					if (!ct.dbscanPoint.IsNoise && ct.dbscanPoint.ClusterId != -1) {
 						ct.ClusterId = ct.dbscanPoint.ClusterId;
 						color = clusterColors [ct.ClusterId - 1];
 					}
-					ct.SetClusterColor (color);
+					ct.SetColor(color);
 				}
 			}
 

@@ -19,6 +19,11 @@ namespace CTR{
 			return center;
 		}
 
+		public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles) {
+			return Quaternion.Euler(angles) * (point - pivot) + pivot;
+		}
+
+
 		public static void DrawCircle (Vector2 center, float radius, int segments, Color color)
 		{
 			float angle = 360 / segments;
@@ -33,6 +38,15 @@ namespace CTR{
 			for (int i = 1; i < points.Count; i++) {
 				Debug.DrawLine (points [i - 1], points [i], color, 30);
 			}
+		}
+
+		public static Rect RectTransformToScreenSpace (RectTransform transform)
+		{
+			Vector2 size = Vector2.Scale (transform.rect.size, transform.lossyScale);
+			float x = transform.position.x + transform.anchoredPosition.x;
+			float y = Screen.height - transform.position.y - transform.anchoredPosition.y;
+
+			return new Rect (x - size.x, y + Screen.height - size.y, size.x, size.y);
 		}
 	}
 }

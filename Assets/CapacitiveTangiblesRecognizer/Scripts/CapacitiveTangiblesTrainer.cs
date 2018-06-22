@@ -6,12 +6,30 @@ using System.IO;
 
 namespace CTR {
 	public class CapacitiveTangiblesTrainer : MonoBehaviour {
-		
+
+		public GameObject touchPointPrefab;
 		public Text patternID;
 		RectTransform rectTransform;
-		void Start () {
+
+		List<GameObject> patternPointsVisuals;
+
+		void Start() {
+			patternID.text = "1";
 			rectTransform = transform as RectTransform;
+			patternPointsVisuals = new List<GameObject>();
 		}
+
+		private void Update ()
+		{
+			//if (Input.GetMouseButton(0)) {
+			//	Vector2 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			//	Rect screenRect = MathHelper.RectTransformToScreenSpace(rectTransform);
+			//	Vector2 panelCenter = Camera.main.ScreenToWorldPoint(screenRect.center);
+			//	Debug.DrawLine(pos, panelCenter, Color.red, 10);
+			//}
+
+		}
+
 
 		public void SavePattern () {
 			List<Vector2> patternPoints = new List<Vector2> ();
@@ -33,30 +51,33 @@ namespace CTR {
 			}
 
 
-			Vector2 center = MathHelper.ComputeCenter (patternPoints, Color.red);
+			Vector2 patternCenter = MathHelper.ComputeCenter (patternPoints, Color.red);
 			float radius = 0;
 			float meanDistance = 0;
+			Vector2 panelCenter = MathHelper.RectTransformToScreenSpace(rectTransform).center;
+			Vector2 centerOffset = patternCenter- panelCenter;
+			print ("panelCenter: " + panelCenter);
+			print ("patternCenter: " + patternCenter);
+			print ("centerOffset: " + centerOffset);
 			for (int i = 0; i < patternPoints.Count; i++) {
 				Debug.DrawLine (patternPoints [i],
-							   patternPoints [i] - center,
+							   patternPoints [i] - patternCenter,
 							   Color.green, 30);
-
-
+				
 				// compute radius
-				float dist = Vector2.Distance (center, patternPoints [i]);
-				MathHelper.DrawCircle (center, dist, 50, Color.red);
+				float dist = Vector2.Distance (patternCenter, patternPoints [i]);
 				meanDistance += dist;
 				if (dist > radius) {
 					radius = dist;
 				}
 
 				// move point relative to center
-				patternPoints [i] = patternPoints [i] - center;
+				//patternPoints [i] = patternPoints [i] - center;
 			}
 			meanDistance /= patternPoints.Count;
-			MathHelper.DrawCircle (center, radius, 50, Color.blue);
+			MathHelper.DrawCircle (patternCenter, radius, 50, Color.blue);
 
-			Tuple<int, int> minDistancePair = new Tuple<int, int> ();
+			Tuple<int, int> minDistPair = new Tuple<int, int> ();
 			float minDist = float.MaxValue;
 			for (int i = 0; i < patternPoints.Count; i++) {
 				for (int j = 0; j < patternPoints.Count; j++) {
@@ -64,23 +85,24 @@ namespace CTR {
 						float dist = Vector2.Distance (patternPoints [i], patternPoints [j]);
 						if (dist < minDist) {
 							minDist = dist;
-							minDistancePair.first = i;
-							minDistancePair.second = j;
+							minDistPair.first = i;
+							minDistPair.second = j;
 						}
 					}
 				}
 			}
-			float firstDistFromCenter = Vector2.Distance (patternPoints [minDistancePair.first], center);
-			float secondDistFromCenter = Vector2.Distance (patternPoints [minDistancePair.second], center);
+			float firstDistFromCenter = Vector2.Distance (patternPoints [minDistPair.first], patternCenter);
+			float secondDistFromCenter = Vector2.Distance (patternPoints [minDistPair.second], patternCenter);
 
 
 
 			if (secondDistFromCenter > firstDistFromCenter && GlobalSettings.Instance.flipRotation) {
-				int tmp = minDistancePair.first;
-				minDistancePair.first = minDistancePair.second;
-				minDistancePair.second = tmp;
+				int tmp = minDistPair.first;
+				minDistPair.first = minDistPair.second;
+				minDistPair.second = tmp;
 			}
 
+			print(minDistPair);
 
 			TangiblePattern pattern = new TangiblePattern ();
 			int id = 0;
@@ -89,20 +111,60 @@ namespace CTR {
 			}else{
 				id = 0;
 			}
+
+			// rotate pattern vertical
+			Vector2 a = patternPoints [minDistPair.first] - patternPoints [minDistPair.second];
+			Vector2 b = Vector2.up;
+			float angle = Vector2.SignedAngle (a, b);
+			print ("angle:" + angle);
+			GlobalSettings.Instance.SetRotationAngle (angle);
+
+			Vector3 rot = new Vector3 (0, 0, angle);
+			print ("angle:" + angle);
+
+			foreach(GameObject pt in patternPointsVisuals){
+				Destroy(pt);
+			}
+
+			for (int i = 0; i < patternPoints.Count; i++){
+				CreateTouchPoint (patternPoints [i], Color.green);
+
+
+				// move point relative to center
+				patternPoints[i] = patternPoints[i] - centerOffset;
+				CreateTouchPoint (patternPoints [i], Color.yellow);
+
+				// rotate vertical
+				patternPoints [i] = MathHelper.RotatePointAroundPivot (patternPoints[i], panelCenter, rot);
+				CreateTouchPoint (patternPoints[i], Color.red);
+			}
+
 			pattern.points = patternPoints;
 			pattern.radius = radius;
 			pattern.meanDistance = meanDistance;
 			pattern.anchorDistance = minDist;
 			pattern.gridStep = minDist / 2;
-			pattern.anchorPoint1 = minDistancePair.first;
-			pattern.anchorPoint2 = minDistancePair.second;
+			pattern.anchorPoint1 = minDistPair.first;
+			pattern.anchorPoint2 = minDistPair.second;
 
 			string json = JsonUtility.ToJson (pattern, true);
 			string fullfilepath = TangiblesFileUtils.PatternFilename (patternID.text);
 			print (fullfilepath);
 			File.WriteAllText (fullfilepath, json);
 		}
+
+		void CreateTouchPoint (Vector2 screenPos, Color color) {
+			GameObject touchPoint = Instantiate (touchPointPrefab);
+			RectTransform rt = (touchPoint.transform as RectTransform);
+			rt.position = screenPos;
+			rt.SetParent (rectTransform);
+			touchPoint.GetComponent<Image>().color = color;
+			print (rt.position);
+			patternPointsVisuals.Add (touchPoint);
+		}
 	}
+
+
 }
 
 

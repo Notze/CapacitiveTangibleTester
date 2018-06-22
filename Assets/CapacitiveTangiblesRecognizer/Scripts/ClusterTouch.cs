@@ -13,7 +13,7 @@ namespace CTR{
 		public Vector2 clusterCenter;
 
 
-		public void SetClusterColor (Color color)
+		public void SetColor(Color color)
 		{
 			GetComponent<SpriteRenderer> ().color = color;
 		}
