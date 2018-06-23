@@ -65,12 +65,32 @@ namespace CTR{
 
 		private void Update ()
 		{
+
+			if (Input.GetKeyDown (KeyCode.C)) {
+				CapacitiveTangiblesRecognizer.Instance.DoClustering ();
+				//print(clusterPointsDict);
+			}
+
 			if (Input.GetKeyDown (KeyCode.M)) {
 				modality++;
 				if ((int)modality >= Enum.GetNames (typeof (InputModality)).Length) {
 					modality = 0;
 				}
 				SetStatusText ();
+			}
+
+			if (Input.GetKeyDown (KeyCode.R)) {
+				CapacitiveTangiblesRecognizer.Instance.ResetClusters ();
+			}
+			if (Input.GetKeyDown (KeyCode.T)) {
+				CapacitiveTangiblesTrainer.Instance.TrainPattern();
+			}
+
+			if (Input.GetKeyDown (KeyCode.X)) {
+				CapacitiveTangiblesRecognizer.Instance.ClearClusters ();
+			}
+			if (Input.GetKeyDown (KeyCode.Z)) {
+				CapacitiveTangiblesRecognizer.Instance.RecognizeTangibles ();
 			}
 		}
 

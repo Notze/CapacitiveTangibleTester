@@ -12,8 +12,6 @@ namespace CTR {
 			tangible.pattern = pattern;
 			Vector2 center = MathHelper.ComputeCenter (pattern.points, Color.green);
 			RectTransform patternRectTransform = patternObj.transform as RectTransform;
-				
-
 			patternRectTransform.sizeDelta = new Vector2(2 * pattern.radius, 2 * pattern.radius);
 
 
@@ -34,12 +32,18 @@ namespace CTR {
 				} else if (i == pattern.anchorPoint2) {
 					footImage.color = Color.yellow;
 					tangible.anchor2 = footObj.transform;
-				} else {
-					footImage.color = Color.grey;
+				} else if(i == pattern.infoPoint1){
+					footImage.color = Color.blue;
+					tangible.info1 = footObj.transform;
+				} else if(i == pattern.infoPoint2){
+					footImage.color = Color.red;
+					tangible.info2 = footObj.transform;
+				}else{
+					footImage.color = Color.gray;
 				}
 			}
 
-			patternRectTransform.SetParent (parent);
+			patternRectTransform.SetParent(parent);
 			patternRectTransform.localPosition = Vector3.zero;
 			if (setPosition) {
 				

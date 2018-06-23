@@ -153,21 +153,7 @@ namespace CTR {
 
 
 
-			if (Input.GetKeyDown (KeyCode.C)) {
-				DoClustering ();
-				//print(clusterPointsDict);
-			}
 
-			if (Input.GetKeyDown (KeyCode.R)) {
-				ResetClusters ();
-			}
-			if (Input.GetKeyDown (KeyCode.T)) {
-				RecognizeTangibles();
-			}
-
-			if (Input.GetKeyDown (KeyCode.X)) {
-				ClearClusters ();
-			}
 		}
 
 		public void DeleteTangiblesPatterns ()
@@ -189,53 +175,16 @@ namespace CTR {
 			if(filenames != null){
 				foreach (string filename in filenames) {
 					string json = System.IO.File.ReadAllText (filename);
-					TangiblePattern pattern = JsonUtility.FromJson<TangiblePattern> (json);
+					TangiblePattern pattern = JsonUtility.FromJson<TangiblePattern>(json);
 					patterns.Add (pattern);
-					GameObject patternObj = Instantiate (patternPrefab);
-					Tangible tangible = patternObj.GetComponent<Tangible> ();
-					tangible.SetIDText (pattern.id.ToString());
-					tangible.pattern = pattern;
-					Vector2 center = MathHelper.ComputeCenter (pattern.points, Color.green);
-					RectTransform patternRectTransform = patternObj.transform as RectTransform;
-					patternRectTransform.SetParent (recognizerPanel);
-					patternRectTransform.sizeDelta = new Vector2 (2*pattern.radius, 2*pattern.radius);
-					patternRectTransform.localPosition = new Vector3(0, 0, 0);
 
-
-					for (int i = 0; i < pattern.points.Count; i++) {
-						Vector2 point = pattern.points [i];
-
-						GameObject footObj = Instantiate (patternFootPrefab);
-						RectTransform footRectTransform = footObj.transform as RectTransform;
-						Vector3 pos = patternObj.transform.position + new Vector3 (point.x, point.y, 0);
-						footRectTransform.position = pos;
-						footRectTransform.SetParent (patternRectTransform);
-						footRectTransform.localScale = Vector3.one;
-						Image footImage = footObj.GetComponent<Image> ();
-						if (i == pattern.anchorPoint1) {
-							footImage.color = Color.green;
-							tangible.anchor1 = footObj.transform;
-						}else if (i == pattern.anchorPoint2) {
-							footImage.color = Color.yellow;
-							tangible.anchor2 = footObj.transform;
-						} else {
-							footImage.color = Color.grey;
-						}
-					}
-					print ("anchorDistance" + pattern.anchorDistance);
-					MathHelper.DrawCircle (center, pattern.radius, 50, Color.blue);
-
-					Vector2 a = tangible.anchor1.localPosition - tangible.anchor2.localPosition;
-					Vector2 b = Vector2.up;
-					float angle = Vector2.SignedAngle (b, a);
-					print ("angle:" + angle);
-					GlobalSettings.Instance.SetRotationAngle (angle);
-
-					tangibles.Add (tangible);
+					GameObject patternObj = CTRUtils.InstantiateTangibleObject(pattern, patternPrefab, patternFootPrefab, recognizerPanel);
+					Tangible tangible = patternObj.GetComponent<Tangible>();
+					tangibles.Add(tangible);
 				}
 			}
 			if(patterns.Count > 0){
-				clusterRadius = patterns.Max (ptn => ptn.radius);	
+				clusterRadius = patterns.Max(ptn => ptn.radius);	
 			}
 			print ("clusterRadius: " + clusterRadius);
 			patternsLoaded = true;
@@ -243,6 +192,9 @@ namespace CTR {
 				OnPatternsLoaded.Invoke (patterns);	
 			}
 		}
+
+
+
 
 		// private void OnDrawGizmos() {
 		//     foreach (DbscanPoint point in dbscanPoints) {

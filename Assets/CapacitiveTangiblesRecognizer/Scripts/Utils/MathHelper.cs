@@ -3,9 +3,7 @@ using UnityEngine;
 
 namespace CTR{
 	public static class MathHelper {
-
-		public static Vector2 ComputeCenter (List<Vector2> points, Color color)
-		{
+		public static Vector2 ComputeCenter (List<Vector2> points, Color color) {
 			Vector2 center = Vector2.zero;
 			foreach (Vector2 p in points) {
 				center += p;
@@ -15,7 +13,6 @@ namespace CTR{
 			foreach (Vector2 p in points) {
 				Debug.DrawLine (center, p, color, 30);
 			}
-
 			return center;
 		}
 
@@ -24,8 +21,7 @@ namespace CTR{
 		}
 
 
-		public static void DrawCircle (Vector2 center, float radius, int segments, Color color)
-		{
+		public static void DrawCircle (Vector2 center, float radius, int segments, Color color) {
 			float angle = 360 / segments;
 			List<Vector3> points = new List<Vector3> ();
 			for (int i = 0; i < (segments + 1); i++) {
@@ -40,13 +36,38 @@ namespace CTR{
 			}
 		}
 
-		public static Rect RectTransformToScreenSpace (RectTransform transform)
-		{
+		public static Rect RectTransformToScreenSpace (RectTransform transform) {
 			Vector2 size = Vector2.Scale (transform.rect.size, transform.lossyScale);
 			float x = transform.position.x + transform.anchoredPosition.x;
 			float y = Screen.height - transform.position.y - transform.anchoredPosition.y;
 
 			return new Rect (x - size.x, y + Screen.height - size.y, size.x, size.y);
+		}
+
+		public static Tuple<int, int> FindMinDistancePair(List<Vector2> patternPoints, Vector2 patternCenter, out float minDist) {
+			Tuple<int, int> minDistPair = new Tuple<int, int> ();
+			minDist = float.MaxValue;
+			for (int i = 0; i < patternPoints.Count; i++) {
+				for (int j = 0; j < patternPoints.Count; j++) {
+					if (i != j) {
+						float dist = Vector2.Distance (patternPoints[i], patternPoints[j]);
+						if (dist < minDist) {
+							minDist = dist;
+							minDistPair.first = i;
+							minDistPair.second = j;
+						}
+					}
+				}
+			}
+			float firstDistFromCenter = Vector2.Distance(patternPoints[minDistPair.first], patternCenter);
+			float secondDistFromCenter = Vector2.Distance(patternPoints[minDistPair.second], patternCenter);
+
+			if (secondDistFromCenter > firstDistFromCenter && GlobalSettings.Instance.flipRotation) {
+				int tmp = minDistPair.first;
+				minDistPair.first = minDistPair.second;
+				minDistPair.second = tmp;
+			}
+			return minDistPair;
 		}
 	}
 }

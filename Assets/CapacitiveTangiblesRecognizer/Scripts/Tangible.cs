@@ -12,6 +12,8 @@ namespace CTR{
 		public Quaternion lastKnownRotation;
 		public Transform anchor1;
 		public Transform anchor2;
+		public Transform info1;
+		public Transform info2;
 		public void SetIDText (string id)
 		{
 			idText.text = id;
