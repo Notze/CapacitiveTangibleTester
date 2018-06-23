@@ -16,15 +16,14 @@ namespace CTR {
 		public GameObject patternFootPrefab;
 
 		public GameObject touchPointPrefab;
-		public Text patternID;
-
+		public Text patternIdText;
+		int patternId = 0;
 		RectTransform rectTransform;
 
 		List<TangiblePattern> patterns = new List<TangiblePattern>();
 		List<GameObject> patternPointsVisuals;
 
 		void Start() {
-			patternID.text = "1";
 			rectTransform = transform as RectTransform;
 			patternPointsVisuals = new List<GameObject>();
 		}
@@ -48,17 +47,15 @@ namespace CTR {
 		//	//}
 		//}
 
-		public void TrainPattern() {
-			int id = 0;
-			int patternId = 0;
-			if (int.TryParse(patternID.text, out id)) {
+
+		public void SetPatternID(){
+			int id;
+			if (int.TryParse (patternIdText.text, out id)) {
 				patternId = id;
 			}
-			TrainPattern(patternId);
 		}
 
-		public void TrainPattern (int patternId)
-		{
+		public void TrainPattern() {
 			List<Vector2> patternPoints = new List<Vector2> ();
 			Touch [] touches = Input.touches;
 
@@ -68,7 +65,6 @@ namespace CTR {
 					patternPoints.Add (pos);
 				}
 			}
-
 
 			Vector2 patternCenter = MathHelper.ComputeCenter(patternPoints, Color.red);
 			float radius = 0;
@@ -129,7 +125,7 @@ namespace CTR {
 			for (int i = 0; i < patternPoints.Count; i++){
 				if(patternPoints[i].y > maxY){
 					infoPoint1 = i;
-					maxY = patternPoints [i].y;
+					maxY = patternPoints[i].y;
 				}
 			}
 			// find info pont 2:
@@ -140,7 +136,7 @@ namespace CTR {
 					break;
 				}
 			}
-			print ("infoPoint1:" + infoPoint1 + " infoPoint2: " + infoPoint2);
+			print("infoPoint1:" + infoPoint1 + " infoPoint2: " + infoPoint2);
 
 			pattern.id = patternId;
 			pattern.points = patternPoints;
@@ -179,7 +175,7 @@ namespace CTR {
 
 			// save ne pattern to json
 			string json = JsonUtility.ToJson(pattern, true);
-			string fullfilepath = TangiblesFileUtils.PatternFilename(patternID.text);
+			string fullfilepath = TangiblesFileUtils.PatternFilename(patternId.ToString());
 			print (fullfilepath);
 			File.WriteAllText (fullfilepath, json);
 		}
