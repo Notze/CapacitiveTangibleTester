@@ -22,9 +22,15 @@ namespace CTR{
 			idText.text = id;
 		}
 
+		private void Start ()
+		{
+			positionToken = 0.99f;
+		}
+
 		private void Update () {
-			positionToken -= fadeOutDuration * Time.deltaTime;
-			positionToken = Mathf.Clamp (positionToken, 0.01f, 0.99f);
+			positionToken -= Time.deltaTime/fadeOutDuration;
+			positionToken = Mathf.Clamp(positionToken, 0.01f, 0.99f);
+			print (pattern.id + " " + positionToken);
 		}
 
 
@@ -33,6 +39,7 @@ namespace CTR{
 			(gameObject.transform as RectTransform).eulerAngles = rot;
 			positionToken = 0.99f;
 			SavePosition();
+			CapacitiveTangiblesRecognizer.Instance.NotifyTangibleUpdate(pattern.id, transform.position, transform.rotation);
 		}
 
 		void SavePosition() {

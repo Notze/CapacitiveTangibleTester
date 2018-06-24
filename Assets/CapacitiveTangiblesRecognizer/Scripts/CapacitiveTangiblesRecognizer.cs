@@ -143,14 +143,10 @@ namespace CTR {
 
 			// do the recognition
 			if (dbscanPoints.Count >= GlobalSettings.Instance.minNumOfPointsInCluster) {
-				
-
-				 //move tangibles to the new position
-
+				RecognizeTangibles ();
+				AssignTangiblesPositions ();
+				ClearClusters ();
 			}
-			RecognizeTangibles();
-			AssignTangiblesPositions();
-			ClearClusters();
 		}
 
 		public void DeleteTangiblesPatterns ()
@@ -399,19 +395,22 @@ namespace CTR {
 			float pInfo1 = 2 * MathHelper.NormalDistribution (Mathf.Abs (zInfo1), 0, 1);
 			float pInfo2 = 2 * MathHelper.NormalDistribution (Mathf.Abs (zInfo2), 0, 1);
 
-			print ("dist anchor1: " + distAnchor1 + " z: " + zAnchor1 + " p: " + pAnchor1);
-			print ("dist anchor2: " + distAnchor2 + " z: " + zAnchor2 + " p: " + pAnchor2);
-			print ("dist info1: " + distInfo1 + " z: " + zInfo1 + " p: " + pInfo1);
-			print ("dist info2: " + distInfo2 + " z: " + zInfo2 + " p: " + pInfo2);
+			//print ("dist anchor1: " + distAnchor1 + " z: " + zAnchor1 + " p: " + pAnchor1);
+			//print ("dist anchor2: " + distAnchor2 + " z: " + zAnchor2 + " p: " + pAnchor2);
+			//print ("dist info1: " + distInfo1 + " z: " + zInfo1 + " p: " + pInfo1);
+			//print ("dist info2: " + distInfo2 + " z: " + zInfo2 + " p: " + pInfo2);
 
 			float xDist = Mathf.Pow ((tangible.lastKnownPosition.x - clusterCenter.x) / Screen.width, 2);
-			float yDist = Mathf.Pow ((tangible.lastKnownPosition.y - clusterCenter.y) / Screen.width, 2);
-			float distTangibleCluster = Mathf.Sqrt(xDist + yDist);
+			float yDist = Mathf.Pow ((tangible.lastKnownPosition.y - clusterCenter.y) / Screen.height, 2);
+			float distTangibleCluster = 1.0f - Mathf.Sqrt(xDist + yDist);
 
-			float recognitionProbability = 0.1f * pAnchor1 + 0.1f * pAnchor2 + 0.4f * pInfo1 + 0.4f * pInfo2;
+			float aWeight = GlobalSettings.Instance.anchorWeight;
+			float posWeight = GlobalSettings.Instance.positionWeight;
 
-			float probability = 0.3f * tangible.positionToken * distTangibleCluster + 0.7f * (1.0f-tangible.positionToken) * recognitionProbability;
+			float recognitionProbability = aWeight/2 * pAnchor1 + aWeight/2 * pAnchor2 + (1.0f-aWeight)/2 * pInfo1 + (1.0f - aWeight)/2 * pInfo2;
+			float positionPorbability = tangible.positionToken * distTangibleCluster;
 
+			float probability = posWeight * positionPorbability + (1.0f - posWeight) * recognitionProbability;
 
 			association.pattern = pattern;
 			association.position = pos;
@@ -531,6 +530,12 @@ namespace CTR {
 				colors.Add (Color.HSVToRGB ((i * step) / 360.0f, 1, 1));
 			}
 			return colors;
+		}
+
+		public void NotifyTangibleUpdate(int id, Vector2 position, Quaternion rotation){
+			if(OnTangibleUpdated != null){
+				OnTangibleUpdated.Invoke (id, position, rotation);	
+			}
 		}
 	}
 }

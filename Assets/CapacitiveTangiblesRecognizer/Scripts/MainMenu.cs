@@ -11,13 +11,19 @@ namespace CTR{
 		public Slider anchorToleranceSlider;
 		public Slider minDistanceSlider;
 		public Slider fitnessThresholdSlider;
+		public Slider anchorWeightSlider;
+		public Slider positionWeightSlider;
+		public Button flipRotationButton;
 		bool isOpen;
 		public List<RectTransform> menuPanels;
+
 		void Start () {
 			clusterRadiusSlider.value = GlobalSettings.Instance.clusterRadiusScaler;
 			anchorToleranceSlider.value = GlobalSettings.Instance.anchorTolerance;
 			minDistanceSlider.value = GlobalSettings.Instance.minDistanceBetweenTouchPoints;
 			fitnessThresholdSlider.value = GlobalSettings.Instance.patternFitThreshold;
+			anchorWeightSlider.value = GlobalSettings.Instance.anchorWeight;
+			positionWeightSlider.value = GlobalSettings.Instance.positionWeight;
 		}
 
 
@@ -60,6 +66,18 @@ namespace CTR{
 
 		public void SetFitnessThreshold () {
 			GlobalSettings.Instance.SetPatternFitThreshold (fitnessThresholdSlider.value);
+		}
+		public void SetAnchorWeight ()
+		{
+			GlobalSettings.Instance.SetAnchorWeight (anchorWeightSlider.value);
+		}
+		public void SetPositionWeight ()
+		{
+			GlobalSettings.Instance.SetPositionWeight (positionWeightSlider.value);
+		}
+		public void ToggleFlip(){
+			GlobalSettings.Instance.ToggleFlipRotation();
+			flipRotationButton.GetComponent<Image>().color = GlobalSettings.Instance.flipRotation ? Color.yellow : Color.white;
 		}
 	}
 }

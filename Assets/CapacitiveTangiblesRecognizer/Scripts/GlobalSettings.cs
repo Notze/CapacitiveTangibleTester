@@ -14,9 +14,11 @@ namespace CTR{
 		public const string kClusterRadiusScaler = "kClusterRadiusScaler";
 		public const string kAnchorTolerance = "kAnchorTolerance";
 		public const string kPatternFitThreshold = "kPatternFitThreshold";
-		public const string kMinNumOfPointsInCluster = "kMinNumOfPointsInCluster";
+		//public const string kMinNumOfPointsInCluster = "kMinNumOfPointsInCluster";
 		public const string kFlipRotation = "kFlipRotation";
 		public const string kMinDistanceBetweenTouchPoints = "kMinDistanceBetweenTouchPoints";
+		public const string kAnchorWeight = "kAnchorWeight";
+		public const string kPositionWeight = "kPositionWeight";
 		public const string kDebugOutput = "kDebugOutput";
 
 		public int numOfClusterPoints = 0;
@@ -27,9 +29,11 @@ namespace CTR{
 		public float clusterRadiusScaler = 2.0f;
 		public float anchorTolerance = 0.1f;
 		public float patternFitThreshold = 0.001f;
-		public int minNumOfPointsInCluster = 4;
+		public int minNumOfPointsInCluster = 3;
 		public bool flipRotation;
 		public float minDistanceBetweenTouchPoints = 0.1f;
+		public float anchorWeight = 0.1f;
+		public float positionWeight = 0.3f;
 		public bool debugOutput;
 
 		private void Start () {
@@ -46,14 +50,20 @@ namespace CTR{
 			if (PlayerPrefs.HasKey (kPatternFitThreshold)) {
 				patternFitThreshold = PlayerPrefs.GetFloat (kPatternFitThreshold);
 			}
-			if (PlayerPrefs.HasKey (kMinNumOfPointsInCluster)) {
-				minNumOfPointsInCluster = PlayerPrefs.GetInt(kMinNumOfPointsInCluster);
-			}
+			//if (PlayerPrefs.HasKey (kMinNumOfPointsInCluster)) {
+			//	minNumOfPointsInCluster = PlayerPrefs.GetInt(kMinNumOfPointsInCluster);
+			//}
 			if (PlayerPrefs.HasKey (kFlipRotation)) {
 				flipRotation = PlayerPrefs.GetInt (kFlipRotation) > 0;
 			}
 			if (PlayerPrefs.HasKey (kMinDistanceBetweenTouchPoints)) {
 				minDistanceBetweenTouchPoints = PlayerPrefs.GetFloat(kMinDistanceBetweenTouchPoints);
+			}
+			if (PlayerPrefs.HasKey (kAnchorWeight)) {
+				anchorWeight = PlayerPrefs.GetFloat (kAnchorWeight);
+			}
+			if (PlayerPrefs.HasKey (kPositionWeight)) {
+				positionWeight = PlayerPrefs.GetFloat (kPositionWeight);
 			}
 			if (PlayerPrefs.HasKey (kDebugOutput)) {
 				debugOutput = PlayerPrefs.GetInt (kDebugOutput) > 0;
@@ -106,25 +116,23 @@ namespace CTR{
 
 		void SetStatusText ()
 		{
-			statusText.text = string.Format ("modality: {0} cluster points: {1}; cluster radius scalar: {2}; tolerance: {3}; angle: {4}; flip: {5}; min dist: {6}; fitness threshold: {7}; debug output {8}",
-			                                 modality,
-											 numOfClusterPoints,
-											 clusterRadiusScaler,
+			statusText.text = string.Format ("cluster points: {0};  anchor tolerance: {1}; min dist move: {2}; fitness threshold: {3}; anchor weight: {4}; position weight: {5}",
+			                                 numOfClusterPoints,
 											 anchorTolerance,
-											 rotationAngle,
-											 flipRotation,
-											 minDistanceBetweenTouchPoints,
-											 patternFitThreshold,
-			                                 debugOutput);
+			                                 minDistanceBetweenTouchPoints.ToString("0.000"),
+			                                 patternFitThreshold.ToString("0.000"),
+			                                 anchorWeight.ToString("0.000"), 
+			                                 positionWeight.ToString("0.000"));
 
 
 			PlayerPrefs.SetInt (kModality, (int)modality);
 			PlayerPrefs.SetFloat (kClusterRadiusScaler, clusterRadiusScaler);
 			PlayerPrefs.SetFloat (kAnchorTolerance, anchorTolerance);
 			PlayerPrefs.SetFloat(kPatternFitThreshold, patternFitThreshold);
-			PlayerPrefs.SetInt(kMinNumOfPointsInCluster, minNumOfPointsInCluster);
 			PlayerPrefs.SetInt (kFlipRotation, flipRotation == true ? 1: 0);
 			PlayerPrefs.SetFloat (kMinDistanceBetweenTouchPoints, minDistanceBetweenTouchPoints);
+			PlayerPrefs.SetFloat (kAnchorWeight, anchorWeight);
+			PlayerPrefs.SetFloat (kPositionWeight, positionWeight);
 			PlayerPrefs.SetInt (kDebugOutput, debugOutput == true ? 1 : 0);
 		}
 
@@ -158,10 +166,10 @@ namespace CTR{
 			rotationAngle = angle;
 			SetStatusText ();
 		}
-		public void FlipRotation ()
+		public void ToggleFlipRotation()
 		{
 			flipRotation = !flipRotation;
-			SetStatusText ();
+			SetStatusText();
 		}
 		public void SetMinDistanceBetweenTouchPoints (float dist)
 		{
@@ -174,9 +182,21 @@ namespace CTR{
 			patternFitThreshold = threshold;
 			SetStatusText ();
 		}
+
 		public void ToggleDebugOutput(){
 			debugOutput = !debugOutput;
 			SetStatusText();
+		}
+
+		public void SetAnchorWeight(float weight){
+			anchorWeight = weight;
+			SetStatusText();
+		}
+
+		public void SetPositionWeight (float weight)
+		{
+			positionWeight = weight;
+			SetStatusText ();
 		}
 	}
 }
