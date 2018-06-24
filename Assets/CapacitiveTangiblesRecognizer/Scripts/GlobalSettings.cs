@@ -79,10 +79,12 @@ namespace CTR{
 				SetStatusText ();
 			}
 			if (Input.GetKeyDown (KeyCode.N)) {
-				Vector3 lastPos = new Vector3 (-3, 0, 0);
-				for (float x = -3; x < 3; x += 0.1f){
-					float y = MathHelper.NormalDistribution (x, 0, 0.25f);
-					Vector3 nextPos = new Vector3 (x, y, 0);
+				float m = 2f;
+				float s = 0.4f;
+				Vector3 lastPos = new Vector3 (-2*m, 0, 0);
+				for (float x = -2*m; x < 2*m; x += 0.1f){
+					float y = MathHelper.NormalDistribution(x, m, s);
+					Vector3 nextPos = new Vector3 (x-m, y, 0);
 					Debug.DrawLine (lastPos, nextPos, Color.yellow, 100);
 					lastPos = nextPos;
 				}
@@ -94,7 +96,6 @@ namespace CTR{
 			if (Input.GetKeyDown (KeyCode.T)) {
 				CapacitiveTangiblesTrainer.Instance.TrainPattern();
 			}
-
 			if (Input.GetKeyDown (KeyCode.X)) {
 				CapacitiveTangiblesRecognizer.Instance.ClearClusters ();
 			}

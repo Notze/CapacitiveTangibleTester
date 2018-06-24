@@ -338,7 +338,7 @@ namespace CTR {
 			int secondInfo = 0;
 			for (int i = 0; i < clsPts.Count; i++){
 				if(i != firstAnchor && i != secondAnchor){
-					float dist = Vector2.Distance (clsPts[firstAnchor].point, clsPts[i].point);
+					float dist = Vector2.Distance(clsPts[firstAnchor].point, clsPts[i].point);
 					if(dist > maxDistanceFromAnchor1){
 						firstInfo = i;
 					}
@@ -347,7 +347,7 @@ namespace CTR {
 
 			for (int i = 0; i < clsPts.Count; i++) {
 				if (i != firstAnchor && i != secondAnchor && i != firstInfo) {
-					float dist = Vector2.Distance (clsPts [firstAnchor].point, clsPts [i].point);
+					float dist = Vector2.Distance(clsPts [firstAnchor].point, clsPts [i].point);
 					if (dist < minDistanceFromAnchor1) {
 						secondInfo = i;
 					}
@@ -384,25 +384,42 @@ namespace CTR {
 				}
 			}
 
+			float distAnchor1 = Vector2.Distance (tangible.anchor1.position, clsPts [firstAnchor].point);
+			float distAnchor2 = Vector2.Distance (tangible.anchor2.position, clsPts [secondAnchor].point);
+
+			float distInfo1 = Vector2.Distance (tangible.info1.position, clsPts [firstInfo].point);
+			float distInfo2 = Vector2.Distance (tangible.info2.position, clsPts [secondInfo].point);
+
+			float zAnchor1 = (distAnchor1 - pattern.meanDistances [0]) / pattern.standardDeviations [0];
+			float zAnchor2 = (distAnchor2 - pattern.meanDistances [1]) / pattern.standardDeviations [1];
+			float zInfo1 = (distInfo1 - pattern.meanDistances [2]) / pattern.standardDeviations [2];
+			float zInfo2 = (distInfo2 - pattern.meanDistances [3]) / pattern.standardDeviations [3];
+
+			print ("dist anchor1: " + distAnchor1 + " z: " + zAnchor1);
+			print ("dist anchor2: " + distAnchor2 + " z: " + zAnchor2);
+			print ("dist info1: " + distInfo1 + " z: " + zInfo1);
+			print ("dist info2: " + distInfo2 + " z: " + zInfo2);
+
+
 			float probability = 0;
-			for (int i = 0; i < feetPoints.Count; i++) {
+			//for (int i = 0; i < feetPoints.Count; i++) {
 
-				float mean = pattern.meanDistances [i];
-				float sd = pattern.standardDeviations [i];
-				float var = sd * sd;
+			//	float mean = pattern.meanDistances [i];
+			//	float sd = pattern.standardDeviations [i];
 
-				float maxProbability = float.MinValue;
-				for (int j = 0; j < clsPts.Count; j++) {
-					float dist = (feetPoints[i] - clsPts[j].point).magnitude;
-					float p = MathHelper.NormalDistribution (dist, mean, var);
-					print("dist: "+ dist + " p: " + p);
-					if (p > maxProbability) {
-						maxProbability = p;
-					}
-				}
-				probability += maxProbability;
-			}
-			probability /= feetPoints.Count;
+
+			//	float maxProbability = float.MinValue;
+			//	for (int j = 0; j < clsPts.Count; j++) {
+			//		float dist = (feetPoints[i] - clsPts[j].point).magnitude;
+			//		float p = MathHelper.NormalDistribution (dist, mean, sd);
+			//		print("dist: "+ dist + " p: " + p);
+			//		if (p > maxProbability) {
+			//			maxProbability = p;
+			//		}
+			//	}
+			//	probability += maxProbability;
+			//}
+			//probability /= feetPoints.Count;
 
 			association.pattern = pattern;
 			association.position = pos;

@@ -185,6 +185,7 @@ namespace CTR {
 		{
 			TangiblePattern pattern = new TangiblePattern ();
 			pattern.id = patternId;
+			pattern.trainingSamples = patterns.Count;
 
 			// compute mean values and SDs for each point
 			List<Vector2> anchor1Points = new List<Vector2> ();

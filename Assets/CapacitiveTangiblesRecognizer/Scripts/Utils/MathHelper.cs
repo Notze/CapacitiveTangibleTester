@@ -68,7 +68,7 @@ namespace CTR{
 
 		public static float NormalDistribution(float x, float m, float s){
 			float pi = Mathf.PI;
-			return Mathf.Exp (-Mathf.Pow (x - m, 2) / (2 * s)) / Mathf.Sqrt (2 * pi * s);
+			return Mathf.Exp (-Mathf.Pow (x - m, 2) / (2 * s*s)) / (s*Mathf.Sqrt(2 * pi));
 		}
 	}
 }
