@@ -104,19 +104,20 @@ namespace CTR {
 						break;
 					}
 				}
+				if(inAcceptableDistance){
+					DbscanPoint dbscanPoint = new DbscanPoint (screenPoint, pointID++);
+					dbscanPoints.Add (dbscanPoint);
+					GameObject touchObj = Instantiate (touchPrefab);
+					Vector3 wPos = Camera.main.ScreenToWorldPoint (screenPoint);
+					wPos.z = 0;
+					touchObj.transform.position = wPos;
 
-				DbscanPoint dbscanPoint = new DbscanPoint (screenPoint, pointID++);
-				dbscanPoints.Add (dbscanPoint);
-				GameObject touchObj = Instantiate (touchPrefab);
-				Vector3 wPos = Camera.main.ScreenToWorldPoint (screenPoint);
-				wPos.z = 0;
-				touchObj.transform.position = wPos;
-
-				ClusterTouch clusterTouch = touchObj.GetComponent<ClusterTouch> ();
-				clusterTouch.pointID = dbscanPoint.pointID;
-				clusterTouch.dbscanPoint = dbscanPoint;
-				dbscanPoint.clusterTouch = clusterTouch;
-				touchObjects.Add (clusterTouch);
+					ClusterTouch clusterTouch = touchObj.GetComponent<ClusterTouch> ();
+					clusterTouch.pointID = dbscanPoint.pointID;
+					clusterTouch.dbscanPoint = dbscanPoint;
+					dbscanPoint.clusterTouch = clusterTouch;
+					touchObjects.Add (clusterTouch);
+				}
 			}
 			return !inAvoidArea && inAcceptableDistance;
 		}
@@ -126,34 +127,30 @@ namespace CTR {
 		{
 
 			// validate old tangible position
-			foreach (Tangible tangible in tangibles) {
-				tangible.SavePosition ();
-			}
+			//foreach (Tangible tangible in tangibles) {
+			//	tangible.SavePosition ();
+			//}
 
 			// handle input. prefilter it
-			List<Vector2> touchPoints = new List<Vector2> ();
 			switch (GlobalSettings.Instance.modality) {
 			case InputModality.Mouse:
-				HandleMouseInput ();
+				HandleMouseInput();
 				break;
 			case InputModality.Touch:
-				HandleTouchInput ();
+				HandleTouchInput();
 				break;
 			}
 
 			// do the recognition
-			//if (touchPoints.Count >= GlobalSettings.Instance.minNumOfPointsInCluster) {
-				//print ("rotationPoint:" + rotationPoint);
-				//RecognizeTangibles (patterns, touchPoints);
+			if (dbscanPoints.Count >= GlobalSettings.Instance.minNumOfPointsInCluster) {
+				
 
-				// move tangibles to the new position
-				//AssignTangiblesPositions ();
-			//}
+				 //move tangibles to the new position
 
-
-
-
-
+			}
+			RecognizeTangibles();
+			AssignTangiblesPositions();
+			ClearClusters();
 		}
 
 		public void DeleteTangiblesPatterns ()
@@ -242,15 +239,11 @@ namespace CTR {
 		}
 
 		public void RecognizeTangibles(){
-			RecognizeTangibles (patterns);
-		}
 
-		void RecognizeTangibles (List<TangiblePattern> patterns)
-		{
 			patternFitnessDict = new Dictionary<TangiblePattern, List<ClusterAssociation>> ();
 
 			//ResetClusters();
-			//ClearClusters ();
+			//ClearClusters();
 
 			DoClustering();
 
@@ -336,23 +329,28 @@ namespace CTR {
 			float minDistanceFromAnchor1 = float.MaxValue;
 			int firstInfo = 0;
 			int secondInfo = 0;
+
+			for (int i = 0; i < clsPts.Count; i++) {
+				if (i != firstAnchor && i != secondAnchor) {
+					float dist = Vector2.Distance (clsPts [firstAnchor].point, clsPts [i].point);
+					if (dist < minDistanceFromAnchor1) {
+						minDistanceFromAnchor1 = dist;
+						secondInfo = i;
+					}
+				}
+			}
+
 			for (int i = 0; i < clsPts.Count; i++){
-				if(i != firstAnchor && i != secondAnchor){
+				if(i != firstAnchor && i != secondAnchor && i != secondInfo){
 					float dist = Vector2.Distance(clsPts[firstAnchor].point, clsPts[i].point);
 					if(dist > maxDistanceFromAnchor1){
+						maxDistanceFromAnchor1 = dist;
 						firstInfo = i;
 					}
 				}
 			}
 
-			for (int i = 0; i < clsPts.Count; i++) {
-				if (i != firstAnchor && i != secondAnchor && i != firstInfo) {
-					float dist = Vector2.Distance(clsPts [firstAnchor].point, clsPts [i].point);
-					if (dist < minDistanceFromAnchor1) {
-						secondInfo = i;
-					}
-				}
-			}
+
 
 			clsPts [firstInfo].clusterTouch.SetColor (Color.blue);
 			clsPts [secondInfo].clusterTouch.SetColor (Color.red);
@@ -395,31 +393,25 @@ namespace CTR {
 			float zInfo1 = (distInfo1 - pattern.meanDistances [2]) / pattern.standardDeviations [2];
 			float zInfo2 = (distInfo2 - pattern.meanDistances [3]) / pattern.standardDeviations [3];
 
-			print ("dist anchor1: " + distAnchor1 + " z: " + zAnchor1);
-			print ("dist anchor2: " + distAnchor2 + " z: " + zAnchor2);
-			print ("dist info1: " + distInfo1 + " z: " + zInfo1);
-			print ("dist info2: " + distInfo2 + " z: " + zInfo2);
 
+			float pAnchor1 = 2 * MathHelper.NormalDistribution (Mathf.Abs (zAnchor1), 0, 1);
+			float pAnchor2 = 2 * MathHelper.NormalDistribution (Mathf.Abs (zAnchor2), 0, 1);
+			float pInfo1 = 2 * MathHelper.NormalDistribution (Mathf.Abs (zInfo1), 0, 1);
+			float pInfo2 = 2 * MathHelper.NormalDistribution (Mathf.Abs (zInfo2), 0, 1);
 
-			float probability = 0;
-			//for (int i = 0; i < feetPoints.Count; i++) {
+			print ("dist anchor1: " + distAnchor1 + " z: " + zAnchor1 + " p: " + pAnchor1);
+			print ("dist anchor2: " + distAnchor2 + " z: " + zAnchor2 + " p: " + pAnchor2);
+			print ("dist info1: " + distInfo1 + " z: " + zInfo1 + " p: " + pInfo1);
+			print ("dist info2: " + distInfo2 + " z: " + zInfo2 + " p: " + pInfo2);
 
-			//	float mean = pattern.meanDistances [i];
-			//	float sd = pattern.standardDeviations [i];
+			float xDist = Mathf.Pow ((tangible.lastKnownPosition.x - clusterCenter.x) / Screen.width, 2);
+			float yDist = Mathf.Pow ((tangible.lastKnownPosition.y - clusterCenter.y) / Screen.width, 2);
+			float distTangibleCluster = Mathf.Sqrt(xDist + yDist);
 
+			float recognitionProbability = 0.1f * pAnchor1 + 0.1f * pAnchor2 + 0.4f * pInfo1 + 0.4f * pInfo2;
 
-			//	float maxProbability = float.MinValue;
-			//	for (int j = 0; j < clsPts.Count; j++) {
-			//		float dist = (feetPoints[i] - clsPts[j].point).magnitude;
-			//		float p = MathHelper.NormalDistribution (dist, mean, sd);
-			//		print("dist: "+ dist + " p: " + p);
-			//		if (p > maxProbability) {
-			//			maxProbability = p;
-			//		}
-			//	}
-			//	probability += maxProbability;
-			//}
-			//probability /= feetPoints.Count;
+			float probability = 0.3f * tangible.positionToken * distTangibleCluster + 0.7f * (1.0f-tangible.positionToken) * recognitionProbability;
+
 
 			association.pattern = pattern;
 			association.position = pos;
@@ -433,24 +425,45 @@ namespace CTR {
 
 		public void AssignTangiblesPositions ()
 		{
+			Dictionary<int, ClusterAssociation> clusterFitnessDict = new Dictionary<int, ClusterAssociation>();
+			foreach(Tangible tangible in tangibles){
+				tangible.ResetPosition();
+			}
 
-			//List<ClusterAssociation> bestFits = new List<ClusterAssociation> ();
-			//foreach (TangiblePattern pattern in patternFitnessDict.Keys) {
-			//	List<ClusterAssociation> associations = patternFitnessDict [pattern];
-			//	float minDist = float.MaxValue;
-			//	int minDistI = 0;
-			//	for (int i = 0; i < associations.Count; i++) {
-			//		if (associations [i].distance < minDist) {
-			//			minDistI = i;
-			//			minDist = associations [i].distance;
-			//		}
+			foreach (TangiblePattern pattern in patternFitnessDict.Keys) {
+				List<ClusterAssociation> associations = patternFitnessDict[pattern];
+				foreach(ClusterAssociation association in associations){
+					if(!clusterFitnessDict.ContainsKey(association.clusterId)){
+						clusterFitnessDict.Add (association.clusterId, association);
+					}else{
+						if(clusterFitnessDict[association.clusterId].probability < association.probability){
+							clusterFitnessDict [association.clusterId] = association;
+						}
+					}
+				}
+			}
+
+			foreach(int clusterId in clusterFitnessDict.Keys){
+				ClusterAssociation association = clusterFitnessDict [clusterId];
+				Tangible tangible = tangibles.Find (t => t.pattern.id == association.pattern.id);
+				if(association.probability > GlobalSettings.Instance.patternFitThreshold){
+					tangible.UpdatePosition(association.position, association.rotation);
+				}
+			}
+
+			//float minDist = float.MaxValue;
+			//int minDistI = 0;
+			//for (int i = 0; i < associations.Count; i++) {
+			//	if (associations [i].distance < minDist) {
+			//		minDistI = i;
+			//		minDist = associations [i].distance;
 			//	}
-			//	Tangible tangible = tangibles.Find (t => t.pattern.id == pattern.id);
-			//	if (minDist < GlobalSettings.Instance.patternFitThreshold) {
-			//		tangible.UpdatePosition (associations [minDistI].position, associations [minDistI].rotation);
-			//	} else {
-			//		tangible.ResetPosition ();
-			//	}
+			//}
+			//
+			//if (minDist < GlobalSettings.Instance.patternFitThreshold) {
+			//	tangible.UpdatePosition (associations [minDistI].position, associations [minDistI].rotation);
+			//} else {
+			//	tangible.ResetPosition ();
 			//}
 		}
 

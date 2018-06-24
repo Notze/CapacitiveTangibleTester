@@ -729,7 +729,7 @@ MonoBehaviour:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 14
     m_FontStyle: 0
-    m_BestFit: 0
+    m_BestFit: 1
     m_MinSize: 10
     m_MaxSize: 40
     m_Alignment: 4
@@ -2630,7 +2630,7 @@ MonoBehaviour:
   m_MinValue: 0.01
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 1
+  m_Value: 0.01
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -5174,6 +5174,7 @@ MonoBehaviour:
   - {fileID: 1977540053}
   - {fileID: 930268135}
   - {fileID: 1053378615}
+  - {fileID: 1285589490}
 --- !u!1 &1554390226
 GameObject:
   m_ObjectHideFlags: 0
@@ -5888,7 +5889,7 @@ MonoBehaviour:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 14
     m_FontStyle: 0
-    m_BestFit: 0
+    m_BestFit: 1
     m_MinSize: 10
     m_MaxSize: 40
     m_Alignment: 4
@@ -6383,7 +6384,7 @@ GameObject:
   - component: {fileID: 1849862265}
   - component: {fileID: 1849862266}
   m_Layer: 5
-  m_Name: MinDistanceeSlider
+  m_Name: MinDistanceSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6397,7 +6398,7 @@ RectTransform:
   m_GameObject: {fileID: 1849862264}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.99999994, y: 0.99999994, z: 0.99999994}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 147157619}
   - {fileID: 495580270}
@@ -6450,9 +6451,9 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1310410793}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 0.5
-  m_WholeNumbers: 0
-  m_Value: 0.1
+  m_MaxValue: 100
+  m_WholeNumbers: 1
+  m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -6970,7 +6971,7 @@ RectTransform:
   m_GameObject: {fileID: 1999793657}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.99999994, y: 0.99999994, z: 0.99999994}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 670757930}
   - {fileID: 100249155}
@@ -7023,7 +7024,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1554390227}
   m_Direction: 0
   m_MinValue: 0.001
-  m_MaxValue: 0.5
+  m_MaxValue: 0.99
   m_WholeNumbers: 0
   m_Value: 0.001
   m_OnValueChanged:
