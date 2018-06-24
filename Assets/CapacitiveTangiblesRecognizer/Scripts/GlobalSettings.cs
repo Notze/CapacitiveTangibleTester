@@ -78,6 +78,15 @@ namespace CTR{
 				}
 				SetStatusText ();
 			}
+			if (Input.GetKeyDown (KeyCode.N)) {
+				Vector3 lastPos = new Vector3 (-3, 0, 0);
+				for (float x = -3; x < 3; x += 0.1f){
+					float y = MathHelper.NormalDistribution (x, 0, 0.25f);
+					Vector3 nextPos = new Vector3 (x, y, 0);
+					Debug.DrawLine (lastPos, nextPos, Color.yellow, 100);
+					lastPos = nextPos;
+				}
+			}
 
 			if (Input.GetKeyDown (KeyCode.R)) {
 				CapacitiveTangiblesRecognizer.Instance.ResetClusters ();

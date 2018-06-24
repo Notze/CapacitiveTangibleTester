@@ -47,7 +47,7 @@ namespace CTR{
 				touchPositions.Add (touchGO.transform.position);
 			}
 
-			Vector2 center = MathHelper.ComputeCenter (touchPositions, Color.red);
+			Vector2 center = MathHelper.ComputeCenter (touchPositions);
 
 			for (int i = 1; i < touchPositions.Count; i++) {
 				Debug.DrawLine (touchPositions [i - 1],

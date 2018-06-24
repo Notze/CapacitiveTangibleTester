@@ -8,7 +8,7 @@ namespace CTR {
 	public struct ClusterAssociation{
 		public Vector3 position;
 		public Vector3 rotation;
-		public float distance;
+		public float probability;
 		public int clusterId;
 		public TangiblePattern pattern;
 	}
@@ -231,7 +231,7 @@ namespace CTR {
 						string fitnessString = pattern.id + "\t";
 						List<ClusterAssociation> associations = patternFitnessDict [pattern];
 						foreach (ClusterAssociation association in associations) {
-							fitnessString += association.distance.ToString ("0.0000") + "\t";
+							fitnessString += association.probability.ToString ("0.0000") + "\t";
 						}
 						GUILayout.Label (fitnessString, style);
 					}
@@ -293,7 +293,7 @@ namespace CTR {
 
 			List<DbscanPoint> clsPts = clusterPointsDict [clusterId];
 			clusterPoints.AddRange (clsPts.Select (item => item.point).ToList<Vector2> ());
-			Vector2 clusterCenter = MathHelper.ComputeCenter (clusterPoints, clusterColors [clusterId - 1]);
+			Vector2 clusterCenter = MathHelper.ComputeCenter(clusterPoints);
 			foreach (DbscanPoint scanPoint in clsPts) {
 				if (!scanPoint.IsNoise) {
 					scanPoint.clusterTouch.clusterCenter = clusterCenter;
@@ -331,6 +331,31 @@ namespace CTR {
 					}
 				}
 			}
+			// find info points
+			float maxDistanceFromAnchor1 = float.MinValue;
+			float minDistanceFromAnchor1 = float.MaxValue;
+			int firstInfo = 0;
+			int secondInfo = 0;
+			for (int i = 0; i < clsPts.Count; i++){
+				if(i != firstAnchor && i != secondAnchor){
+					float dist = Vector2.Distance (clsPts[firstAnchor].point, clsPts[i].point);
+					if(dist > maxDistanceFromAnchor1){
+						firstInfo = i;
+					}
+				}
+			}
+
+			for (int i = 0; i < clsPts.Count; i++) {
+				if (i != firstAnchor && i != secondAnchor && i != firstInfo) {
+					float dist = Vector2.Distance (clsPts [firstAnchor].point, clsPts [i].point);
+					if (dist < minDistanceFromAnchor1) {
+						secondInfo = i;
+					}
+				}
+			}
+
+			clsPts [firstInfo].clusterTouch.SetColor (Color.blue);
+			clsPts [secondInfo].clusterTouch.SetColor (Color.red);
 
 			// find translation and rotation:
 
@@ -359,23 +384,30 @@ namespace CTR {
 				}
 			}
 
-			float minDistSum = 0;
+			float probability = 0;
 			for (int i = 0; i < feetPoints.Count; i++) {
-				float minDist = float.MaxValue;
+
+				float mean = pattern.meanDistances [i];
+				float sd = pattern.standardDeviations [i];
+				float var = sd * sd;
+
+				float maxProbability = float.MinValue;
 				for (int j = 0; j < clsPts.Count; j++) {
-					float dist = (feetPoints [i] - clsPts [j].point).sqrMagnitude;
-					if (dist < minDist) {
-						minDist = dist;
+					float dist = (feetPoints[i] - clsPts[j].point).magnitude;
+					float p = MathHelper.NormalDistribution (dist, mean, var);
+					print("dist: "+ dist + " p: " + p);
+					if (p > maxProbability) {
+						maxProbability = p;
 					}
 				}
-				minDistSum += 100 * minDist * minDist;
+				probability += maxProbability;
 			}
-
+			probability /= feetPoints.Count;
 
 			association.pattern = pattern;
 			association.position = pos;
 			association.rotation = rot;
-			association.distance = minDistSum;
+			association.probability = probability;
 			association.clusterId = clusterId;
 
 			return association;

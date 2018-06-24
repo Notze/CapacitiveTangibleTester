@@ -10,7 +10,7 @@ namespace CTR {
 			Tangible tangible = patternObj.GetComponent<Tangible> ();
 			tangible.SetIDText(pattern.id.ToString());
 			tangible.pattern = pattern;
-			Vector2 center = MathHelper.ComputeCenter (pattern.points, Color.green);
+			Vector2 center = MathHelper.ComputeCenter (pattern.points);
 			RectTransform patternRectTransform = patternObj.transform as RectTransform;
 			patternRectTransform.sizeDelta = new Vector2(2 * pattern.radius, 2 * pattern.radius);
 
