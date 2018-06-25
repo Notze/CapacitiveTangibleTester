@@ -152,7 +152,7 @@ namespace CTR {
 					break;
 				}
 			}
-			print("infoPoint1:" + infoPoint1 + " infoPoint2: " + infoPoint2);
+			print("infoPoint1: " + infoPoint1 + " infoPoint2: " + infoPoint2);
 
 			pattern.id = patternId;
 			pattern.points = patternPoints;

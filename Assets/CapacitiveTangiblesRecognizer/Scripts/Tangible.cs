@@ -17,13 +17,12 @@ namespace CTR{
 		public float positionToken;
 		public float fadeOutDuration = 10.0f;
 
-		public void SetIDText (string id)
-		{
+		public void SetIDText(string id) {
 			idText.text = id;
 		}
 
-		private void Start ()
-		{
+
+		private void Start(){
 			positionToken = 0.99f;
 		}
 
