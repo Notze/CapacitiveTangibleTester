@@ -13,15 +13,13 @@ namespace CTR{
 		public Vector2 clusterCenter;
 
 
-		public void SetColor(Color color)
-		{
-			GetComponent<SpriteRenderer> ().color = color;
+		public void SetColor(Color color) {
+			GetComponent<SpriteRenderer>().color = color;
 		}
 
-		public void Reset ()
-		{
+		public void Reset () {
 			ClusterId = -1;
-			GetComponent<SpriteRenderer> ().color = Color.black;
+			GetComponent<SpriteRenderer>().color = Color.black;
 		}
 	}
 }

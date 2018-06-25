@@ -143,9 +143,9 @@ namespace CTR {
 
 			// do the recognition
 			if (dbscanPoints.Count >= GlobalSettings.Instance.minNumOfPointsInCluster) {
-				RecognizeTangibles ();
-				AssignTangiblesPositions ();
-				ClearClusters ();
+				RecognizeTangibles();
+				AssignTangiblesPositions();
+				ClearClusters();
 			}
 		}
 
@@ -344,9 +344,17 @@ namespace CTR {
 					}
 				}
 			}
+			if(clsPts[firstInfo].clusterTouch != null){
+				clsPts[firstInfo].clusterTouch.SetColor(Color.blue);	
+			}else{
+				Debug.LogWarning("Cluster Touch does not exist");
+			}
+			if(clsPts[secondInfo].clusterTouch != null){
+				clsPts[secondInfo].clusterTouch.SetColor(Color.red);
+			}else{
+				Debug.LogWarning("Cluster Touch does not exist");
+			}
 
-			clsPts [firstInfo].clusterTouch.SetColor (Color.blue);
-			clsPts [secondInfo].clusterTouch.SetColor (Color.red);
 
 			// find translation and rotation:
 
@@ -506,12 +514,11 @@ namespace CTR {
 			}
 		}
 
-		public void ClearClusters ()
-		{
-			dbscanPoints.Clear();
-			foreach (ClusterTouch ct in touchObjects) {
-				DestroyImmediate(ct.gameObject);
+		public void ClearClusters() {
+			foreach (DbscanPoint point in dbscanPoints) {
+				DestroyImmediate(point.clusterTouch.gameObject);
 			}
+			dbscanPoints.Clear();
 			touchObjects.Clear();
 		}
 
