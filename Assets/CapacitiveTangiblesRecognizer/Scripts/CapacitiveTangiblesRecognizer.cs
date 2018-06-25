@@ -415,7 +415,7 @@ namespace CTR {
 			float posWeight = GlobalSettings.Instance.positionWeight;
 
 			float recognitionProbability = aWeight/2 * pAnchor1 + aWeight/2 * pAnchor2 + (1.0f-aWeight)/2 * pInfo1 + (1.0f - aWeight)/2 * pInfo2;
-			float positionPorbability = tangible.positionToken * distTangibleCluster;
+			float positionPorbability = tangible.positionProbability * distTangibleCluster;
 
 			float probability = posWeight * positionPorbability + (1.0f - posWeight) * recognitionProbability;
 
@@ -453,7 +453,7 @@ namespace CTR {
 				ClusterAssociation association = clusterFitnessDict [clusterId];
 				Tangible tangible = tangibles.Find (t => t.pattern.id == association.pattern.id);
 				if(association.probability > GlobalSettings.Instance.patternFitThreshold){
-					tangible.UpdatePosition(association.position, association.rotation);
+					tangible.UpdatePosition(association.position, association.rotation, association.probability);
 				}
 			}
 

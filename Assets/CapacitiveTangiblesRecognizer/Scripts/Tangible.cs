@@ -14,7 +14,7 @@ namespace CTR{
 		public Transform anchor2;
 		public Transform info1;
 		public Transform info2;
-		public float positionToken;
+		public float positionProbability;
 		public float fadeOutDuration = 10.0f;
 
 		public void SetIDText(string id) {
@@ -23,20 +23,20 @@ namespace CTR{
 
 
 		private void Start(){
-			positionToken = 0.99f;
+			positionProbability = 0.01f;
 		}
 
 		private void Update () {
-			positionToken -= Time.deltaTime/fadeOutDuration;
-			positionToken = Mathf.Clamp(positionToken, 0.01f, 0.99f);
+			positionProbability -= Time.deltaTime/fadeOutDuration;
+			positionProbability = Mathf.Clamp(positionProbability, 0.01f, 0.99f);
 			//print (pattern.id + " " + positionToken);
 		}
 
 
-		public void UpdatePosition (Vector3 pos, Vector3 rot) {
+		public void UpdatePosition (Vector3 pos, Vector3 rot, float probability) {
 			gameObject.transform.position = pos;
 			(gameObject.transform as RectTransform).eulerAngles = rot;
-			positionToken = 0.99f;
+			positionProbability = probability;
 			SavePosition();
 			CapacitiveTangiblesRecognizer.Instance.NotifyTangibleUpdate(pattern.id, transform.position, transform.rotation);
 		}
