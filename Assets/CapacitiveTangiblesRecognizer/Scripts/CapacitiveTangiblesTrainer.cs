@@ -281,7 +281,7 @@ namespace CTR {
 			rt.position = screenPos;
 			rt.SetParent (rectTransform);
 			touchPoint.GetComponent<Image>().color = color;
-			print (rt.position);
+			//print (rt.position);
 			patternPointsVisuals.Add (touchPoint);
 		}
 	}
