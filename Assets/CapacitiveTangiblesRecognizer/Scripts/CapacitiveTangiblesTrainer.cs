@@ -103,83 +103,90 @@ namespace CTR {
 			MathHelper.DrawCircle (patternCenter, radius, 50, Color.blue);
 			float minDist = 0;
 			Tuple<int, int> anchorPair = MathHelper.FindMinDistancePair(patternPoints, patternCenter, out minDist);
-
-			//print(minDistPair);
-			TangiblePattern pattern = new TangiblePattern();
-
-
-			// rotate pattern vertical
-			Vector2 a = patternPoints[anchorPair.first] - patternPoints[anchorPair.second];
-			Vector2 b = Vector2.down;
-			float angle = Vector2.SignedAngle(a, b);
-
-			GlobalSettings.Instance.SetRotationAngle(angle);
-
-			Vector3 rot = new Vector3 (0, 0, angle);
-
-			foreach(GameObject pt in patternPointsVisuals){
-				Destroy(pt);
-			}
-
-			for (int i = 0; i < patternPoints.Count; i++) {
-				CreateTouchPoint (patternPoints[i], Color.green);
-
-				// move point relative to center
-				patternPoints[i] = patternPoints[i] - centerOffset;
-				CreateTouchPoint(patternPoints[i], Color.yellow);
-
-				// rotate vertical
-				patternPoints[i] = MathHelper.RotatePointAroundPivot(patternPoints[i], panelCenter, rot);
-				CreateTouchPoint(patternPoints[i], Color.red);
-
-				// transform point into local space:
-				patternPoints[i] = patternPoints[i] - panelCenter;
-			}
-			// find info point 1:
-			int infoPoint1 = -1;
-			float maxY = float.MinValue;
-			for (int i = 0; i < patternPoints.Count; i++){
-				if (i != anchorPair.first && i != anchorPair.second){
-					if (patternPoints [i].y > maxY) {
-						infoPoint1 = i;
-						maxY = patternPoints [i].y;
-					}	
-				}
-			}
-
-			// find info pont 2:
-			int infoPoint2 = -1;
-			for (int i = 0; i < patternPoints.Count; i++) {
-				if (i != anchorPair.first && i != anchorPair.second && i != infoPoint1) {
-					infoPoint2 = i;
-					break;
-				}
-			}
-			print("infoPoint1: " + infoPoint1 + " infoPoint2: " + infoPoint2);
-
-			if(infoPoint1 == -1 || infoPoint2 == -1){
-				Debug.LogWarning("Pattern does not contain enought information!");
+			if(anchorPair.first == -1 || anchorPair.second == -1){
+				infoText.text = "Pattern does not contain anchor points!";
+				infoText.color = Color.red;
 			}else{
-				pattern.id = patternId;
-				pattern.points = patternPoints;
-				pattern.radius = radius;
-				pattern.anchorDistance = minDist;
-				pattern.anchorPoint1 = anchorPair.first;
-				pattern.anchorPoint2 = anchorPair.second;
-				pattern.infoPoint1 = infoPoint1;
-				pattern.infoPoint2 = infoPoint2;
+				TangiblePattern pattern = new TangiblePattern ();
 
-				patterns.Add (pattern);
+				// rotate pattern vertical
+				Vector2 a = patternPoints [anchorPair.first] - patternPoints [anchorPair.second];
+				Vector2 b = Vector2.down;
+				float angle = Vector2.SignedAngle (a, b);
 
-				GameObject patternObj = CTRUtils.InstantiateTangibleObject (pattern, patternPrefab, patternFootPrefab, patternMonitor, false);
-				monitorPatterns.Add (patternObj);
+				GlobalSettings.Instance.SetRotationAngle (angle);
 
-				Transform [] feet = patternObj.GetComponentsInChildren<Transform> ();
-				float d = 2 * radius;
-				float s = patternMonitor.GetComponent<GridLayoutGroup> ().cellSize.x;
-				foreach (Transform foot in feet) {
-					if (foot.CompareTag ("Foot")) {
-						foot.transform.localPosition *= s / d;
+				Vector3 rot = new Vector3 (0, 0, angle);
+
+				foreach (GameObject pt in patternPointsVisuals) {
+					Destroy (pt);
+				}
+
+				for (int i = 0; i < patternPoints.Count; i++) {
+					CreateTouchPoint (patternPoints [i], Color.green);
+
+					// move point relative to center
+					patternPoints [i] = patternPoints [i] - centerOffset;
+					CreateTouchPoint (patternPoints [i], Color.yellow);
+
+					// rotate vertical
+					patternPoints [i] = MathHelper.RotatePointAroundPivot (patternPoints [i], panelCenter, rot);
+					CreateTouchPoint (patternPoints [i], Color.red);
+
+					// transform point into local space:
+					patternPoints [i] = patternPoints [i] - panelCenter;
+				}
+				// find info point 1:
+				int infoPoint1 = -1;
+				float maxY = float.MinValue;
+				for (int i = 0; i < patternPoints.Count; i++) {
+					if (i != anchorPair.first && i != anchorPair.second) {
+						if (patternPoints [i].y > maxY) {
+							infoPoint1 = i;
+							maxY = patternPoints [i].y;
+						}
+					}
+				}
+
+				// find info pont 2:
+				int infoPoint2 = -1;
+				for (int i = 0; i < patternPoints.Count; i++) {
+					if (i != anchorPair.first && i != anchorPair.second && i != infoPoint1) {
+						infoPoint2 = i;
+						break;
+					}
+				}
+				print ("infoPoint1: " + infoPoint1 + " infoPoint2: " + infoPoint2);
+
+				if (infoPoint1 == -1 || infoPoint2 == -1) {
+					infoText.text = "Pattern does not contain enought information!";
+					infoText.color = Color.red;
+
+				} else {
+					infoText.text = "Pattern trainig successful!";
+					infoText.color = Color.green;
+
+					pattern.id = patternId;
+					pattern.points = patternPoints;
+					pattern.radius = radius;
+					pattern.anchorDistance = minDist;
+					pattern.anchorPoint1 = anchorPair.first;
+					pattern.anchorPoint2 = anchorPair.second;
+					pattern.infoPoint1 = infoPoint1;
+					pattern.infoPoint2 = infoPoint2;
+
+					patterns.Add (pattern);
+
+					GameObject patternObj = CTRUtils.InstantiateTangibleObject (pattern, patternPrefab, patternFootPrefab, patternMonitor, false);
+					monitorPatterns.Add (patternObj);
+
+					Transform [] feet = patternObj.GetComponentsInChildren<Transform> ();
+					float d = 2 * radius;
+					float s = patternMonitor.GetComponent<GridLayoutGroup> ().cellSize.x;
+					foreach (Transform foot in feet) {
+						if (foot.CompareTag ("Foot")) {
+							foot.transform.localPosition *= s / d;
+						}
 					}
 				}
 			}
@@ -268,6 +275,7 @@ namespace CTR {
 			}
 
 			infoText.text = pattern.ToString();
+			infoText.color = Color.white;
 
 			#region save ne pattern to json
 			string json = JsonUtility.ToJson (pattern, true);

@@ -25,12 +25,12 @@ namespace CTR{
 			string str = string.Empty;
 			str += "id: " + id + "\n";
 			str += "training samples: " + trainingSamples + "\n";
-			str += "radius: " + radius.ToString ("0.000") + "\n";
+			str += "radius: " + radius.ToString("0.000") + "\n";
 			str += "anchor dist: " + anchorDistance.ToString ("0.000") + "\n";
-			str += "anchor1 mean:" + meanDistances[anchorPoint1].ToString("0.000") + " SD: " + standardDeviations[anchorPoint1].ToString ("0.000") + "\n";
-			str += "anchor2 mean:" + meanDistances[anchorPoint2].ToString("0.000") + " SD: " + standardDeviations [anchorPoint2].ToString ("0.000") + "\n";
-			str += "info1 mean:" + meanDistances[infoPoint1].ToString("0.000") + " SD: " + standardDeviations [infoPoint1].ToString ("0.000") + "\n";
-			str += "info2 mean:" + meanDistances [infoPoint2].ToString("0.000") + " SD: " + standardDeviations [infoPoint2].ToString ("0.000") + "\n";
+			str += "anchor1 mean:" + meanDistances[anchorPoint1].ToString("0.000") + " SD: " + standardDeviations[anchorPoint1].ToString("0.000") + "\n";
+			str += "anchor2 mean:" + meanDistances[anchorPoint2].ToString("0.000") + " SD: " + standardDeviations [anchorPoint2].ToString("0.000") + "\n";
+			str += "info1 mean:" + meanDistances[infoPoint1].ToString("0.000") + " SD: " + standardDeviations [infoPoint1].ToString("0.000") + "\n";
+			str += "info2 mean:" + meanDistances [infoPoint2].ToString("0.000") + " SD: " + standardDeviations [infoPoint2].ToString("0.000") + "\n";
 			return str;
 		}
 	}

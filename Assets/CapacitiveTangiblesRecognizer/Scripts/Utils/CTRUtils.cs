@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace CTR {
 	public static class CTRUtils {
 		
-		public static GameObject InstantiateTangibleObject (TangiblePattern pattern, GameObject patternPrefab, GameObject footPrefab, RectTransform parent, bool setPosition = true)
+		public static GameObject InstantiateTangibleObject(TangiblePattern pattern, GameObject patternPrefab, GameObject footPrefab, RectTransform parent, bool setPosition = true)
 		{
 			GameObject patternObj = GameObject.Instantiate(patternPrefab);
 			Tangible tangible = patternObj.GetComponent<Tangible> ();
@@ -13,7 +13,6 @@ namespace CTR {
 			Vector2 center = MathHelper.ComputeCenter (pattern.points);
 			RectTransform patternRectTransform = patternObj.transform as RectTransform;
 			patternRectTransform.sizeDelta = new Vector2(2 * pattern.radius, 2 * pattern.radius);
-
 
 			for (int i = 0; i < pattern.points.Count; i++) {
 				Vector2 point = pattern.points[i];

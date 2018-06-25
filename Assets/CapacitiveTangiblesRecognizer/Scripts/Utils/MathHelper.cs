@@ -42,26 +42,30 @@ namespace CTR{
 
 		public static Tuple<int, int> FindMinDistancePair(List<Vector2> patternPoints, Vector2 patternCenter, out float minDist) {
 			Tuple<int, int> minDistPair = new Tuple<int, int> ();
+			minDistPair.first = -1;
+			minDistPair.second = -1;
 			minDist = float.MaxValue;
-			for (int i = 0; i < patternPoints.Count; i++) {
-				for (int j = 0; j < patternPoints.Count; j++) {
-					if (i != j) {
-						float dist = Vector2.Distance (patternPoints[i], patternPoints[j]);
-						if (dist < minDist) {
-							minDist = dist;
-							minDistPair.first = i;
-							minDistPair.second = j;
+			if (patternPoints.Count > 2) {	
+				for (int i = 0; i < patternPoints.Count; i++) {
+					for (int j = 0; j < patternPoints.Count; j++) {
+						if (i != j) {
+							float dist = Vector2.Distance (patternPoints [i], patternPoints [j]);
+							if (dist < minDist) {
+								minDist = dist;
+								minDistPair.first = i;
+								minDistPair.second = j;
+							}
 						}
 					}
 				}
-			}
-			float firstDistFromCenter = Vector2.Distance(patternPoints[minDistPair.first], patternCenter);
-			float secondDistFromCenter = Vector2.Distance(patternPoints[minDistPair.second], patternCenter);
+				float firstDistFromCenter = Vector2.Distance (patternPoints [minDistPair.first], patternCenter);
+				float secondDistFromCenter = Vector2.Distance (patternPoints [minDistPair.second], patternCenter);
 
-			if (secondDistFromCenter > firstDistFromCenter && GlobalSettings.Instance.flipRotation) {
-				int tmp = minDistPair.first;
-				minDistPair.first = minDistPair.second;
-				minDistPair.second = tmp;
+				if (secondDistFromCenter > firstDistFromCenter && GlobalSettings.Instance.flipRotation) {
+					int tmp = minDistPair.first;
+					minDistPair.first = minDistPair.second;
+					minDistPair.second = tmp;
+				}
 			}
 			return minDistPair;
 		}
