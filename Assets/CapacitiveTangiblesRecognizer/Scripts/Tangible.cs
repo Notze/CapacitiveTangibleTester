@@ -29,7 +29,7 @@ namespace CTR{
 		private void Update () {
 			positionToken -= Time.deltaTime/fadeOutDuration;
 			positionToken = Mathf.Clamp(positionToken, 0.01f, 0.99f);
-			print (pattern.id + " " + positionToken);
+			//print (pattern.id + " " + positionToken);
 		}
 
 
