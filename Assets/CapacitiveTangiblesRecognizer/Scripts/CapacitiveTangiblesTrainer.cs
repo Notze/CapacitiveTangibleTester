@@ -47,6 +47,7 @@ namespace CTR {
 			if(monitorPatterns.Count > 0){
 				Destroy (monitorPatterns[monitorPatterns.Count - 1]);
 				monitorPatterns.RemoveAt(monitorPatterns.Count - 1);
+				patterns.RemoveAt(monitorPatterns.Count - 1);
 			}
 		}
 
