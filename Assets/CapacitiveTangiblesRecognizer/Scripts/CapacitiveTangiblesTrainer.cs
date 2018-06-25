@@ -102,14 +102,14 @@ namespace CTR {
 			meanDistance /= patternPoints.Count;
 			MathHelper.DrawCircle (patternCenter, radius, 50, Color.blue);
 			float minDist = 0;
-			Tuple<int, int> minDistPair = MathHelper.FindMinDistancePair(patternPoints, patternCenter, out minDist);
+			Tuple<int, int> anchorPair = MathHelper.FindMinDistancePair(patternPoints, patternCenter, out minDist);
 
-			print(minDistPair);
+			//print(minDistPair);
 			TangiblePattern pattern = new TangiblePattern();
 
 
 			// rotate pattern vertical
-			Vector2 a = patternPoints[minDistPair.first] - patternPoints[minDistPair.second];
+			Vector2 a = patternPoints[anchorPair.first] - patternPoints[anchorPair.second];
 			Vector2 b = Vector2.down;
 			float angle = Vector2.SignedAngle(a, b);
 
@@ -136,53 +136,56 @@ namespace CTR {
 				patternPoints[i] = patternPoints[i] - panelCenter;
 			}
 			// find info point 1:
-			int infoPoint1 = 0;
+			int infoPoint1 = -1;
 			float maxY = float.MinValue;
 			for (int i = 0; i < patternPoints.Count; i++){
-				if(patternPoints[i].y > maxY){
-					infoPoint1 = i;
-					maxY = patternPoints[i].y;
+				if (i != anchorPair.first && i != anchorPair.second){
+					if (patternPoints [i].y > maxY) {
+						infoPoint1 = i;
+						maxY = patternPoints [i].y;
+					}	
 				}
 			}
+
 			// find info pont 2:
 			int infoPoint2 = -1;
 			for (int i = 0; i < patternPoints.Count; i++) {
-				if (i != minDistPair.first && i != minDistPair.second && i != infoPoint1) {
+				if (i != anchorPair.first && i != anchorPair.second && i != infoPoint1) {
 					infoPoint2 = i;
 					break;
 				}
 			}
 			print("infoPoint1: " + infoPoint1 + " infoPoint2: " + infoPoint2);
 
-			pattern.id = patternId;
-			pattern.points = patternPoints;
-			pattern.radius = radius;
-			pattern.anchorDistance = minDist;
-			pattern.anchorPoint1 = minDistPair.first;
-			pattern.anchorPoint2 = minDistPair.second;
-			pattern.infoPoint1 = infoPoint1;
-			pattern.infoPoint2 = infoPoint2;
+			if(infoPoint1 == -1 || infoPoint2 == -1){
+				Debug.LogWarning("Pattern does not contain enought information!");
+			}else{
+				pattern.id = patternId;
+				pattern.points = patternPoints;
+				pattern.radius = radius;
+				pattern.anchorDistance = minDist;
+				pattern.anchorPoint1 = anchorPair.first;
+				pattern.anchorPoint2 = anchorPair.second;
+				pattern.infoPoint1 = infoPoint1;
+				pattern.infoPoint2 = infoPoint2;
 
-			patterns.Add(pattern);
+				patterns.Add (pattern);
 
+				GameObject patternObj = CTRUtils.InstantiateTangibleObject (pattern, patternPrefab, patternFootPrefab, patternMonitor, false);
+				monitorPatterns.Add (patternObj);
 
-
-			GameObject patternObj = CTRUtils.InstantiateTangibleObject(pattern, patternPrefab, patternFootPrefab, patternMonitor, false);
-			monitorPatterns.Add(patternObj);
-
-			Transform [] feet = patternObj.GetComponentsInChildren<Transform> ();
-			float d = 2 * radius;
-			float s = patternMonitor.GetComponent<GridLayoutGroup> ().cellSize.x;
-			foreach (Transform foot in feet) {
-				if (foot.CompareTag ("Foot")) {
-					foot.transform.localPosition *= s/d;
+				Transform [] feet = patternObj.GetComponentsInChildren<Transform> ();
+				float d = 2 * radius;
+				float s = patternMonitor.GetComponent<GridLayoutGroup> ().cellSize.x;
+				foreach (Transform foot in feet) {
+					if (foot.CompareTag ("Foot")) {
+						foot.transform.localPosition *= s / d;
+					}
 				}
 			}
-
 		}
 
-		public void SavePattern ()
-		{
+		public void SavePattern() {
 			TangiblePattern pattern = new TangiblePattern ();
 			pattern.id = patternId;
 			pattern.trainingSamples = patterns.Count;

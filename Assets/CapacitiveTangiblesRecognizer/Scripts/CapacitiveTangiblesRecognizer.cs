@@ -277,11 +277,10 @@ namespace CTR {
 			//tangible.transform.position = Vector3.zero;
 			//tangible.transform.rotation = Quaternion.identity;
 
-
 			List<Vector2> clusterPoints = new List<Vector2> ();
 
 			List<DbscanPoint> clsPts = clusterPointsDict [clusterId];
-			clusterPoints.AddRange (clsPts.Select (item => item.point).ToList<Vector2> ());
+			clusterPoints.AddRange (clsPts.Select (item => item.point).ToList<Vector2>());
 			Vector2 clusterCenter = MathHelper.ComputeCenter(clusterPoints);
 			foreach (DbscanPoint scanPoint in clsPts) {
 				if (!scanPoint.IsNoise) {
@@ -298,13 +297,13 @@ namespace CTR {
 					if (i == j) {
 						continue;
 					}
-					float distance = Vector2.Distance (clsPts [i].point, clsPts [j].point);
+					float distance = Vector2.Distance (clsPts[i].point, clsPts[j].point);
 					print ("anchor dist: " + distance);
 					float anchorTolerance = pattern.anchorDistance * GlobalSettings.Instance.anchorTolerance;
 					if (Mathf.Abs (distance - pattern.anchorDistance) < anchorTolerance) {
 						print ("found anchor" + i + " " + j + " " + distance);
-						clsPts [i].clusterTouch.SetColor(Color.white);
-						clsPts [j].clusterTouch.SetColor(Color.white);
+						clsPts[i].clusterTouch.SetColor(Color.white);
+						clsPts[j].clusterTouch.SetColor(Color.white);
 						anchorDistance = distance;
 						float firstDistFromCenter = Vector2.Distance (clsPts [i].point, clusterCenter);
 						float secondDistFromCenter = Vector2.Distance (clsPts [j].point, clusterCenter);
@@ -346,8 +345,6 @@ namespace CTR {
 				}
 			}
 
-
-
 			clsPts [firstInfo].clusterTouch.SetColor (Color.blue);
 			clsPts [secondInfo].clusterTouch.SetColor (Color.red);
 
@@ -360,7 +357,6 @@ namespace CTR {
 			print("angle:" + angle);
 			GlobalSettings.Instance.SetRotationAngle(angle);
 			Vector3 rot = new Vector3(0, 0, angle);
-
 
 
 			(tangible.transform as RectTransform).eulerAngles = rot;
@@ -498,27 +494,25 @@ namespace CTR {
 					ct.SetColor(color);
 				}
 			}
-
-
 		}
 
 		public void ResetClusters ()
 		{
 			foreach (DbscanPoint dsp in dbscanPoints) {
-				dsp.Reset ();
+				dsp.Reset();
 			}
 			foreach (ClusterTouch ct in touchObjects) {
-				ct.Reset ();
+				ct.Reset();
 			}
 		}
 
 		public void ClearClusters ()
 		{
-			dbscanPoints.Clear ();
+			dbscanPoints.Clear();
 			foreach (ClusterTouch ct in touchObjects) {
-				Destroy (ct.gameObject);
+				DestroyImmediate(ct.gameObject);
 			}
-			touchObjects.Clear ();
+			touchObjects.Clear();
 		}
 
 
