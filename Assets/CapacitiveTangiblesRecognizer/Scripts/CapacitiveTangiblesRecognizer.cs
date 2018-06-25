@@ -302,11 +302,11 @@ namespace CTR {
 					float anchorTolerance = pattern.anchorDistance * GlobalSettings.Instance.anchorTolerance;
 					if (Mathf.Abs (distance - pattern.anchorDistance) < anchorTolerance) {
 						print ("found anchor" + i + " " + j + " " + distance);
-						clsPts[i].clusterTouch.SetColor(Color.white);
-						clsPts[j].clusterTouch.SetColor(Color.white);
+						//clsPts[i].clusterTouch.SetColor(Color.white);
+						//clsPts[j].clusterTouch.SetColor(Color.white);
 						anchorDistance = distance;
-						float firstDistFromCenter = Vector2.Distance (clsPts [i].point, clusterCenter);
-						float secondDistFromCenter = Vector2.Distance (clsPts [j].point, clusterCenter);
+						float firstDistFromCenter = Vector2.Distance (clsPts[i].point, clusterCenter);
+						float secondDistFromCenter = Vector2.Distance (clsPts[j].point, clusterCenter);
 						firstAnchor = i;
 						secondAnchor = j;
 						if (secondDistFromCenter > firstDistFromCenter) {
@@ -314,8 +314,16 @@ namespace CTR {
 							firstAnchor = secondAnchor;
 							secondAnchor = tmp;
 						}
-						clsPts[firstAnchor].clusterTouch.SetColor(Color.green);
-						clsPts[secondAnchor].clusterTouch.SetColor(Color.yellow);
+						if(clsPts[firstAnchor].clusterTouch != null) {
+							clsPts[firstAnchor].clusterTouch.SetColor(Color.green);
+						} else {
+							Debug.LogWarning("Cluster Touch does not exist");
+						}
+						if(clsPts[secondAnchor].clusterTouch != null) {
+							clsPts[secondAnchor].clusterTouch.SetColor(Color.yellow);
+						} else {
+							Debug.LogWarning("Cluster Touch does not exist");
+						}
 					}
 				}
 			}
