@@ -149,13 +149,11 @@ namespace CTR {
 			}
 		}
 
-		public void DeleteTangiblesPatterns ()
-		{
+		public void DeleteTangiblesPatterns() {
 			TangiblesFileUtils.DeleteTangibles ();
 		}
 
-		public void LoadTangiblesPatterns ()
-		{
+		public void LoadTangiblesPatterns() {
 			if (tangibles != null) {
 				foreach (Tangible t in tangibles) {
 					Destroy (t.gameObject);
@@ -237,9 +235,6 @@ namespace CTR {
 		public void RecognizeTangibles(){
 
 			patternFitnessDict = new Dictionary<TangiblePattern, List<ClusterAssociation>> ();
-
-			//ResetClusters();
-			//ClearClusters();
 
 			DoClustering();
 
