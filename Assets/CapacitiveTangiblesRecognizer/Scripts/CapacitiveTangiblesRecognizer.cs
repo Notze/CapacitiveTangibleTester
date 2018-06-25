@@ -456,21 +456,6 @@ namespace CTR {
 					tangible.UpdatePosition(association.position, association.rotation, association.probability);
 				}
 			}
-
-			//float minDist = float.MaxValue;
-			//int minDistI = 0;
-			//for (int i = 0; i < associations.Count; i++) {
-			//	if (associations [i].distance < minDist) {
-			//		minDistI = i;
-			//		minDist = associations [i].distance;
-			//	}
-			//}
-			//
-			//if (minDist < GlobalSettings.Instance.patternFitThreshold) {
-			//	tangible.UpdatePosition (associations [minDistI].position, associations [minDistI].rotation);
-			//} else {
-			//	tangible.ResetPosition ();
-			//}
 		}
 
 		public void DoClustering(){
