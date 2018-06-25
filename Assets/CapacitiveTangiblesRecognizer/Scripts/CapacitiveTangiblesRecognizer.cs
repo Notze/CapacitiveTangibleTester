@@ -397,10 +397,10 @@ namespace CTR {
 			float zInfo2 = (distInfo2 - pattern.meanDistances [3]) / pattern.standardDeviations [3];
 
 
-			float pAnchor1 = 2 * MathHelper.NormalDistribution (Mathf.Abs (zAnchor1), 0, 1);
-			float pAnchor2 = 2 * MathHelper.NormalDistribution (Mathf.Abs (zAnchor2), 0, 1);
-			float pInfo1 = 2 * MathHelper.NormalDistribution (Mathf.Abs (zInfo1), 0, 1);
-			float pInfo2 = 2 * MathHelper.NormalDistribution (Mathf.Abs (zInfo2), 0, 1);
+			float pAnchor1 = 2 * MathHelper.NormalDistribution(Mathf.Abs (zAnchor1), 0, 1);
+			float pAnchor2 = 2 * MathHelper.NormalDistribution(Mathf.Abs (zAnchor2), 0, 1);
+			float pInfo1 = 2 * MathHelper.NormalDistribution(Mathf.Abs (zInfo1), 0, 1);
+			float pInfo2 = 2 * MathHelper.NormalDistribution(Mathf.Abs (zInfo2), 0, 1);
 
 			//print ("dist anchor1: " + distAnchor1 + " z: " + zAnchor1 + " p: " + pAnchor1);
 			//print ("dist anchor2: " + distAnchor2 + " z: " + zAnchor2 + " p: " + pAnchor2);

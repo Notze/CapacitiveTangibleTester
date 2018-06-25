@@ -79,7 +79,7 @@ namespace CTR {
 			foreach (Touch touch in touches) {
 				Vector2 pos = touch.position;
 				if (RectTransformUtility.RectangleContainsScreenPoint (rectTransform, pos)) {
-					patternPoints.Add (pos);
+					patternPoints.Add(pos);
 				}
 			}
 
@@ -93,7 +93,7 @@ namespace CTR {
 			print ("centerOffset: " + centerOffset);
 			for (int i = 0; i < patternPoints.Count; i++) {
 				// compute radius
-				float dist = Vector2.Distance (patternCenter, patternPoints [i]);
+				float dist = Vector2.Distance (patternCenter, patternPoints[i]);
 				meanDistance += dist;
 				if (dist > radius) {
 					radius = dist;
@@ -124,18 +124,18 @@ namespace CTR {
 				}
 
 				for (int i = 0; i < patternPoints.Count; i++) {
-					CreateTouchPoint (patternPoints [i], Color.green);
+					CreateTouchPoint (patternPoints[i], Color.green);
 
 					// move point relative to center
-					patternPoints [i] = patternPoints [i] - centerOffset;
-					CreateTouchPoint (patternPoints [i], Color.yellow);
+					patternPoints[i] = patternPoints[i] - centerOffset;
+					CreateTouchPoint (patternPoints[i], Color.yellow);
 
 					// rotate vertical
-					patternPoints [i] = MathHelper.RotatePointAroundPivot (patternPoints [i], panelCenter, rot);
+					patternPoints[i] = MathHelper.RotatePointAroundPivot (patternPoints [i], panelCenter, rot);
 					CreateTouchPoint (patternPoints [i], Color.red);
 
 					// transform point into local space:
-					patternPoints [i] = patternPoints [i] - panelCenter;
+					patternPoints[i] = patternPoints [i] - panelCenter;
 				}
 				// find info point 1:
 				int infoPoint1 = -1;
@@ -183,7 +183,7 @@ namespace CTR {
 
 					Transform [] feet = patternObj.GetComponentsInChildren<Transform> ();
 					float d = 2 * radius;
-					float s = patternMonitor.GetComponent<GridLayoutGroup> ().cellSize.x;
+					float s = patternMonitor.GetComponent<GridLayoutGroup>().cellSize.x;
 					foreach (Transform foot in feet) {
 						if (foot.CompareTag ("Foot")) {
 							foot.transform.localPosition *= s / d;
@@ -231,7 +231,7 @@ namespace CTR {
 			pattern.anchorDistance = Vector2.Distance(anchor1Center, anchor2Center);
 
 			#region statistics
-			pattern.standardDeviations = new List<float> (TangiblePattern.numOfPoints);
+			pattern.standardDeviations = new List<float>(TangiblePattern.numOfPoints);
 			pattern.meanDistances = new List<float>();
 			List<float> anchor1Dist = new List<float> ();
 			foreach (Vector2 v in anchor1Points) {
