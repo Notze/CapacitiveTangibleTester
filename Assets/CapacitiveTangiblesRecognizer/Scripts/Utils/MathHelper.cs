@@ -74,6 +74,16 @@ namespace CTR{
 			float pi = Mathf.PI;
 			return Mathf.Exp (-Mathf.Pow (x - m, 2) / (2 * s*s)) / (s*Mathf.Sqrt(2 * pi));
 		}
+
+		//public static float ProbabilityOfValue(float zmin, float zmax){
+		//	float p = 0;
+		//	float z = zmin;
+		//	while(z <= zmax){
+		//		p += NormalDistribution(z, 0, 1);
+		//		z += 0.01f;
+		//	}
+		//	return p;
+		//}
 	}
 }
 

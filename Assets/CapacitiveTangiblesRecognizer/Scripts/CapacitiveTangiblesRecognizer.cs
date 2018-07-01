@@ -300,8 +300,8 @@ namespace CTR {
 						//clsPts[i].clusterTouch.SetColor(Color.white);
 						//clsPts[j].clusterTouch.SetColor(Color.white);
 						anchorDistance = distance;
-						float firstDistFromCenter = Vector2.Distance (clsPts[i].point, clusterCenter);
-						float secondDistFromCenter = Vector2.Distance (clsPts[j].point, clusterCenter);
+						float firstDistFromCenter = Vector2.Distance(clsPts[i].point, clusterCenter);
+						float secondDistFromCenter = Vector2.Distance(clsPts[j].point, clusterCenter);
 						firstAnchor = i;
 						secondAnchor = j;
 						if (secondDistFromCenter > firstDistFromCenter) {
@@ -402,6 +402,11 @@ namespace CTR {
 			float pInfo1 = 2 * MathHelper.NormalDistribution(Mathf.Abs (zInfo1), 0, 1);
 			float pInfo2 = 2 * MathHelper.NormalDistribution(Mathf.Abs (zInfo2), 0, 1);
 
+			//float pAnchor1 = MathHelper.ProbabilityOfValue(Mathf.Abs(zAnchor1),0,1);
+			//float pAnchor2 = MathHelper.ProbabilityOfValue(Mathf.Abs(zAnchor2),0,1);
+			//float pInfo1 = MathHelper.ProbabilityOfValue(Mathf.Abs(zInfo1),0,1);
+			//float pInfo2 = MathHelper.ProbabilityOfValue(Mathf.Abs(zInfo2),0,1);
+
 			//print ("dist anchor1: " + distAnchor1 + " z: " + zAnchor1 + " p: " + pAnchor1);
 			//print ("dist anchor2: " + distAnchor2 + " z: " + zAnchor2 + " p: " + pAnchor2);
 			//print ("dist info1: " + distInfo1 + " z: " + zInfo1 + " p: " + pInfo1);
@@ -414,10 +419,12 @@ namespace CTR {
 			float aWeight = GlobalSettings.Instance.anchorWeight;
 			float posWeight = GlobalSettings.Instance.positionWeight;
 
-			float recognitionProbability = aWeight/2 * pAnchor1 + aWeight/2 * pAnchor2 + (1.0f-aWeight)/2 * pInfo1 + (1.0f - aWeight)/2 * pInfo2;
-			float positionPorbability = tangible.positionProbability * distTangibleCluster;
+			//float recognitionProbability = aWeight/2 * pAnchor1 + aWeight/2 * pAnchor2 + (1.0f-aWeight)/2 * pInfo1 + (1.0f - aWeight)/2 * pInfo2;
+			//float positionPorbability = tangible.positionProbability * distTangibleCluster;
 
-			float probability = posWeight * positionPorbability + (1.0f - posWeight) * recognitionProbability;
+			//float probability = posWeight * positionPorbability + (1.0f - posWeight) * recognitionProbability;
+
+			float probability = 0.5f*pInfo1 + 0.5f*pInfo2;
 
 			association.pattern = pattern;
 			association.position = pos;
