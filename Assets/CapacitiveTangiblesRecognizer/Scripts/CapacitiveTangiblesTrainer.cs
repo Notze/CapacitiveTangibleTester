@@ -70,12 +70,11 @@ namespace CTR {
 			}
 		}
 
-		public void TrainPattern() {
-			List<Vector2> patternPoints = new List<Vector2> ();
 
+		public void TrainPattern() {
 
 			Touch [] touches = Input.touches;
-
+			List<Vector2> patternPoints = new List<Vector2>();
 			foreach (Touch touch in touches) {
 				Vector2 pos = touch.position;
 				if (RectTransformUtility.RectangleContainsScreenPoint (rectTransform, pos)) {
@@ -199,6 +198,8 @@ namespace CTR {
 			pattern.trainingSamples = patterns.Count;
 
 			// compute mean values and SDs for each point
+			List<float> radiusList = new List<float>();
+
 			List<Vector2> anchor1Points = new List<Vector2> ();
 			List<Vector2> anchor2Points = new List<Vector2> ();
 			List<Vector2> info1Points = new List<Vector2> ();
@@ -267,13 +268,18 @@ namespace CTR {
 			#endregion
 			Vector2 patternCenter = MathHelper.ComputeCenter (pattern.points);
 
-			for (int i = 0; i < pattern.points.Count; i++) {
-				// compute radius
-				float dist = Vector2.Distance (patternCenter, pattern.points [i]);
-				if (dist > pattern.radius) {
-					pattern.radius = dist;
-				}
+
+			foreach(TangiblePattern ptn in patterns){
+				radiusList.Add(ptn.radius);	
 			}
+			pattern.radius = radiusList.Mean();
+			//for (int i = 0; i < pattern.points.Count; i++) {
+			//	// compute radius
+			//	float dist = Vector2.Distance (patternCenter, pattern.points [i]);
+			//	if (dist > pattern.radius) {
+			//		pattern.radius = dist;
+			//	}
+			//}
 
 			infoText.text = pattern.ToString();
 			infoText.color = Color.white;
@@ -283,9 +289,25 @@ namespace CTR {
 			string fullfilepath = TangiblesFileUtils.PatternFilename (patternId.ToString ());
 			print (fullfilepath);
 			File.WriteAllText (fullfilepath, json);
+
+			SavePatternStatistics();
 			#endregion
 		}
 
+
+		void SavePatternStatistics(){
+			string csv = "tangibleID, radius, anchor1X, anchor1Y, anchor2X, anchor2Y, info1X, info1Y, info2X, info2Y\n";
+			string path = TangiblesFileUtils.StatisticsFilename();
+			foreach(TangiblePattern ptn in patterns){
+				Vector2 a1 = ptn.points[ptn.anchorPoint1];
+				Vector2 a2 = ptn.points[ptn.anchorPoint2];
+				Vector2 i1 = ptn.points[ptn.infoPoint1];
+				Vector2 i2 = ptn.points[ptn.infoPoint2];
+				string line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n",ptn.id, ptn.radius, a1.x, a1.y, a2.x, a2.y, i1.x, i1.y, i2.x,i2.y);
+				csv += line;
+			}
+			File.WriteAllText(path, csv);
+		}
 
 		void CreateTouchPoint (Vector2 screenPos, Color color) {
 			GameObject touchPoint = Instantiate (touchPointPrefab);
