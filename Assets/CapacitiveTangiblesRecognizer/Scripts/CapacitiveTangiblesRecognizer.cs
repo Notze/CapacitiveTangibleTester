@@ -420,12 +420,14 @@ namespace CTR {
 			float aWeight = GlobalSettings.Instance.anchorWeight;
 			float posWeight = GlobalSettings.Instance.positionWeight;
 
-			//float recognitionProbability = aWeight/2 * pAnchor1 + aWeight/2 * pAnchor2 + (1.0f-aWeight)/2 * pInfo1 + (1.0f - aWeight)/2 * pInfo2;
-			//float positionPorbability = tangible.positionProbability * distTangibleCluster;
 
-			//float probability = posWeight * positionPorbability + (1.0f - posWeight) * recognitionProbability;
+			float positionPorbability = tangible.positionProbability * distTangibleCluster;
 
-			float probability = 0.5f*pInfo1 + 0.5f*pInfo2;
+			float anchorProbability = 0.5f * pAnchor1 + 0.5f * pAnchor2;
+			float infoProbability = 0.5f * pInfo1 + 0.5f * pInfo2;
+			float recognitionProbability = aWeight * anchorProbability + (1.0f - aWeight) * infoProbability;
+
+			float probability = posWeight * positionPorbability + (1.0f - posWeight) * recognitionProbability;
 
 			association.pattern = pattern;
 			association.position = pos;
