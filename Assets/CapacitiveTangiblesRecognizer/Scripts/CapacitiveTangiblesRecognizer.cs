@@ -99,7 +99,8 @@ namespace CTR {
 			}
 			if (!inAvoidArea) {
 				for (int i = 0; i < touchObjects.Count; i++) {
-					if (Vector2.Distance (touchObjects [i].transform.position, screenPoint) < GlobalSettings.Instance.minDistanceBetweenTouchPoints) {
+					Vector2 wPoint = Camera.main.ScreenToWorldPoint(screenPoint);
+					if (Vector2.Distance (touchObjects[i].transform.position, wPoint) < GlobalSettings.Instance.minDistanceBetweenTouchPoints) {
 						inAcceptableDistance = false;
 						break;
 					}
