@@ -145,7 +145,7 @@ namespace CTR {
 			if (dbscanPoints.Count >= GlobalSettings.Instance.minNumOfPointsInCluster) {
 				RecognizeTangibles();
 				AssignTangiblesPositions();
-				//ClearClusters();
+				ClearClusters();
 			}
 		}
 
