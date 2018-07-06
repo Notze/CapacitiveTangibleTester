@@ -4273,7 +4273,7 @@ GameObject:
   - component: {fileID: 1264501271}
   - component: {fileID: 1264501270}
   m_Layer: 5
-  m_Name: TangiblesRegognizerPanel
+  m_Name: TangiblesRecognizerPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
