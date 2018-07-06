@@ -31,7 +31,7 @@ namespace CTR{
 			for (int i = 0; i < Input.touchCount; i++) {
 				Touch t = Input.GetTouch (i);
 				this.touches [i].transform.position = t.position;
-				Image img = touches [i].GetComponent<Image> ();
+				Image img = touches[i].GetComponent<Image> ();
 				switch (t.phase) {
 				case TouchPhase.Began:
 					img.color = Color.green;

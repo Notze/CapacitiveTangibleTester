@@ -38,7 +38,7 @@ namespace CTR {
 		public List<RectTransform> avoidRecognitionAreas;
 
 		Dictionary<TangiblePattern, List<ClusterAssociation>> patternFitnessDict = new Dictionary<TangiblePattern, List<ClusterAssociation>> ();
-
+		Dictionary<int,Tangible> traceTouches = new Dictionary<int,Tangible>();
 
 		public event Action<int, Vector3, Quaternion> OnTangibleUpdated;
 
@@ -145,31 +145,61 @@ namespace CTR {
 			if (dbscanPoints.Count >= GlobalSettings.Instance.minNumOfPointsInCluster) {
 				RecognizeTangibles();
 				AssignTangiblesPositions();
-			}else { // do fake tracing
+			}else if(Input.touchCount > 0){ // do fake tracing
 				TraceTangibles();
 			}
 			ClearClusters();
 		}
 
-
 		void TraceTangibles(){
-			foreach(Tangible tangible in tangibles) {
-				int pointsCount = 0;
-				foreach(DbscanPoint pt in dbscanPoints) {
-					tangible.SetColor(Color.white);
-					if(RectTransformUtility.RectangleContainsScreenPoint(tangible.rectTransform, pt.point)){
-						pointsCount++;
-						if(pointsCount >= 2){
-							tangible.SetColor(Color.cyan);
-							List<Vector2> feetPoints = tangible.GetFeetPoints();
-							Vector2 closestPoint = MathHelper.FindClosestPoint(pt.point,feetPoints);
-							Debug.DrawLine(pt.point,closestPoint,Color.red,10);
-							Vector2 offset = (tangible.rectTransform.position - new Vector3(closestPoint.x,closestPoint.y,0));
-							tangible.rectTransform.position = pt.point + offset;
+			for(int i = 0; i < Input.touchCount; i++) {
+				Touch touch = Input.touches[i];
+
+				if(touch.phase ==TouchPhase.Began){
+					foreach(Tangible tangible in tangibles) {
+						if(RectTransformUtility.RectangleContainsScreenPoint(tangible.rectTransform,touch.position)) {
+							if(traceTouches.ContainsKey(touch.fingerId)){
+								traceTouches[touch.fingerId] = tangible;
+							}else{
+								traceTouches.Add(touch.fingerId,tangible);
+							}
+							tangible.SetColor(Color.magenta);
 						}
 					}
+				}else if(touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary) {
+					if(traceTouches.ContainsKey(touch.fingerId)) {
+						Tangible tangible = traceTouches[touch.fingerId];
+						tangible.SetColor(Color.cyan);
+						List<Vector2> feetPoints = tangible.GetFeetPoints();
+						Vector2 closestPoint = MathHelper.FindClosestPoint(touch.position,feetPoints);
+						Debug.DrawLine(touch.position,closestPoint,Color.red, 10);
+						Vector2 offset = (tangible.rectTransform.position - new Vector3(closestPoint.x, closestPoint.y, 0));
+						tangible.rectTransform.position = touch.position + offset;
+					}
+				}else if(touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) {
+					traceTouches.Remove(touch.fingerId);
 				}
+					
 			}
+
+
+			//foreach(Tangible tangible in tangibles) {
+			//	int pointsCount = 0;
+			//	foreach(DbscanPoint pt in dbscanPoints) {
+			//		tangible.SetColor(Color.white);
+			//		if(RectTransformUtility.RectangleContainsScreenPoint(tangible.rectTransform, pt.point)){
+			//			pointsCount++;
+			//			if(pointsCount >= 2){
+			//				tangible.SetColor(Color.cyan);
+			//				List<Vector2> feetPoints = tangible.GetFeetPoints();
+			//				Vector2 closestPoint = MathHelper.FindClosestPoint(pt.point,feetPoints);
+			//				Debug.DrawLine(pt.point,closestPoint,Color.red,10);
+			//				Vector2 offset = (tangible.rectTransform.position - new Vector3(closestPoint.x,closestPoint.y,0));
+			//				tangible.rectTransform.position = pt.point + offset;
+			//			}
+			//		}
+			//	}
+			//}
 		}
 
 		public void DeleteTangiblesPatterns() {
