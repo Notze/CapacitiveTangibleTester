@@ -7,9 +7,7 @@ namespace CTR{
 
 		static string tangibledirectory = "tangibles";
 		static string statisticsDirectory = "statistics";
-		public static string PatternFilename (string patternID)
-		{
-
+		public static string PatternFilename (string patternID) {
 			if (!Directory.Exists (Application.persistentDataPath + "/" + tangibledirectory)) {
 				Directory.CreateDirectory (Application.persistentDataPath + "/" + tangibledirectory);
 			}
@@ -19,7 +17,7 @@ namespace CTR{
 			return fullpath;
 		}
 
-		public static string StatisticsFilename(){
+		public static string StatisticsFilename() {
 			if(!Directory.Exists(Application.persistentDataPath + "/" + statisticsDirectory)) {
 				Directory.CreateDirectory(Application.persistentDataPath + "/" + statisticsDirectory);
 			}
@@ -27,8 +25,7 @@ namespace CTR{
 			return fullpath;
 		}
 
-		public static string [] LoadTangiblesJSON ()
-		{
+		public static string [] LoadTangiblesJSON () {
 			if (!Directory.Exists (Application.persistentDataPath + "/" + tangibledirectory)) {
 				return null;
 			} else {
@@ -36,15 +33,13 @@ namespace CTR{
 			}
 		}
 
-		public static string DateString(){
+		public static string DateString() {
 			DateTime dateTime = DateTime.UtcNow;
 			string str = string.Format("{0}_{1}_{2}_{3}_{4}_{5}",dateTime.Year,dateTime.Month,dateTime.Day,dateTime.Hour,dateTime.Minute,dateTime.Second);
 			return str;
 		}
 
-		public static void DeleteTangibles ()
-		{
-
+		public static void DeleteTangibles () {
 			DirectoryInfo di = new DirectoryInfo (Application.persistentDataPath + "/" + tangibledirectory);
 			foreach (FileInfo file in di.GetFiles ()) {
 				file.Delete ();

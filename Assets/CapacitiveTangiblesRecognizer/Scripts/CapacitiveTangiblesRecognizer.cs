@@ -124,8 +124,7 @@ namespace CTR {
 		}
 
 		//int rotationPoint = 0;
-		void Update ()
-		{
+		void Update () {
 
 			// validate old tangible position
 			//foreach (Tangible tangible in tangibles) {
@@ -146,7 +145,30 @@ namespace CTR {
 			if (dbscanPoints.Count >= GlobalSettings.Instance.minNumOfPointsInCluster) {
 				RecognizeTangibles();
 				AssignTangiblesPositions();
-				ClearClusters();
+			}else { // do fake tracing
+				TraceTangibles();
+			}
+			ClearClusters();
+		}
+
+
+		void TraceTangibles(){
+			foreach(Tangible tangible in tangibles) {
+				int pointsCount = 0;
+				foreach(DbscanPoint pt in dbscanPoints) {
+					tangible.SetColor(Color.white);
+					if(RectTransformUtility.RectangleContainsScreenPoint(tangible.rectTransform, pt.point)){
+						pointsCount++;
+						if(pointsCount >= 2){
+							tangible.SetColor(Color.cyan);
+							List<Vector2> feetPoints = tangible.GetFeetPoints();
+							Vector2 closestPoint = MathHelper.FindClosestPoint(pt.point,feetPoints);
+							Debug.DrawLine(pt.point,closestPoint,Color.red,10);
+							Vector2 offset = (tangible.rectTransform.position - new Vector3(closestPoint.x,closestPoint.y,0));
+							tangible.rectTransform.position = pt.point + offset;
+						}
+					}
+				}
 			}
 		}
 
@@ -233,10 +255,8 @@ namespace CTR {
 			GUILayout.EndVertical ();
 		}
 
-		public void RecognizeTangibles(){
-
+		public void RecognizeTangibles() {
 			patternFitnessDict = new Dictionary<TangiblePattern, List<ClusterAssociation>> ();
-
 			DoClustering();
 
 			foreach (TangiblePattern pattern in patterns) {
@@ -249,10 +269,8 @@ namespace CTR {
 		/// </summary>
 		/// <returns>Fites dictionary <clusterID distance> </returns>
 		/// <param name="pattern">Pattern.</param>
-		List<ClusterAssociation> RecognizeTangiblesPattern (TangiblePattern pattern)
-		{
+		List<ClusterAssociation> RecognizeTangiblesPattern (TangiblePattern pattern) {
 			List<ClusterAssociation> associations = new List<ClusterAssociation> ();
-
 
 			foreach (int clusterId in clusterPointsDict.Keys) {
 				ClusterAssociation association = RecognizeClusterPattern (pattern, clusterId);
@@ -263,8 +281,7 @@ namespace CTR {
 
 
 
-		ClusterAssociation RecognizeClusterPattern (TangiblePattern pattern, int clusterId)
-		{
+		ClusterAssociation RecognizeClusterPattern (TangiblePattern pattern, int clusterId) {
 			ClusterAssociation association = new ClusterAssociation ();
 
 

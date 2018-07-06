@@ -75,6 +75,20 @@ namespace CTR{
 			return Mathf.Exp (-Mathf.Pow (x - m, 2) / (2 * s*s)) / (s*Mathf.Sqrt(2 * pi));
 		}
 
+
+		public static Vector2 FindClosestPoint(Vector2 point, List<Vector2> points){
+			Vector2 closestPoint = Vector2.zero;
+			float minDist = float.MaxValue;
+			foreach(Vector2 pt in points){
+				float dist = Vector2.Distance(point,pt);
+				if(dist < minDist){
+					minDist = dist;
+					closestPoint = pt;
+				}
+			}
+			return closestPoint;
+		}
+
 		//public static float ProbabilityOfValue(float zmin, float zmax){
 		//	float p = 0;
 		//	float z = zmin;
