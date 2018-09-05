@@ -4,11 +4,16 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 
-namespace CTR {
+namespace CTR
+{
 
-
-
-	public class CapacitiveTangiblesTrainer : SingletonBehaviour<CapacitiveTangiblesTrainer> {
+	public class CapacitiveTangiblesTrainer : SingletonBehaviour<CapacitiveTangiblesTrainer>
+	{
+		// 0 = none
+        // 1 = mark anchor and info
+        // 2 = show rotated points before flip
+        // 3 = show rotated points after flip
+		private int debugType = 3;
 
 		public RectTransform patternMonitor;
 
@@ -18,6 +23,7 @@ namespace CTR {
 		public GameObject touchPointPrefab;
 		public Text patternIdText;
 		public Text infoText;
+		public Text debugText;
 		int patternId = 0;
 		RectTransform rectTransform;
 
@@ -25,302 +31,227 @@ namespace CTR {
 		List<GameObject> patternPointsVisuals;
 		List<GameObject> monitorPatterns;
 
-		void Start() {
+		void Start()
+		{
 			rectTransform = transform as RectTransform;
 			patternPointsVisuals = new List<GameObject>();
 			monitorPatterns = new List<GameObject>();
 		}
 
-		public void ClearPatternPoints(){
-			foreach(GameObject vis in patternPointsVisuals){
-				Destroy (vis);
+		public void ClearPatternPoints()
+		{
+			foreach (GameObject vis in patternPointsVisuals)
+			{
+				Destroy(vis);
 			}
-			foreach(GameObject mon in monitorPatterns){
-				Destroy (mon);
+			foreach (GameObject mon in monitorPatterns)
+			{
+				Destroy(mon);
 			}
 			patternPointsVisuals.Clear();
 			monitorPatterns.Clear();
 			patterns.Clear();
 		}
 
-		public void RemoveLastTrainedPattern(){
-			if(monitorPatterns.Count > 0){
-				Destroy (monitorPatterns[monitorPatterns.Count - 1]);
+		public void RemoveLastTrainedPattern()
+		{
+			if (monitorPatterns.Count > 0)
+			{
+				Destroy(monitorPatterns[monitorPatterns.Count - 1]);
 				monitorPatterns.RemoveAt(monitorPatterns.Count - 1);
 				patterns.RemoveAt(patterns.Count - 1);
 			}
-		}
+		}      
 
-		//void Update () {
-		//	if(GlobalSettings.Instance.modality == InputModality.Mouse){
-		//		if (Input.GetMouseButton (0)) {
-		//			Vector2 pos = Input.mousePosition;
-		//			if (RectTransformUtility.RectangleContainsScreenPoint (rectTransform, pos)) {
-		//				patternPoints.Add (pos);
-		//			}
-		//		}	
-		//	}
-		//}
-
-
-		public void SetPatternID(){
+		public void SetPatternID()
+		{
 			int id;
-			if (int.TryParse (patternIdText.text, out id)) {
+			if (int.TryParse(patternIdText.text, out id))
+			{
 				patternId = id;
 			}
 		}
 
 
-		public void TrainPattern() {
+		public void TrainPattern()
+		{
 
-			Touch [] touches = Input.touches;
+			// get touch inputs from rectangle and put in a list
+			Touch[] touches = Input.touches;
 			List<Vector2> patternPoints = new List<Vector2>();
-			foreach (Touch touch in touches) {
+			foreach (Touch touch in touches)
+			{
 				Vector2 pos = touch.position;
-				if (RectTransformUtility.RectangleContainsScreenPoint (rectTransform, pos)) {
+				if (RectTransformUtility.RectangleContainsScreenPoint(rectTransform, pos))
+				{
 					patternPoints.Add(pos);
 				}
 			}
 
+			// find the two closest points
 			Vector2 patternCenter = MathHelper.ComputeCenter(patternPoints);
-			float radius = 0;
-			float meanDistance = 0;
 			Vector2 panelCenter = MathHelper.RectTransformToScreenSpace(rectTransform).center;
 			Vector2 centerOffset = patternCenter - panelCenter;
-			print ("panelCenter: " + panelCenter);
-			print ("patternCenter: " + patternCenter);
-			print ("centerOffset: " + centerOffset);
-			for (int i = 0; i < patternPoints.Count; i++) {
-				// compute radius
-				float dist = Vector2.Distance (patternCenter, patternPoints[i]);
-				meanDistance += dist;
-				if (dist > radius) {
-					radius = dist;
-				}
-			}
-
-			meanDistance /= patternPoints.Count;
-			MathHelper.DrawCircle (patternCenter, radius, 50, Color.blue);
-			float minDist = 0;
+			print("panelCenter: " + panelCenter);
+			print("patternCenter: " + patternCenter);
+			print("centerOffset: " + centerOffset);
+			float minDist = 0; // double grid (cell) size value
 			Tuple<int, int> anchorPair = MathHelper.FindMinDistancePair(patternPoints, patternCenter, out minDist);
-			if(anchorPair.first == -1 || anchorPair.second == -1){
+			if (anchorPair.first == -1 || anchorPair.second == -1)
+			{
 				infoText.text = "Pattern does not contain anchor points!";
 				infoText.color = Color.red;
-			}else{
-				TangiblePattern pattern = new TangiblePattern ();
+			}
+			else
+			{
+				TangiblePattern pattern = new TangiblePattern();
 
-				// rotate pattern vertical
-				Vector2 a = patternPoints [anchorPair.first] - patternPoints [anchorPair.second];
-				Vector2 b = Vector2.down;
-				float angle = Vector2.SignedAngle (a, b);
+				// closest points are "base" of pattern and determine grid (cell) size and rotation
+				// rotate to align "base" horizontally
+				Vector2 anchorVector = new Vector2(
+					patternPoints[anchorPair.first].x - patternPoints[anchorPair.second].x,
+					patternPoints[anchorPair.first].y - patternPoints[anchorPair.second].y);
+				float angle = -Vector2.SignedAngle(new Vector2(1, 0), anchorVector);
+				Vector3 rotation = new Vector3(0, 0, angle);
 
-				GlobalSettings.Instance.SetRotationAngle (angle);
-
-				Vector3 rot = new Vector3 (0, 0, angle);
-
-				foreach (GameObject pt in patternPointsVisuals) {
-					Destroy (pt);
+				// visualize touch points (and remove the old ones)
+				foreach (GameObject pt in patternPointsVisuals)
+				{
+					Destroy(pt);
 				}
+            
+				if(debugType==1)
+					for (int i = 0; i < patternPoints.Count; i++)
+                        if (i == anchorPair.first || i == anchorPair.second)
+                            CreateTouchPoint(patternPoints[i], Color.blue);
+                        else
+                            CreateTouchPoint(patternPoints[i], Color.green);
 
-				for (int i = 0; i < patternPoints.Count; i++) {
-					CreateTouchPoint (patternPoints[i], Color.green);
-
-					// move point relative to center
-					patternPoints[i] = patternPoints[i] - centerOffset;
-					CreateTouchPoint (patternPoints[i], Color.yellow);
-
-					// rotate vertical
-					patternPoints[i] = MathHelper.RotatePointAroundPivot (patternPoints [i], panelCenter, rot);
-					CreateTouchPoint (patternPoints [i], Color.red);
-
-					// transform point into local space:
-					patternPoints[i] = patternPoints [i] - panelCenter;
-				}
-				// find info point 1:
-				int infoPoint1 = -1;
-				float maxY = float.MinValue;
-				for (int i = 0; i < patternPoints.Count; i++) {
-					if (i != anchorPair.first && i != anchorPair.second) {
-						if (patternPoints [i].y > maxY) {
-							infoPoint1 = i;
-							maxY = patternPoints [i].y;
-						}
+				// continue 'rotate to align "base" horizontally'
+				for (int i = 0; i < patternPoints.Count; i++)
+				{
+					patternPoints[i] = MathHelper.RotatePointAroundPivot(patternPoints[i], patternPoints[anchorPair.first], rotation);
+					if (debugType == 2)
+					{
+						if (i == anchorPair.first || i == anchorPair.second)
+							CreateTouchPoint(patternPoints[i], Color.blue);
+						else
+							CreateTouchPoint(patternPoints[i], Color.green);
+						debugText.text = "Rotation angle: " + angle;
+						debugText.color = Color.green;
 					}
 				}
 
-				// find info pont 2:
-				int infoPoint2 = -1;
-				for (int i = 0; i < patternPoints.Count; i++) {
-					if (i != anchorPair.first && i != anchorPair.second && i != infoPoint1) {
-						infoPoint2 = i;
-						break;
-					}
-				}
-				print ("infoPoint1: " + infoPoint1 + " infoPoint2: " + infoPoint2);
+				// infopoint(s) should be above base points
+				for (int i = 0; i < patternPoints.Count; i++)
+					if (i != anchorPair.first && i != anchorPair.second)
+						if (patternPoints[i].y < patternPoints[anchorPair.first].y)
+							for (int j = 0; j < patternPoints.Count; j++)
+							{
+								patternPoints[j] = MathHelper.RotatePointAroundPivot(patternPoints[j], patternPoints[anchorPair.first], new Vector3(0, 0, 180));
+						        if (debugType == 3)
+                                    if (j == anchorPair.first || j == anchorPair.second)
+                                        CreateTouchPoint(patternPoints[j], Color.blue);
+                                    else
+                                        CreateTouchPoint(patternPoints[j], Color.green);
+							}
 
-				if (infoPoint1 == -1 || infoPoint2 == -1) {
+				// make sure the most left base point is point one
+				if (patternPoints[anchorPair.first].x > patternPoints[anchorPair.second].x)
+				{
+					int tmp = anchorPair.first;
+					anchorPair.first = anchorPair.second;
+					anchorPair.second = tmp;
+				}
+
+				// get info (grid-)coordinates as Tuple<int, int>
+				Tuple<int, int> infoCoord = new Tuple<int, int>(0,0);
+				for (int i = 0; i < patternPoints.Count; i++)
+					if (i != anchorPair.first && i != anchorPair.second)
+					{
+						float rawX = patternPoints[i].x - patternPoints[anchorPair.first].x;
+						float rawY = patternPoints[i].y - patternPoints[anchorPair.first].y;
+						int coordX = Mathf.RoundToInt(rawX / (minDist / 2));
+						int coordY = Mathf.RoundToInt(rawY / (minDist / 2));
+						infoCoord.first = coordX;
+						infoCoord.second = coordY;
+					}
+
+				// put coords in 'pattern' and add 'pattern' to 'patterns'
+				if (infoCoord.first==0 && infoCoord.second==0)
+				{
 					infoText.text = "Pattern does not contain enought information!";
 					infoText.color = Color.red;
-
-				} else {
-					infoText.text = "Pattern trainig successful!";
+				}
+				else
+				{
+					infoText.text = "Pattern trainig successful! Info Point is (" + infoCoord.first + "," + infoCoord.second + ")";
 					infoText.color = Color.green;
 
 					pattern.id = patternId;
-					pattern.points = patternPoints;
-					pattern.radius = radius;
-					pattern.anchorDistance = minDist;
-					pattern.anchorPoint1 = anchorPair.first;
-					pattern.anchorPoint2 = anchorPair.second;
-					pattern.infoPoint1 = infoPoint1;
-					pattern.infoPoint2 = infoPoint2;
+					pattern.infoCoord = infoCoord;
 
-					patterns.Add (pattern);
-
-					GameObject patternObj = CTRUtils.InstantiateTangibleObject (pattern, patternPrefab, patternFootPrefab, patternMonitor, false);
-					monitorPatterns.Add (patternObj);
-
-					Transform [] feet = patternObj.GetComponentsInChildren<Transform> ();
-					float d = 2 * radius;
-					float s = patternMonitor.GetComponent<GridLayoutGroup>().cellSize.x;
-					foreach (Transform foot in feet) {
-						if (foot.CompareTag ("Foot")) {
-							foot.transform.localPosition *= s / d;
-						}
-					}
+					patterns.Add(pattern);
 				}
 			}
 		}
 
-		public void SavePattern() {
-			TangiblePattern pattern = new TangiblePattern ();
+		public void SavePattern()
+		{
+			TangiblePattern pattern = new TangiblePattern();
 			pattern.id = patternId;
 			pattern.trainingSamples = patterns.Count;
 
-			// compute mean values and SDs for each point
-			List<float> radiusList = new List<float>();
+			//check if all samples are equal
+			List<Tuple<int, int>> infoCoords = new List<Tuple<int, int>>();
 
-			List<Vector2> anchor1Points = new List<Vector2> ();
-			List<Vector2> anchor2Points = new List<Vector2> ();
-			List<Vector2> info1Points = new List<Vector2> ();
-			List<Vector2> info2Points = new List<Vector2> ();
-
-			for (int i = 0; i < patterns.Count; i++) {
-				TangiblePattern ptn = patterns [i];
-				anchor1Points.Add (ptn.points [ptn.anchorPoint1]);
-				anchor2Points.Add (ptn.points [ptn.anchorPoint2]);
-				info1Points.Add (ptn.points [ptn.infoPoint1]);
-				info2Points.Add (ptn.points [ptn.infoPoint2]);
+			for (int i = 0; i < patterns.Count; i++)
+			{
+				TangiblePattern ptn = patterns[i];
+				infoCoords.Add(ptn.infoCoord);
 			}
 
-			Vector2 anchor1Center = MathHelper.ComputeCenter(anchor1Points);
-			Vector2 anchor2Center = MathHelper.ComputeCenter(anchor2Points);
-			Vector2 info1Center = MathHelper.ComputeCenter(info1Points);
-			Vector2 info2Center = MathHelper.ComputeCenter(info2Points);
-			// create a pattern with computed values
-			pattern.points = new List<Vector2> (TangiblePattern.numOfPoints);
-			pattern.points.Add(anchor1Center);
-			pattern.points.Add(anchor2Center);
-			pattern.points.Add(info1Center);
-			pattern.points.Add(info2Center);
-
-			pattern.anchorPoint1 = 0;
-			pattern.anchorPoint2 = 1;
-			pattern.infoPoint1 = 2;
-			pattern.infoPoint2 = 3;
-
-			pattern.anchorDistance = Vector2.Distance(anchor1Center, anchor2Center);
-
-			#region statistics
-			pattern.standardDeviations = new List<float>(TangiblePattern.numOfPoints);
-			pattern.meanDistances = new List<float>();
-			List<float> anchor1Dist = new List<float> ();
-			foreach (Vector2 v in anchor1Points) {
-				anchor1Dist.Add (Vector2.Distance (anchor1Center, v));
+			// check if samples match 
+			bool match = true;
+			for (int i = 0; i < infoCoords.Count - 1; i++)
+				if (infoCoords[i].first != infoCoords[i + 1].first
+					|| infoCoords[i].second != infoCoords[i + 1].second)
+					match = false;
+				
+			if (match)
+			{
+				pattern.infoCoord = infoCoords[0];
+				infoText.text = "Training samples match!";
+				infoText.text += pattern.ToString();
+				infoText.color = Color.green;
 			}
-			pattern.meanDistances.Add (anchor1Dist.Mean());
-			pattern.standardDeviations.Add (anchor1Dist.StandardDeviation ());
-			print ("sd 0: " + pattern.standardDeviations [0]);
-
-			List<float> anchor2Dist = new List<float> ();
-			foreach (Vector2 v in anchor2Points) {
-				anchor2Dist.Add (Vector2.Distance (anchor2Center, v));
+			else
+			{
+				infoText.text = "Training samples do not match!";
+				infoText.color = Color.red;
 			}
-			pattern.meanDistances.Add (anchor2Dist.Mean ());
-			pattern.standardDeviations.Add (anchor2Dist.StandardDeviation ());
-			print ("sd 1: " + pattern.standardDeviations [1]);
-
-			List<float> info1Dist = new List<float> ();
-			foreach (Vector2 v in info1Points) {
-				info1Dist.Add (Vector2.Distance (info1Center, v));
-			}
-			pattern.meanDistances.Add(info1Dist.Mean());
-			pattern.standardDeviations.Add(info1Dist.StandardDeviation ());
-			print ("sd 2: " + pattern.standardDeviations [2]);
-
-			List<float> info2Dist = new List<float> ();
-			foreach (Vector2 v in info2Points) {
-				info2Dist.Add (Vector2.Distance (info2Center, v));
-			}
-			pattern.meanDistances.Add(info2Dist.Mean());
-			pattern.standardDeviations.Add (info2Dist.StandardDeviation ());
-			print ("sd 3: " + pattern.standardDeviations [3]);
-			#endregion
-			Vector2 patternCenter = MathHelper.ComputeCenter (pattern.points);
-
-
-			foreach(TangiblePattern ptn in patterns){
-				radiusList.Add(ptn.radius);	
-			}
-			pattern.radius = radiusList.Mean();
-			//for (int i = 0; i < pattern.points.Count; i++) {
-			//	// compute radius
-			//	float dist = Vector2.Distance (patternCenter, pattern.points [i]);
-			//	if (dist > pattern.radius) {
-			//		pattern.radius = dist;
-			//	}
-			//}
-
-			infoText.text = pattern.ToString();
-			infoText.color = Color.white;
-
+         
 			#region save ne pattern to json
-			string json = JsonUtility.ToJson (pattern, true);
-			string fullfilepath = TangiblesFileUtils.PatternFilename (patternId.ToString ());
-			print (fullfilepath);
-			File.WriteAllText (fullfilepath, json);
+			string json = JsonUtility.ToJson(pattern, true);
+			string fullfilepath = TangiblesFileUtils.PatternFilename(patternId.ToString());
+			print(fullfilepath);
+			File.WriteAllText(fullfilepath, json);
 
-			SavePatternStatistics();
+			//SavePatternStatistics();
 			#endregion
 		}
-
-
-		void SavePatternStatistics(){
-			string csv = "tangibleID, radius, anchor1X, anchor1Y, anchor2X, anchor2Y, info1X, info1Y, info2X, info2Y\n";
-			string path = TangiblesFileUtils.StatisticsFilename();
-			foreach(TangiblePattern ptn in patterns){
-				Vector2 a1 = ptn.points[ptn.anchorPoint1];
-				Vector2 a2 = ptn.points[ptn.anchorPoint2];
-				Vector2 i1 = ptn.points[ptn.infoPoint1];
-				Vector2 i2 = ptn.points[ptn.infoPoint2];
-				string line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n",ptn.id, ptn.radius, a1.x, a1.y, a2.x, a2.y, i1.x, i1.y, i2.x,i2.y);
-				csv += line;
-			}
-			File.WriteAllText(path, csv);
-		}
-
-		void CreateTouchPoint (Vector2 screenPos, Color color) {
-			GameObject touchPoint = Instantiate (touchPointPrefab);
+      
+		void CreateTouchPoint(Vector2 screenPos, Color color)
+		{
+			GameObject touchPoint = Instantiate(touchPointPrefab);
 			RectTransform rt = (touchPoint.transform as RectTransform);
 			rt.position = screenPos;
-			rt.SetParent (rectTransform);
+			rt.SetParent(rectTransform);
 			touchPoint.GetComponent<Image>().color = color;
 			//print (rt.position);
-			patternPointsVisuals.Add (touchPoint);
+			patternPointsVisuals.Add(touchPoint);
 		}
 	}
 
 
 }
-
-
