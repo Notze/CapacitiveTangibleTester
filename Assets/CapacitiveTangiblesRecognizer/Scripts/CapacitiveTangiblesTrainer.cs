@@ -10,10 +10,11 @@ namespace CTR
 	public class CapacitiveTangiblesTrainer : SingletonBehaviour<CapacitiveTangiblesTrainer>
 	{
 		// 0 = none
-        // 1 = mark anchor and info
-        // 2 = show rotated points before flip
-        // 3 = show rotated points after flip
-		private int debugType = 3;
+		// 1 = mark anchor and info
+		// 2 = show rotated points before flip
+		// 3 = show rotated points after flip
+		public int debugType = 3;
+		public bool outline = true;
 
 		public RectTransform patternMonitor;
 
@@ -24,6 +25,7 @@ namespace CTR
 		public Text patternIdText;
 		public Text infoText;
 		public Text debugText;
+		public Dropdown debugTypeList;
 		int patternId = 0;
 		RectTransform rectTransform;
 
@@ -36,6 +38,33 @@ namespace CTR
 			rectTransform = transform as RectTransform;
 			patternPointsVisuals = new List<GameObject>();
 			monitorPatterns = new List<GameObject>();
+		}
+
+		public void setDebugType()
+		{
+			this.debugType = debugTypeList.value;
+		}
+
+		public void toggleOutline()
+		{
+			if (this.outline)
+				outline = false;
+			else
+				outline = true;
+		}
+
+		//TODO make a nicer outline; there's not even an outline yet! :D
+		public void drawOutline(List<Vector2> patternPoints)
+		{
+			if (outline)
+			{
+				if (patternPoints.Count == 3) // errorcheck because this function is hardcoded to 3 points
+				{
+					Debug.DrawLine(patternPoints[0], patternPoints[1]);
+					Debug.DrawLine(patternPoints[1], patternPoints[2]);
+					Debug.DrawLine(patternPoints[2], patternPoints[0]);
+				}
+			}
 		}
 
 		public void ClearPatternPoints()
@@ -61,7 +90,7 @@ namespace CTR
 				monitorPatterns.RemoveAt(monitorPatterns.Count - 1);
 				patterns.RemoveAt(patterns.Count - 1);
 			}
-		}      
+		}
 
 		public void SetPatternID()
 		{
@@ -72,6 +101,18 @@ namespace CTR
 			}
 		}
 
+		private void flipPattern(List<Vector2> patternPoints, Tuple<int, int> anchorPair)
+		{
+			for (int j = 0; j < patternPoints.Count; j++)
+			{
+				patternPoints[j] = MathHelper.RotatePointAroundPivot(patternPoints[j], patternPoints[anchorPair.first], new Vector3(0, 0, 180));
+				if (debugType == 3)
+					if (j == anchorPair.first || j == anchorPair.second)
+						CreateTouchPoint(patternPoints[j], Color.blue);
+					else
+						CreateTouchPoint(patternPoints[j], Color.green);
+			}
+		}
 
 		public void TrainPattern()
 		{
@@ -88,6 +129,8 @@ namespace CTR
 				}
 			}
 
+			infoText.text = "Detected Touchpoints: " + patternPoints.Count + "\n"; // little dirty to use 'patternPoints' but should be ok
+
 			// find the two closest points
 			Vector2 patternCenter = MathHelper.ComputeCenter(patternPoints);
 			Vector2 panelCenter = MathHelper.RectTransformToScreenSpace(rectTransform).center;
@@ -99,7 +142,7 @@ namespace CTR
 			Tuple<int, int> anchorPair = MathHelper.FindMinDistancePair(patternPoints, patternCenter, out minDist);
 			if (anchorPair.first == -1 || anchorPair.second == -1)
 			{
-				infoText.text = "Pattern does not contain anchor points!";
+				infoText.text += "Pattern does not contain anchor points!";
 				infoText.color = Color.red;
 			}
 			else
@@ -119,13 +162,13 @@ namespace CTR
 				{
 					Destroy(pt);
 				}
-            
-				if(debugType==1)
+
+				if (debugType == 1)
 					for (int i = 0; i < patternPoints.Count; i++)
-                        if (i == anchorPair.first || i == anchorPair.second)
-                            CreateTouchPoint(patternPoints[i], Color.blue);
-                        else
-                            CreateTouchPoint(patternPoints[i], Color.green);
+						if (i == anchorPair.first || i == anchorPair.second)
+							CreateTouchPoint(patternPoints[i], Color.blue);
+						else
+							CreateTouchPoint(patternPoints[i], Color.green);
 
 				// continue 'rotate to align "base" horizontally'
 				for (int i = 0; i < patternPoints.Count; i++)
@@ -145,18 +188,14 @@ namespace CTR
 				// infopoint(s) should be above base points
 				for (int i = 0; i < patternPoints.Count; i++)
 					if (i != anchorPair.first && i != anchorPair.second)
+					{
 						if (patternPoints[i].y < patternPoints[anchorPair.first].y)
-							for (int j = 0; j < patternPoints.Count; j++)
-							{
-								patternPoints[j] = MathHelper.RotatePointAroundPivot(patternPoints[j], patternPoints[anchorPair.first], new Vector3(0, 0, 180));
-						        if (debugType == 3)
-                                    if (j == anchorPair.first || j == anchorPair.second)
-                                        CreateTouchPoint(patternPoints[j], Color.blue);
-                                    else
-                                        CreateTouchPoint(patternPoints[j], Color.green);
-							}
+						{
+							flipPattern(patternPoints, anchorPair);
+						}
+					}
 
-				// make sure the most left base point is point one
+				// make sure the most left base point is point one 
 				if (patternPoints[anchorPair.first].x > patternPoints[anchorPair.second].x)
 				{
 					int tmp = anchorPair.first;
@@ -165,33 +204,39 @@ namespace CTR
 				}
 
 				// get info (grid-)coordinates as Tuple<int, int>
-				Tuple<int, int> infoCoord = new Tuple<int, int>(0,0);
+				Tuple<int, int> infoCoord = new Tuple<int, int>(0, 0);
 				for (int i = 0; i < patternPoints.Count; i++)
 					if (i != anchorPair.first && i != anchorPair.second)
 					{
 						float rawX = patternPoints[i].x - patternPoints[anchorPair.first].x;
 						float rawY = patternPoints[i].y - patternPoints[anchorPair.first].y;
 						int coordX = Mathf.RoundToInt(rawX / (minDist / 2));
-						int coordY = Mathf.RoundToInt(rawY / (minDist / 2));
+						int coordY = Mathf.RoundToInt(rawY / (minDist / 2));               
+						if (coordY == 0 && coordX < 0)
+						{ // special case: if pattern is linear then the info point should have positive coordinates
+							coordX = 2 - coordX; // e.g. (-3,0) -> (5,0)
+						}
 						infoCoord.first = coordX;
 						infoCoord.second = coordY;
 					}
 
+				            
 				// put coords in 'pattern' and add 'pattern' to 'patterns'
-				if (infoCoord.first==0 && infoCoord.second==0)
+				if (infoCoord.first == 0 && infoCoord.second == 0)
 				{
-					infoText.text = "Pattern does not contain enought information!";
+					infoText.text += "Pattern does not contain enought information!";
 					infoText.color = Color.red;
 				}
 				else
 				{
-					infoText.text = "Pattern trainig successful! Info Point is (" + infoCoord.first + "," + infoCoord.second + ")";
+					infoText.text += "Pattern trainig successful! Info Point is (" + infoCoord.first + "," + infoCoord.second + ")";
 					infoText.color = Color.green;
 
 					pattern.id = patternId;
 					pattern.infoCoord = infoCoord;
 
 					patterns.Add(pattern);
+					drawOutline(patternPoints);
 				}
 			}
 		}
@@ -217,7 +262,7 @@ namespace CTR
 				if (infoCoords[i].first != infoCoords[i + 1].first
 					|| infoCoords[i].second != infoCoords[i + 1].second)
 					match = false;
-				
+
 			if (match)
 			{
 				pattern.infoCoord = infoCoords[0];
@@ -230,7 +275,7 @@ namespace CTR
 				infoText.text = "Training samples do not match!";
 				infoText.color = Color.red;
 			}
-         
+
 			#region save ne pattern to json
 			string json = JsonUtility.ToJson(pattern, true);
 			string fullfilepath = TangiblesFileUtils.PatternFilename(patternId.ToString());
@@ -240,7 +285,7 @@ namespace CTR
 			//SavePatternStatistics();
 			#endregion
 		}
-      
+
 		void CreateTouchPoint(Vector2 screenPos, Color color)
 		{
 			GameObject touchPoint = Instantiate(touchPointPrefab);
