@@ -16,11 +16,11 @@ public class OSCReceiver : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		debugText.text = "waiting for signal from tangible";
+		//debugText.text += "waiting for signal from tangible";
 	}
 
 	void onReceiveID(OscMessage message){
 		float tangID = message.GetFloat(0);
-		debugText.text = "touched tangible ID: " + tangID.ToString();
+		debugText.text += "\ntouched tangible ID: " + tangID.ToString();
 	}
 }

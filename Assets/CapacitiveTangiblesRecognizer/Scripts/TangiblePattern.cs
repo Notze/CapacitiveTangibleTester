@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿// Instances of this class hold all relevant information about a specific
+// tangible pattern and can be used to persistently store patterns.
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -9,30 +11,32 @@ namespace CTR
     [Serializable]
     public struct TangiblePattern
     {
-        [NonSerialized]
-        public const int numOfPoints = 3;
+        [NonSerialized] public const int numOfPoints = 3;
+        public enum Type { PLAIN, UDP };
+        public Type type;
         public int id;
-		public int trainingSamples; 
-		public float radius; // TODO 
+        public Tuple<int, int> infoCoord;
+        public float radius; // radius for clustering
 
-		// TODO should be obsolete after adaption of monitoring
-		public List<float> standardDeviations;
+
+        //public int trainingSamples; 
+
+        // TODO should be obsolete after adaption of monitoring
+        public List<float> standardDeviations;
         public List<float> meanDistances;
         public float anchorDistance;
         public int anchorPoint1;
         public int anchorPoint2;
         public int infoPoint1;
         public int infoPoint2;
-		public List<Vector2> points; 
+        public List<Vector2> points;
 
-
-		public Tuple<int, int> infoCoord;
 
         public override string ToString()
         {
             string str = string.Empty;
             str += "id: " + id + "\n";
-			str += "training samples: " + trainingSamples + "\n";
+			str += "type: " + type.ToString() + "\n";
 			str += "infoCoord: " + infoCoord.ToString() + "\n";
             return str;
         }

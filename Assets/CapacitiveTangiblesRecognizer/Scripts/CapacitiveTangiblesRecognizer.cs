@@ -43,20 +43,10 @@ namespace CTR {
 		public event Action<int, Vector3, Quaternion> OnTangibleUpdated;
 
 
-		int clusterCount;
-        /*
-         * getter für ClusterCount
-         */
-		public int ClusterCount {
-			get {
-				return clusterCount;
-			}
-		}
+        int clusterCount;
 
-        /*
-         * nothing
-         */
-		void OnEnable ()
+        // empty
+        void OnEnable ()
 		{
 
 		}
@@ -76,10 +66,23 @@ namespace CTR {
 			LoadTangiblesPatterns();
 		}
 
-        /*
-         * unused handler for mouse input
-         */
-		void HandleMouseInput ()
+        #region CapacitiveTangiblesRecognizer getters&setters
+
+        //getter of ClusterCount
+        public int ClusterCount
+        {
+            get
+            {
+                return clusterCount;
+            }
+        }
+
+        #endregion
+
+        #region CapacitiveTangiblesRecognizer inputHandlers
+
+        // handler for mouse input (unused)
+        void HandleMouseInput ()
 		{
 			if (Input.GetMouseButtonDown (0)) {
 				Vector2 pos = Input.mousePosition;
@@ -88,9 +91,7 @@ namespace CTR {
 
 		}
 
-        /*
-         * handler for touch input
-         */
+        // handler for touch input
 		void HandleTouchInput ()
 		{
 			if (Input.touchCount > 0) {
@@ -102,10 +103,10 @@ namespace CTR {
 			}
 		}
 
-        /*
-         * checks touchpoints and adds them to 'touchObjects'
-         */
-		bool RegisterInputPoint (Vector2 screenPoint)
+        #endregion
+
+        // checks touchpoints and adds them to 'touchObjects'
+        bool RegisterInputPoint (Vector2 screenPoint)
 		{
 			bool inAvoidArea = false;
 			bool inAcceptableDistance = true;
@@ -145,9 +146,7 @@ namespace CTR {
 			return !inAvoidArea && inAcceptableDistance;
 		}
 
-        /*
-         * calls inputHandlers, recognizes tangibles and visualizes them
-         */
+        // calls inputHandlers, recognizes tangibles and visualizes them
 		void Update () {
 
 			// validate old tangible position
@@ -175,14 +174,15 @@ namespace CTR {
 			ClearClusters();
 		}
 
-        /*
-         * fake tracing of tangibles
-         */
+        // "fake tracing of tangibles"
+        // tries to associate present touches to tangibles
+        // fills dictionarie traceTouches
+        // ultimately updates the tangible rectangle transformations
 		void TraceTangibles(){
 			for(int i = 0; i < Input.touchCount; i++) {
 				Touch touch = Input.touches[i];
 
-				if(touch.phase ==TouchPhase.Began){
+				if(touch.phase == TouchPhase.Began){
 					foreach(Tangible tangible in tangibles) {
 						if(RectTransformUtility.RectangleContainsScreenPoint(tangible.rectTransform,touch.position)) {
 							if(traceTouches.ContainsKey(touch.fingerId)){
@@ -229,16 +229,14 @@ namespace CTR {
 			//}
 		}
 
-        /*
-         * deletes previously stored tangible patterns
-         */
-		public void DeleteTangiblesPatterns() {
+        #region persistence
+
+        // deletes previously stored tangible patterns
+        public void DeleteTangiblesPatterns() {
 			TangiblesFileUtils.DeleteTangibles ();
 		}
 
-        /*
-         * loads list of previously stored tangible patterns
-         */
+        // loads list of previously stored tangible patterns
 		public void LoadTangiblesPatterns() {
 			if (tangibles != null) {
 				foreach (Tangible t in tangibles) {
@@ -270,7 +268,7 @@ namespace CTR {
 			}
 		}
 
-
+        #endregion
 
 
         // private void OnDrawGizmos() {
@@ -284,12 +282,10 @@ namespace CTR {
         //    }
         //}
 
-        /*
-         * official doc: OnGUI is called for rendering and handling GUI events.
-         * This means that your OnGUI implementation might be called several times per frame (one call per event)...
-         * 
-         * calculates fitness of cluster to pattern
-         */
+        // official doc: OnGUI is called for rendering and handling GUI events.
+        // This means that your OnGUI implementation might be called several times per frame (one call per event)...
+        // 
+        // calculates fitness of cluster to pattern
         private void OnGUI ()
 		{
 			if(!GlobalSettings.Instance.debugOutput){
@@ -323,11 +319,9 @@ namespace CTR {
 			GUILayout.EndVertical ();
 		}
 
-        /*
-         * recognizes tangibles
-         * fills 'patternFitnessDict' with patterns and fitness data in form of 
-         * a clusterAssociation list
-         */
+        // recognizes tangibles
+        // fills 'patternFitnessDict' with patterns and fitness data in form of 
+        // a clusterAssociation list
 		public void RecognizeTangibles() {
 			patternFitnessDict = new Dictionary<TangiblePattern, List<ClusterAssociation>> ();
 			DoClustering();
@@ -338,10 +332,8 @@ namespace CTR {
 			}
 		}
 
-		/*
-         * examines a tangible pattern
-         * returns a list of clusterAssociations for the examined pattern
-         */
+		// examines a tangible pattern
+        // returns a list of clusterAssociations for the examined pattern
 		List<ClusterAssociation> RecognizeTangiblesPattern (TangiblePattern pattern) {
 			List<ClusterAssociation> associations = new List<ClusterAssociation> ();
 
@@ -353,10 +345,8 @@ namespace CTR {
 		}
 
 
-        /*
-         * matches patternIDs on clusterIDs
-         * looks for anchor and data points in this process
-         */
+        // matches patternIDs on clusterIDs
+        // looks for anchor and data points in this process
 		ClusterAssociation RecognizeClusterPattern (TangiblePattern pattern, int clusterId) {
 			ClusterAssociation association = new ClusterAssociation ();
 
@@ -531,9 +521,7 @@ namespace CTR {
 			return association;
 		}
 
-        /*
-         * updates position of tangibles
-         */
+        // updates position of tangibles
 		public void AssignTangiblesPositions ()
 		{
 			Dictionary<int, ClusterAssociation> clusterFitnessDict = new Dictionary<int, ClusterAssociation>();
@@ -563,20 +551,16 @@ namespace CTR {
 			}
 		}
 
-        /*
-         * clustering of touchpoints over distance
-         * caller function
-         */
+        // clustering of touchpoints over distance
+        // caller function
 		public void DoClustering(){
 			DoClustering (clusterRadius * GlobalSettings.Instance.clusterRadiusScaler,
 						  GlobalSettings.Instance.minNumOfPointsInCluster);
 		}
 
-        /*
-         * clustering of touchpoints over distance 
-         * w/ min count and coloring
-         * fills 'clusterPintsDict'
-         */
+        // clustering of touchpoints over distance 
+        // w/ min count and coloring
+        // fills 'clusterPintsDict'
         void DoClustering (float radius, int minNumOfPoints)
 		{
 			ResetClusters ();
@@ -606,9 +590,7 @@ namespace CTR {
 			}
 		}
 
-        /*
-         * resets cluster
-         */
+        // resets cluster
 		public void ResetClusters ()
 		{
 			foreach (DbscanPoint dsp in dbscanPoints) {
@@ -619,9 +601,7 @@ namespace CTR {
 			}
 		}
 
-        /*
-         * clears cluster
-         */
+        // clears cluster
 		public void ClearClusters() {
 			foreach (DbscanPoint point in dbscanPoints) {
 				DestroyImmediate(point.clusterTouch.gameObject);
@@ -630,9 +610,7 @@ namespace CTR {
 			touchObjects.Clear();
 		}
 
-        /*
-         * returns list of possible cluster colors
-         */
+        // returns list of possible cluster colors
 		List<Color> ClusterColors (int N)
 		{
 			List<Color> colors = new List<Color> ();
@@ -643,9 +621,7 @@ namespace CTR {
 			return colors;
 		}
 
-        /*
-         * update tangible object
-         */
+        // updates tangible object
 		public void NotifyTangibleUpdate(int id, Vector2 position, Quaternion rotation){
 			if(OnTangibleUpdated != null){
 				OnTangibleUpdated.Invoke (id, position, rotation);	
@@ -653,4 +629,3 @@ namespace CTR {
 		}
 	}
 }
-

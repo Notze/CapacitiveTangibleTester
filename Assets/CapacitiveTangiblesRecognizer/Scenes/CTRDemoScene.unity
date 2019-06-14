@@ -1528,7 +1528,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 930268138}
-        m_MethodName: TrainPattern
+        m_MethodName: TrainPlainPattern
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
