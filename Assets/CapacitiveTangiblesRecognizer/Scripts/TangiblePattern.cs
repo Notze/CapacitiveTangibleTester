@@ -17,7 +17,7 @@ namespace CTR
         public int id;
         public Tuple<int, int> infoCoord;
         public float radius; // radius for clustering
-
+        public float gridSize;
 
         //public int trainingSamples; 
 

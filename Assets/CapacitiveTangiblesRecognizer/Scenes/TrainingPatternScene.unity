@@ -1055,7 +1055,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5.6903
+  orthographic size: 4.803658
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1078,8 +1078,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 981552801}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -1, y: -1, z: -10}
+  m_LocalScale: {x: 46.60697, y: 2.4123638, z: 2.4123638}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -1326,7 +1326,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2082269906}
-        m_MethodName: toggleOutline
+        m_MethodName: ToggleOutline
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2316,7 +2316,7 @@ Canvas:
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 981552804}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -2804,11 +2804,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugType: 3
   outline: 1
-  camera: {fileID: 981552804}
   patternMonitor: {fileID: 0}
   patternPrefab: {fileID: 1731233113486722, guid: 4eb43fb31f32b459e99a03fd461917f3,
     type: 2}
   patternFootPrefab: {fileID: 1698196427704684, guid: b8be1496bd72644f69815f91b1627075,
+    type: 2}
+  tangLabelPrefab: {fileID: 1245239764415198, guid: 853940fa960bab545b53cb34d8a48852,
+    type: 2}
+  tangOutline: {fileID: 1474058965103266, guid: acb90b532797bec4eb7e8893a54b0e83,
     type: 2}
   touchPointPrefab: {fileID: 1698196427704684, guid: 238700c3cdc784d6686e35268ea9e729,
     type: 2}
