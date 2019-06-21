@@ -15,9 +15,11 @@ namespace CTR
         public enum Type { PLAIN, UDP };
         public Type type;
         public int id;
-        public Tuple<int, int> infoCoord;
+        public Tuple<int, int> infoCoord { get; set; }
         public float radius; // radius for clustering
         public float gridSize;
+        public float orientation { get; set; }
+        public Vector2 position { get; set; }
 
         //public int trainingSamples; 
 

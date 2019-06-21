@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/CapacitiveTangiblesRecognizer/Scenes/CTRDemoScene.unity
     guid: 1f81ee4deef244d2fa74ab4238c8e68c
   - enabled: 1
