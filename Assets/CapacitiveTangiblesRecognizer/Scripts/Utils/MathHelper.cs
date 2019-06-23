@@ -61,11 +61,11 @@ namespace CTR{
 				float firstDistFromCenter = Vector2.Distance (patternPoints [minDistPair.first], patternCenter);
 				float secondDistFromCenter = Vector2.Distance (patternPoints [minDistPair.second], patternCenter);
 
-				if (secondDistFromCenter > firstDistFromCenter && GlobalSettings.Instance.flipRotation) {
-					int tmp = minDistPair.first;
-					minDistPair.first = minDistPair.second;
-					minDistPair.second = tmp;
-				}
+				//if (secondDistFromCenter > firstDistFromCenter && GlobalSettings.Instance.flipRotation) {
+				//	int tmp = minDistPair.first;
+				//	minDistPair.first = minDistPair.second;
+				//	minDistPair.second = tmp;
+				//}
 			}
 			return minDistPair;
 		}
