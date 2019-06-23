@@ -13,6 +13,17 @@ namespace CTR
 
         public RectTransform rectTransform;
 
+        public Text debugTextField;
+        public Text infoTextField;
+        public Slider logLengthSlider;
+        public bool infoTextToggle = true;
+        public bool debugTextToggle = true;
+        int logTextsMaxCapacity = 40; // size of log text fields
+        int infoTextMaxEntries = 5; // current log length
+        int debugTextMaxEntries = 5; // current log length
+        List<string> infoText = new List<string>();
+        List<string> debugText = new List<string>();
+
 
         public Dictionary<string, TangiblePattern> LoadPatternDict(TangiblePattern.Type? type = null) {
             Dictionary<string, TangiblePattern> dict = new Dictionary<string, TangiblePattern>();
@@ -34,6 +45,47 @@ namespace CTR
                 }
 
             return dict;
+        }
+
+        public void DebugText(string text, bool clear = false, Color? color = null)
+        {
+            if (debugTextToggle)
+            {
+                if (clear)
+                    debugText.Clear();
+                while (debugText.Count >= debugTextMaxEntries)
+                    debugText.RemoveAt(0);
+                debugText.Add(text);
+
+                debugTextField.text = "";
+                debugTextField.color = color ?? Color.green;
+                foreach (string message in debugText)
+                    debugTextField.text += message + "\n";
+            }
+        }
+
+        public void InfoText(string text, bool clear = false, Color? color = null)
+        {
+            if (infoTextToggle)
+            {
+                if (clear)
+                    infoText.Clear();
+                while (infoText.Count >= infoTextMaxEntries)
+                    infoText.RemoveAt(0);
+                infoText.Add(text);
+
+                infoTextField.text = "";
+                infoTextField.color = color ?? Color.green;
+                foreach (string message in infoText)
+                    infoTextField.text += "\n" + message;
+            }
+        }
+
+        public void SetLogLength()
+        {
+            int newLength = (int)(logLengthSlider.value * logTextsMaxCapacity);
+            debugTextMaxEntries = (newLength > 0) ? newLength : 1;
+            infoTextMaxEntries = (newLength > 0) ? newLength : 1;
         }
 
         // Removes all persistent Patterns.
@@ -111,6 +163,8 @@ namespace CTR
                 patternPoints.Add(point3);
             }
 
+            if (patternPoints.Count != 3) return null;
+
             // find the two closest points
             Vector2 patternCenter = MathHelper.ComputeCenter(patternPoints);
             Vector2 panelCenter = MathHelper.RectTransformToScreenSpace(rectTransform).center;
@@ -126,7 +180,9 @@ namespace CTR
                 return null;
             else
             {
-                TangiblePattern pattern = new TangiblePattern { };
+                TangiblePattern pattern = new TangiblePattern { type = type };
+                // TODO setID bei UDP
+                if (type == TangiblePattern.Type.UDP && pattern.id.Equals("")) return null;
 
                 // closest points are "base" of pattern and determine grid (cell) size and rotation
                 // rotate to align "base" horizontally

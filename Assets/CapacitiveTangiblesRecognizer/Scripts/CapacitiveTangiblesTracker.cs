@@ -13,30 +13,21 @@ namespace CTR
 
         public TangiblePattern.Type mode;
         public GameObject tangibleOutlinePrefab;
-        public Text debugTextField;
-        public Text infoTextField;
-        public Slider logLengthSlider;
         public Toggle mockUpToggle;
+        public OSC osc;
 
-        bool infoTextToggle = true;
-        bool debugTextToggle = true;
         bool mockUp = false;
-        int logTextsMaxCapacity = 40; // size of log text fields
-        int infoTextMaxEntries = 5; // current log length
-        int debugTextMaxEntries = 5; // current log length
-        
-        //CTRBasicFunctionality basicFunctions;
-        //OutlineManager outlineManager;
+
+        OSCReceiver oscReceiver;
         string logPathAndFilename; // this is handled by the Log function
         List<TangiblePattern> patterns;
-        List<string> infoText = new List<string>();
-        List<string> debugText = new List<string>();
         Dictionary<string, TangiblePattern> patternDictUDP;
         Dictionary<string, TangiblePattern> patternDictPlain;
 
         // Use this for initialization
         void Start()
         {
+            oscReceiver = new OSCReceiver(osc);
             //basicFunctions = (new GameObject("basicFunctionalityContainer")).AddComponent<CTRBasicFunctionality>() as CTRBasicFunctionality; //new CTRBasicFunctionality(transform as RectTransform);
             //basicFunctions.rectTransform = transform as RectTransform;
             patternDictUDP = LoadPatternDict(TangiblePattern.Type.UDP);
@@ -63,6 +54,7 @@ namespace CTR
         // Update is called once per frame
         void Update() // continuous tracking 
         {
+            DebugText("Found Tangbile " + oscReceiver.TangibleID);
             Nullable<TangiblePattern> recognition = RecognizePattern(mode, mockUp);
             if (recognition != null)
             {
@@ -83,13 +75,6 @@ namespace CTR
         public void PrintKnownPlainPatterns()
         {
             PrintKnownPatterns(TangiblePattern.Type.PLAIN);
-        }
-
-        public void SetLogLength()
-        {
-            int newLength = (int) (logLengthSlider.value * logTextsMaxCapacity);
-            debugTextMaxEntries = (newLength>0)? newLength : 1;
-            infoTextMaxEntries = (newLength > 0) ? newLength : 1;
         }
 
         public void ToggleDebug()
@@ -116,40 +101,6 @@ namespace CTR
                     foreach (KeyValuePair<string, TangiblePattern> pair in patternDictUDP)
                         DebugText(pair.Value.ToString());
                     break;
-            }
-        }
-
-        void DebugText(string text, bool clear = false, Color? color = null)
-        {
-            if (debugTextToggle)
-            {
-                if (clear)
-                    debugText.Clear();
-                while (debugText.Count >= debugTextMaxEntries)
-                    debugText.RemoveAt(0);
-                debugText.Add(text);
-
-                debugTextField.text = "";
-                debugTextField.color = color ?? Color.green;
-                foreach (string message in debugText)
-                    debugTextField.text += message+"\n";
-            }
-        }
-
-        void InfoText(string text, bool clear = false, Color? color = null)
-        {
-            if (infoTextToggle)
-            {
-                if (clear)
-                    infoText.Clear();
-                while (infoText.Count >= infoTextMaxEntries)
-                    infoText.RemoveAt(0);
-                infoText.Add(text);
-
-                infoTextField.text = "";
-                infoTextField.color = color ?? Color.green;
-                foreach (string message in infoText)
-                    infoTextField.text += "\n"+message;
             }
         }
 

@@ -38,7 +38,7 @@ GameObject:
   - component: {fileID: 224833321467456462}
   - component: {fileID: 222243661308257494}
   - component: {fileID: 114700992633938728}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: TangibleOutline
   m_TagString: Untagged
   m_Icon: {fileID: 0}

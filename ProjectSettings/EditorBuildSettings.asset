@@ -5,9 +5,6 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/CapacitiveTangiblesRecognizer/Scenes/CTRDemoScene.unity
-    guid: 1f81ee4deef244d2fa74ab4238c8e68c
   - enabled: 1
     path: Assets/CapacitiveTangiblesRecognizer/Scenes/MainMenu.unity
     guid: 8cf92dddb744944e09d38d89a8c50f8b
@@ -18,15 +15,6 @@ EditorBuildSettings:
     path: Assets/CapacitiveTangiblesRecognizer/Scenes/TrainingPatternScene.unity
     guid: a39a8452b4d5e4674af49cbca53da7c1
   - enabled: 1
-    path: Assets/CapacitiveTangiblesRecognizer/Scenes/TrainingArduinoScene.unity
-    guid: 2016185b4d07b4bff8a5c4cfbcd5a3bf
-  - enabled: 1
-    path: Assets/CapacitiveTangiblesRecognizer/Scenes/TrackingArduinoScene.unity
-    guid: 9e165094c400c4fbdbb98ad8e9ba99d8
-  - enabled: 1
     path: Assets/CapacitiveTangiblesRecognizer/Scenes/TestrunPatternScene.unity
     guid: da8ab661e07ab4ef5953826fc62985c0
-  - enabled: 1
-    path: Assets/CapacitiveTangiblesRecognizer/Scenes/TestrunArduinoScene.unity
-    guid: 62cb483d34bec4b4f8bc7bedf881821d
   m_configObjects: {}

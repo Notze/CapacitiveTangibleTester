@@ -16,8 +16,6 @@ namespace CTR
 		public GameObject patternFootPrefab;
         public GameObject outlinePrefab;
 		public GameObject touchPointPrefab;
-		public Text infoText;
-		public Text debugText;
 		public Dropdown debugTypeList;
 
 
@@ -51,56 +49,51 @@ namespace CTR
             rt.SetParent(rectTransform);
             touchPoint.GetComponent<Image>().color = color;
             patternPointsVisuals.Add(touchPoint);
-            if (debugType > 0) DebugText("Point vector: " + screenPos.ToString(), true);
-        }
-
-        // Fills the InfoTextField.
-        public void InfoText(string text, bool append = false, Color? color = null)
-        {
-            infoText.color = color ?? Color.green;
-            infoText.text = append ? infoText.text + "\n" + text: text;
-        }
-
-        // Fills the DebugTextField.
-        public void DebugText(string text, bool append = false, Color? color = null)
-        {
-            if (debugType > 0)
-            {
-                debugText.color = color ?? Color.green;
-                debugText.text = append ? debugText.text + "\n" + text : text;
-            }
+            if (debugType > 0) DebugText("Point vector: " + screenPos.ToString());
         }
 
         #region UI elements
 
         public void TrainPattern()
         {
+            Clear();
+            
             TangiblePattern? recognition = RecognizePattern(mode, (debugType == 4));
             if (recognition != null)
-                pattern = (TangiblePattern) recognition;
-            InfoText(pattern.ToString());
-            OutlineManager.InstantiateOutline(pattern);
-            OutlineManager.updateOutlinePosition(pattern);
+            {
+                pattern = (TangiblePattern)recognition;
+                InfoText(pattern.ToString(),true);
+                OutlineManager.InstantiateOutline(pattern);
+                OutlineManager.updateOutlinePosition(pattern);
+            }
         }
 
 		public void SavePattern()
 		{
             if (SavePattern(pattern) == 0)
-                InfoText("Success: pattern saved", true);
+                InfoText("Success: pattern saved");
             else
-                InfoText("ERROR: saving pattern failed", true, Color.red);
+                InfoText("ERROR: saving pattern failed", false, Color.red);
         }
 
         public void Clear()
 		{
             OutlineManager.Clear();
+            InfoText("cleared", true);
 		}
 
 		public void SetDebugType()
 		{
 			this.debugType = debugTypeList.value;
-            if (debugType <= 0) debugText.text = "";
+            if (debugType <= 0) DebugText("", true);
 		}
+
+        public void toggleMode()
+        {
+
+            mode = (mode == TangiblePattern.Type.PLAIN) ? TangiblePattern.Type.UDP : TangiblePattern.Type.PLAIN;
+            DebugText(mode.ToString() + " mode");
+        }
 
         #endregion
     }
