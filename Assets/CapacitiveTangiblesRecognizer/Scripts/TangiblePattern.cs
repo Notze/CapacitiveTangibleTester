@@ -60,9 +60,9 @@ namespace CTR
                 str += "id: " + id + "\n";
                 str += "type: " + type.ToString() + "\n";
                 str += "infoCoord: " + infoCoord.ToString() + "\n";
-                str += "gridSize: " + gridSize.ToString() +"\n";
-                str += "position: " + Position.ToString() +"\n";
-                str += "orientation: " + orientation.ToString() +"\n";
+                str += "gridSize: " + gridSize.ToString() + "\n";
+                str += "position: " + Position.ToString() + "\n";
+                str += "orientation: " + orientation.ToString() + "\n";
                 return str;
             }
             else
@@ -72,7 +72,19 @@ namespace CTR
                 str += "type: " + type.ToString() + "\n";
                 return str;
             }
-            
+
+        }
+
+        // Returns the appropriate values for the test log file.
+        public string ToLogString()
+        {
+           
+            string str = string.Empty;
+            str += "id: " + id + ";";
+            str += "position: " + Position.ToString() + ";";
+            str += "orientation: " + orientation.ToString();
+            return str;
+
         }
     }
 

@@ -18,7 +18,6 @@ namespace CTR
 		public GameObject touchPointPrefab;
 		public Dropdown debugTypeList;
 
-
         // 0 = none
         // 1 = mark anchor and info
         // 2 = show rotated points before flip
@@ -38,10 +37,10 @@ namespace CTR
 			patternPointsVisuals = new List<GameObject>();
 			monitorPatterns = new List<GameObject>();
             OutlineManager.Initialize(rectTransform, outlinePrefab);
-		}
+        }
 
         // Creates a visual representation of a touch.
-		void CreateTouchPoint(Vector2 screenPos, Color color)
+		void CreateTouchPoint(Vector2 screenPos , Color color)
 		{
             GameObject touchPoint = Instantiate(touchPointPrefab);
             RectTransform rt = (touchPoint.transform as RectTransform);

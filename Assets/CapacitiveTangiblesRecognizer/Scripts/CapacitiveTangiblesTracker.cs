@@ -14,11 +14,11 @@ namespace CTR
         public TangiblePattern.Type mode;
         public GameObject tangibleOutlinePrefab;
         public Toggle mockUpToggle;
-        public OSC osc;
+        //public OSC osc;
 
         bool mockUp = false;
 
-        OSCReceiver oscReceiver;
+        //OSCReceiver oscReceiver;
         string logPathAndFilename; // this is handled by the Log function
         List<TangiblePattern> patterns;
         Dictionary<string, TangiblePattern> patternDictUDP;
@@ -27,35 +27,28 @@ namespace CTR
         // Use this for initialization
         void Start()
         {
-            oscReceiver = new OSCReceiver(osc);
+            //oscReceiver = (new GameObject("OSCReceiver container")).AddComponent<OSCReceiver>();
+            //oscReceiver.osc = osc;
             //basicFunctions = (new GameObject("basicFunctionalityContainer")).AddComponent<CTRBasicFunctionality>() as CTRBasicFunctionality; //new CTRBasicFunctionality(transform as RectTransform);
             //basicFunctions.rectTransform = transform as RectTransform;
             patternDictUDP = LoadPatternDict(TangiblePattern.Type.UDP);
             patternDictPlain = LoadPatternDict(TangiblePattern.Type.PLAIN);
             //outlineManager = OutlineManager.Instance; //(new GameObject("outlineManagerContainer").AddComponent<OutlineManager>()) as OutlineManager;
             OutlineManager.Initialize(transform as RectTransform, tangibleOutlinePrefab);
-            switch (mode)
-            {
-                case TangiblePattern.Type.PLAIN:
-                    foreach (TangiblePattern pattern in patternDictPlain.Values)
-                        OutlineManager.InstantiateOutline(pattern);
-                    DebugText(patternDictPlain.Count.ToString() + " Plain-patterns loaded.");
-                    break;
+            foreach (TangiblePattern pattern in patternDictPlain.Values)
+                OutlineManager.InstantiateOutline(pattern);
+            DebugText(patternDictPlain.Count.ToString() + " Plain-patterns loaded.");
+            foreach (TangiblePattern pattern in patternDictUDP.Values)
+                OutlineManager.InstantiateOutline(pattern);
+            DebugText(patternDictUDP.Count.ToString()+" UDP-patterns loaded.", true);
 
-                case TangiblePattern.Type.UDP:
-                    foreach (TangiblePattern pattern in patternDictUDP.Values)
-                        OutlineManager.InstantiateOutline(pattern);
-                    DebugText(patternDictUDP.Count.ToString()+" UDP-patterns loaded.", true);
-                    break;
-            }
             infoTextField.text = "";
         }
 
         // Update is called once per frame
         void Update() // continuous tracking 
         {
-            DebugText("Found Tangbile " + oscReceiver.TangibleID);
-            Nullable<TangiblePattern> recognition = RecognizePattern(mode, mockUp);
+            TangiblePattern? recognition = RecognizePattern(mode, mockUp);
             if (recognition != null)
             {
                 TangiblePattern pattern = (TangiblePattern) recognition;
@@ -85,6 +78,13 @@ namespace CTR
         public void ToggleMockUp()
         {
             mockUp = mockUp ? false : true;
+        }
+
+        public void toggleMode()
+        {
+
+            mode = (mode == TangiblePattern.Type.PLAIN) ? TangiblePattern.Type.UDP : TangiblePattern.Type.PLAIN;
+            DebugText(mode.ToString() + " mode");
         }
 
         #endregion

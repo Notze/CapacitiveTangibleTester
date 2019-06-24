@@ -9,9 +9,10 @@ namespace CTR
 {
     public class CTRBasicFunctionality : MonoBehaviour
     {
-        public bool debugBasicFunctionality = false;
+        public bool debugBasicFunctionality = true;
 
         public RectTransform rectTransform;
+        public OSC osc;
 
         public Text debugTextField;
         public Text infoTextField;
@@ -24,6 +25,31 @@ namespace CTR
         List<string> infoText = new List<string>();
         List<string> debugText = new List<string>();
 
+
+        #region OSC Receiver
+        OSCReceiver oscReceiver;
+        string _oscTangibleID;
+        public string OSCTangibleID { get
+            {
+                if (oscReceiver == null || !oscReceiver.isActiveAndEnabled)
+                    InitializeOSC();
+                return _oscTangibleID;
+            } }
+
+        private void InitializeOSC()
+        {
+            oscReceiver = (new GameObject("OSCReceiver container")).AddComponent<OSCReceiver>();
+            oscReceiver.osc = osc;
+            osc.SetAddressHandler("/ID", oscOnReceiveID);
+            if (debugBasicFunctionality) print("OSCReceiver set up");
+        }
+
+        private void oscOnReceiveID(OscMessage message)
+        {
+            _oscTangibleID = message.GetFloat(0).ToString();
+            if (debugBasicFunctionality) print("OSC: Tangible ID received");
+        }
+        #endregion
 
         public Dictionary<string, TangiblePattern> LoadPatternDict(TangiblePattern.Type? type = null) {
             Dictionary<string, TangiblePattern> dict = new Dictionary<string, TangiblePattern>();
@@ -95,7 +121,7 @@ namespace CTR
             {
                 TangiblesFileUtils.DeleteTangibles();
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
 
             }
@@ -113,7 +139,7 @@ namespace CTR
                 File.WriteAllText(fullfilepath, json);
                 return 0;
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 string error = e.GetType().ToString();
                 return 1;
@@ -139,7 +165,7 @@ namespace CTR
 
         // Analyses touch input and returns type- and nameless pattern if any.
         // TODO type auswerten bzw. udp pattern implementieren
-        public Nullable<TangiblePattern> RecognizePattern( TangiblePattern.Type type, bool mockUp = false )
+        public TangiblePattern? RecognizePattern( TangiblePattern.Type type, bool mockUp = false )
         {
             // get touch inputs from rectangle and put in a list
             Touch[] touches = Input.touches;
@@ -181,8 +207,12 @@ namespace CTR
             else
             {
                 TangiblePattern pattern = new TangiblePattern { type = type };
-                // TODO setID bei UDP
-                if (type == TangiblePattern.Type.UDP && pattern.id.Equals("")) return null;
+
+                if (type == TangiblePattern.Type.UDP)
+                    if (OSCTangibleID!=null)
+                        pattern._id = OSCTangibleID;
+                    else
+                        return null;
 
                 // closest points are "base" of pattern and determine grid (cell) size and rotation
                 // rotate to align "base" horizontally
