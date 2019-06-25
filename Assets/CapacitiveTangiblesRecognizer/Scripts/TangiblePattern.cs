@@ -17,7 +17,7 @@ namespace CTR
         public int infoX, infoY;
         public float a1X, a1Y, a2X, a2Y, iX, iY; // anchor and id point coordinates
         public float gridSize;
-        
+
         // non-serialized
         public enum Type { PLAIN, UDP };
         public Vector2 Position { get { return anchorPoint2; } }
@@ -43,8 +43,17 @@ namespace CTR
             get { return new Tuple<int,int>(infoX, infoY); }
             set { infoX = value.first; infoY = value.second; }
         }
+        Vector2 anchorVector { get { return anchorPoint1 - anchorPoint2; } }
+        Vector2 widthVector { get { return anchorVector * gridWidth / 2; } }
+        Vector2 anchorVector1 { get { return MathHelper.RotateVector(anchorVector, -90); } }
+        Vector2 heightVector { get { return anchorVector1 * gridHeight / 2; } }
+        public float OutlineWidth { get { return widthVector.magnitude + padD; } }
+        public float OutlineHeight { get { return heightVector.magnitude + padD; } }
         [NonSerialized] public float orientation;
-
+        // hardcoded configuration for the currently tangible prototype layout
+        [NonSerialized] public static float padD = 24; // adjust this so the outline is extended far enough
+        [NonSerialized] public static int gridWidth = 5; // pattern grid dimensions of physical tangibles
+        [NonSerialized] public static int gridHeight = 6;
 
 
         public override string ToString()

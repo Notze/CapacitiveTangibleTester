@@ -16,8 +16,20 @@ namespace CTR{
 			return Quaternion.Euler(angles) * (point - pivot) + pivot;
 		}
 
+        // Rotates a Vector2.
+        public static Vector2 RotateVector(Vector2 v, float degrees)
+        {
+            float sin = Mathf.Sin(degrees * Mathf.Deg2Rad);
+            float cos = Mathf.Cos(degrees * Mathf.Deg2Rad);
 
-		public static void DrawCircle (Vector2 center, float radius, int segments, Color color) {
+            float tx = v.x;
+            float ty = v.y;
+            v.x = (cos * tx) - (sin * ty);
+            v.y = (sin * tx) + (cos * ty);
+            return v;
+        }
+
+        public static void DrawCircle (Vector2 center, float radius, int segments, Color color) {
 			float angle = 360 / segments;
 			List<Vector3> points = new List<Vector3> ();
 			for (int i = 0; i < (segments + 1); i++) {

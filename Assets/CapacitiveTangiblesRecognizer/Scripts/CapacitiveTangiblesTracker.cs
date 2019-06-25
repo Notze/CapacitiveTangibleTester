@@ -14,7 +14,6 @@ namespace CTR
         public TangiblePattern.Type mode;
         public GameObject tangibleOutlinePrefab;
         public Toggle mockUpToggle;
-        //public OSC osc;
 
         bool mockUp = false;
 

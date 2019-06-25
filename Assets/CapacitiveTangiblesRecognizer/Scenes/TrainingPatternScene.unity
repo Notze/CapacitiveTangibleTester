@@ -3139,8 +3139,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c207b90be1b7249668ce12ef3a4150c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugBasicFunctionality: 0
+  debugBasicFunctionality: 1
   rectTransform: {fileID: 2082269905}
+  osc: {fileID: 2082269909}
+  textPrefix: 
   debugTextField: {fileID: 1517713438}
   infoTextField: {fileID: 1709523922}
   logLengthSlider: {fileID: 0}
@@ -3158,7 +3160,6 @@ MonoBehaviour:
   touchPointPrefab: {fileID: 1698196427704684, guid: 238700c3cdc784d6686e35268ea9e729,
     type: 2}
   debugTypeList: {fileID: 653889116}
-  osc: {fileID: 2082269909}
 --- !u!114 &2082269907
 MonoBehaviour:
   m_ObjectHideFlags: 0

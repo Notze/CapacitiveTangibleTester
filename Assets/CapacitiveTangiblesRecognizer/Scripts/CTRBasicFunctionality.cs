@@ -14,6 +14,7 @@ namespace CTR
         public RectTransform rectTransform;
         public OSC osc;
 
+        public string textPrefix; // (optional) prefix for info and debug text messages is set in the class that uses logtexts and should be set to the class name
         public Text debugTextField;
         public Text infoTextField;
         public Slider logLengthSlider;
@@ -54,21 +55,8 @@ namespace CTR
         public Dictionary<string, TangiblePattern> LoadPatternDict(TangiblePattern.Type? type = null) {
             Dictionary<string, TangiblePattern> dict = new Dictionary<string, TangiblePattern>();
 
-            foreach (TangiblePattern pattern in LoadPatterns())
-                switch (type)
-                {
-                    case TangiblePattern.Type.PLAIN:
-                        if (pattern.type == TangiblePattern.Type.PLAIN)
-                            dict.Add(pattern.id, pattern);
-                        break;
-                    case TangiblePattern.Type.UDP:
-                        if (pattern.type == TangiblePattern.Type.UDP)
-                            dict.Add(pattern.id, pattern);
-                        break;
-                    case null:
-                        dict.Add(pattern.id, pattern);
-                        break;
-                }
+            foreach (TangiblePattern pattern in LoadPatterns(type))
+                dict.Add(pattern.id, pattern);
 
             return dict;
         }
@@ -81,6 +69,8 @@ namespace CTR
                     debugText.Clear();
                 while (debugText.Count >= debugTextMaxEntries)
                     debugText.RemoveAt(0);
+                if (textPrefix != null)
+                    text = "[" + textPrefix + "] " + text;
                 debugText.Add(text);
 
                 debugTextField.text = "";
@@ -98,6 +88,8 @@ namespace CTR
                     infoText.Clear();
                 while (infoText.Count >= infoTextMaxEntries)
                     infoText.RemoveAt(0);
+                if (textPrefix != null)
+                    text = "[" + textPrefix + "] " + text;
                 infoText.Add(text);
 
                 infoTextField.text = "";
@@ -147,7 +139,7 @@ namespace CTR
         }
 
         // loads previously stored tangible patterns
-        public List<TangiblePattern> LoadPatterns()
+        public List<TangiblePattern> LoadPatterns(TangiblePattern.Type? type = null)
         {
             List<TangiblePattern> list = new List<TangiblePattern>();
 
@@ -157,7 +149,11 @@ namespace CTR
                 {
                     string json = File.ReadAllText(filename);
                     TangiblePattern pattern = JsonUtility.FromJson<TangiblePattern>(json);
-                    list.Add(pattern);
+                    if(type == null)
+                        list.Add(pattern);
+                    else
+                        if (pattern.type == type)
+                            list.Add(pattern);
                 }
 
             return list;

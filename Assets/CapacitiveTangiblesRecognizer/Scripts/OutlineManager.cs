@@ -12,12 +12,18 @@ namespace CTR
         static RectTransform rectTransform;
         static GameObject tangibleOutlinePrefab;
 
-        // hardcoded configuration for the current tangible layout
-        static float padD = 24; // adjust this so the outline is extended far enough
-        static int gridWidth = 5; // pattern grid dimensions of physical tangibles
-        static int gridHeight = 6;
+        //// hardcoded configuration for the current tangible layout
+        //static float padD = 24; // adjust this so the outline is extended far enough
+        //static int gridWidth = 5; // pattern grid dimensions of physical tangibles
+        //static int gridHeight = 6;
 
-        static Dictionary<string, GameObject> outlineDict = new Dictionary<string, GameObject>();
+        public static Dictionary<string, GameObject> outlineDict = new Dictionary<string, GameObject>();
+        public static List<Vector2> OutlinePositions { get {
+                List<Vector2> output = new List<Vector2>();
+                foreach (GameObject p in outlineDict.Values)
+                    output.Add((Vector2) p.transform.position);
+                return output; } }
+        
 
 
         // Removes all Outline Prefabs and clears the Outline Dictionary.
@@ -37,20 +43,8 @@ namespace CTR
             outlineDict.Clear();
         }
 
-        // Rotates a Vector2.
-        static Vector2 RotateVector(Vector2 v, float degrees)
-        {
-            float sin = Mathf.Sin(degrees * Mathf.Deg2Rad);
-            float cos = Mathf.Cos(degrees * Mathf.Deg2Rad);
-
-            float tx = v.x;
-            float ty = v.y;
-            v.x = (cos * tx) - (sin * ty);
-            v.y = (sin * tx) + (cos * ty);
-            return v;
-        }
-
         // Moves the correspoding Outline object for a given pattern.
+        // The Outline is set to the position of the pattern.
         public static void updateOutlinePosition(TangiblePattern pattern)
         {
             if(debug) print("UpdateOutline invoced");
@@ -64,21 +58,43 @@ namespace CTR
             }
         }
 
+        // Moves the correspoding Outline object for a given pattern.
+        // The Outline is set to a given position and orientation.
+        public static void SetOutlinePosition(string patternID, Vector2 position, float orientation)
+        {
+            if (debug) print("MoveOutline invoced");
+            if (outlineDict.ContainsKey(patternID))
+            {
+                GameObject outline = outlineDict[patternID];
+                outline.SetActive(true);
+                outline.transform.position = position;
+                outline.transform.eulerAngles = new Vector3(0, 0, orientation);
+                if (debug) print("MoveOutline: outline position set: " + patternID + ";" + position.ToString() + ";" + orientation.ToString());
+            }
+        }
+
+        // Instantiates Outline objects for a given list of patterns
+        public static void InstantiateOutlines(List<TangiblePattern> patterns)
+        {
+            foreach (TangiblePattern pattern in patterns)
+                InstantiateOutline(pattern);
+        }
+
         // Instantiates an Outline object for a given 'pattern'
         public static void InstantiateOutline(TangiblePattern pattern)
         {
             if (debug) print("InstantiateOutline invoced with: " + pattern.ToString(true));
             if (!outlineDict.ContainsKey(pattern.id))
             {
-                Vector2 anchorVector = pattern.anchorPoint1 - pattern.anchorPoint2;
-                Vector2 widthVector = anchorVector * gridWidth / 2;
-                Vector2 anchorVector1 = RotateVector(anchorVector, -90);
-                Vector2 heightVector = anchorVector1 * gridHeight / 2;
-                float width = widthVector.magnitude + padD;
-                float height = heightVector.magnitude + padD;
+                //Vector2 anchorVector = pattern.anchorPoint1 - pattern.anchorPoint2;
+                //Vector2 widthVector = anchorVector * pattern.gridWidth / 2;
+                //Vector2 anchorVector1 = RotateVector(anchorVector, -90);
+                //Vector2 heightVector = anchorVector1 * gridHeight / 2;
+                //float width = widthVector.magnitude + padD;
+                //float height = heightVector.magnitude + padD;
                 Vector2 pivot = new Vector2( // pivot point is at second (most right) base point
-                    (width - padD) / width,
-                    padD / height
+                    (pattern.OutlineWidth - TangiblePattern.padD) / pattern.OutlineWidth,
+                    TangiblePattern.padD / pattern.OutlineHeight
                     );
 
                 GameObject outline = Instantiate(tangibleOutlinePrefab);
@@ -86,7 +102,7 @@ namespace CTR
                 rt.pivot = pivot;
                 rt.position = pattern.Position;
                 rt.SetParent(rectTransform);
-                rt.sizeDelta = new Vector2(width, height);
+                rt.sizeDelta = new Vector2(pattern.OutlineWidth, pattern.OutlineHeight);
                 rt.Rotate(0, 0, pattern.orientation);
                 outline.GetComponentInChildren<Text>().text = pattern.id.ToString();
 
