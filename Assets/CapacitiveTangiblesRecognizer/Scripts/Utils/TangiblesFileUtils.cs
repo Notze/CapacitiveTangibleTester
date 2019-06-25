@@ -7,7 +7,20 @@ namespace CTR{
 
 		static string tangibledirectory = "tangibles";
 		static string statisticsDirectory = "statistics";
-		public static string PatternFilename (string patternID) {
+        static string testingDirectory = "testing";
+
+
+        public static string TestingFilename()
+        {
+            if (!Directory.Exists(Application.persistentDataPath + "/" + testingDirectory))
+            {
+                Directory.CreateDirectory(Application.persistentDataPath + "/" + testingDirectory);
+            }
+            string fullpath = Application.persistentDataPath + "/" + testingDirectory + "/" + "stats_" + SystemInfo.deviceName + "_" + DateString() + ".csv";
+            return fullpath;
+        }
+
+        public static string PatternFilename (string patternID) {
 			if (!Directory.Exists (Application.persistentDataPath + "/" + tangibledirectory)) {
 				Directory.CreateDirectory (Application.persistentDataPath + "/" + tangibledirectory);
 			}

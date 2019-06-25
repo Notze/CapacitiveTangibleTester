@@ -12,9 +12,10 @@ namespace CTR
         public bool debug = false;
         public bool outline = true;
         public TangiblePattern.Type mode;
-
-        public GameObject patternPrefab;
+        public static int testCycles = 10;
+        
         public GameObject outlinePrefab;
+        public Button startButton;
 
         float gridSize;
         List<TangiblePattern> patterns = new List<TangiblePattern>();
@@ -23,18 +24,20 @@ namespace CTR
         List<Vector2> outlinePositionSnapshot;
         bool mockUp = false;
         bool testing = false;
-        // This is the log of one test cycle.
-        // Recognized tangible positions should be logged continously while
-        // distances between recognized positions and target positions should
-        // be logged when the test proband confirms the placement.
-        List<string> testLog = new List<string>();
+        string currentTestingLogfile;
+        float panelWidth;
+        float panelHeight;
 
-        enum LogMessageType { CONFIRMATION, RECOGNITION, ERROR, UNREGISTERED };
+        enum LogMessageType { CONFIRMATION, RECOGNITION, ERROR, UNREGISTERED, INIT };
 
 
         void Start()
         {
+            debugTextField.text = "";
+            infoTextField.text = "";
             rectTransform = transform as RectTransform;
+            panelWidth = rectTransform.rect.width;
+            panelHeight = rectTransform.rect.height;
             OutlineManager.Initialize(rectTransform, outlinePrefab);
             textPrefix = "CTTester";
             
@@ -57,7 +60,7 @@ namespace CTR
 
                 if (recognizedPatternDict.ContainsKey(pattern.id))
                 {
-                    recognizedPatternDict.Add(pattern.id, pattern);
+                    recognizedPatternDict[pattern.id] = pattern;
                     Testlog(pattern.ToLogString(), LogMessageType.RECOGNITION);
                 }
                 else
@@ -68,19 +71,6 @@ namespace CTR
             }
         }
 
-        // Executes one Testcycle
-        public void StartTestrun()
-        {
-            testing = true;
-
-            // TODO
-
-            // test should begin with initial manual positioning and confirmation
-
-
-
-            testing = false;
-        }
 
         // Randomizes the position of the corresponding outlines for all known patterns.
         public void RandomizeOutlinePositions()
@@ -133,8 +123,6 @@ namespace CTR
             do {
                 float randX = Random.value;
                 float randY = Random.value;
-                float panelWidth = (transform as RectTransform).rect.width;
-                float panelHeight = (transform as RectTransform).rect.height;
 
                 newPosition = new Vector2(
                     minDist + (panelWidth - 2 * minDist) * randX,
@@ -144,7 +132,6 @@ namespace CTR
                 if (tries >= maxTries) // dead loop prevention
                 {
                     Testlog("unable to find good tangible positions", LogMessageType.ERROR);
-                    if (debug) print("ERROR Randominze loop broke up");
                     break;
                 }
             } while (!IsGoodPosition(newPosition, minDist*2)); // 2 x minDist because this is between two patterns
@@ -156,8 +143,12 @@ namespace CTR
         }
 
         // Pushes entries to logfile.
-        private void Testlog(string message, LogMessageType type)
+        private void Testlog(string message, LogMessageType type, bool createNewFile = false)
         {
+            // Recognized tangible positions should be logged continously while
+            // distances between recognized positions and target positions should
+            // be logged when the test proband confirms the placement.
+
             string typeString = "";
             switch (type)
             {
@@ -173,21 +164,39 @@ namespace CTR
                 case LogMessageType.UNREGISTERED:
                     typeString = "[UNREGISTERED] ";
                     break;
-                default: // this will never be reached if there is no coding error
-                    typeString = "[unknown log message type] ";
+                case LogMessageType.INIT:
+                    typeString = "[INIT] ";
                     break;
             }
-            testLog.Add(typeString + message);
-            if (debug) print("[" + type.ToString() + "]" + message);
+            if (testing) SaveToLogfile(typeString + message, createNewFile);
+            if (debug) print(typeString + message);
         }
 
-        // Makes log data persistent.
-        public void SaveLogfile()
+        // Writes test log data to a file.
+        public void SaveToLogfile(string message, bool createNewFile = false)
         {
-            //TODO
+            if (createNewFile || currentTestingLogfile == null)
+            {
+                currentTestingLogfile = TangiblesFileUtils.TestingFilename();
+                if (debug) print(currentTestingLogfile);
+            }
+
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(currentTestingLogfile, true))
+            {
+                file.WriteLine(message);
+            }
         }
 
         #region UI elements
+
+        public void StopTestrun()
+        {
+            if (!testing) return;
+            Testlog("End of Test", LogMessageType.INIT);
+            testing = false;
+            startButton.gameObject.SetActive(true);
+            logLengthSlider.gameObject.SetActive(true);
+        }
 
         public void ConfirmTangiblesArePositioned()
         {
@@ -203,6 +212,16 @@ namespace CTR
             }
 
             RandomizeOutlinePositions();
+
+            if(testing)
+                if (testCycles > 0)
+                {
+                    testCycles--;
+                }
+                else
+                {
+                    StopTestrun();
+                }
         }
 
         public void ToggleMockUp()
@@ -214,6 +233,15 @@ namespace CTR
         {
             OutlineManager.Clear();
             InfoText("cleared", true);
+        }
+
+        // Initializes one testrun.
+        public void StartTestrun()
+        {
+            testing = true;
+            startButton.gameObject.SetActive(false);
+            logLengthSlider.gameObject.SetActive(false);
+            Testlog(panelWidth + ":" + panelHeight, LogMessageType.INIT, true);
         }
 
         #endregion
