@@ -160,8 +160,7 @@ namespace CTR
         }
 
         // Analyses touch input and returns type- and nameless pattern if any.
-        // TODO type auswerten bzw. udp pattern implementieren
-        public TangiblePattern? RecognizePattern( TangiblePattern.Type type, bool mockUp = false )
+        public TangiblePattern? RecognizePattern( TangiblePattern.Type type, bool doClustering = false, bool mockUp = false )
         {
             // get touch inputs from rectangle and put in a list
             Touch[] touches = Input.touches;
@@ -185,110 +184,102 @@ namespace CTR
                 patternPoints.Add(point3);
             }
 
-            if (patternPoints.Count != 3) return null;
+            DebugText("Touchpoint count: " + patternPoints.Count);
 
-            // find the two closest points
-            Vector2 patternCenter = MathHelper.ComputeCenter(patternPoints);
-            Vector2 panelCenter = MathHelper.RectTransformToScreenSpace(rectTransform).center;
-            Vector2 centerOffset = patternCenter - panelCenter;
-            if (debugBasicFunctionality) print("panelCenter: " + panelCenter);
-            if (debugBasicFunctionality) print("patternCenter: " + patternCenter);
-            if (debugBasicFunctionality) print("centerOffset: " + centerOffset);
-            float minDist = 0; // double grid (cell) size value
-            Tuple<int, int> anchorPair = MathHelper.FindMinDistancePair(patternPoints, patternCenter, out minDist);
-            int idIndex = -1;
+            float minDist = 0; // double grid (cell) size value of tangible
+            if (patternPoints.Count < 3) return null;
+            if (patternPoints.Count == 3 || !doClustering)
+                patternPoints = MathHelper.SortPatternPointsByDistance(patternPoints, out minDist);
+            else // patternPoints.Count > 3 && doClustering
+                patternPoints = MathHelper.FindMindDistTriplet(patternPoints, out minDist);
+
+
+            if (patternPoints == null) return null;
             float gridSize = minDist / 2;
-            if (anchorPair.first == -1 || anchorPair.second == -1)
+            TangiblePattern pattern = new TangiblePattern { type = type };
+
+            if (type == TangiblePattern.Type.UDP)
+                if (OSCTangibleID!=null)
+                    pattern._id = OSCTangibleID;
+                else
+                    return null;
+
+            // closest points are "base" of pattern and are used to determine 
+            // grid (cell) size and rotation:
+
+            // rotate to align "base" horizontally
+            Vector2 anchorVector = new Vector2(
+                patternPoints[0].x - patternPoints[1].x,
+                patternPoints[0].y - patternPoints[1].y);
+            float patternAngle = Vector2.SignedAngle(new Vector2(1, 0), anchorVector);
+            Vector3 rotationVector = new Vector3(0, 0, -patternAngle);
+
+            //for (int i = 0; i < patternPoints.Count; i++)
+            //    if (i != anchorPair.first && i != anchorPair.second)
+            //        idIndex = i;
+
+            // fill pattern with original touchpoint data
+            pattern.anchorPoint1 = patternPoints[0];
+            pattern.anchorPoint2 = patternPoints[1];
+            pattern.idPoint = patternPoints[2];
+
+            // continue 'rotate to align "base" horizontally'
+            for (int i = 1; i < patternPoints.Count; i++)
+                patternPoints[i] = MathHelper.RotatePointAroundPivot(patternPoints[i], patternPoints[0], rotationVector);
+
+            // infopoint should be above base points
+            if (patternPoints[2].y < patternPoints[0].y)
+            {
+                FlipPattern(patternPoints);
+                patternAngle = (patternAngle + 180f) % 360;
+            }
+
+            // make sure the most left base point is first point
+            if (patternPoints[0].x > patternPoints[1].x)
+            {
+                // change original touchpoints stored in pattern
+                Vector2 tmpV = pattern.anchorPoint1;
+                pattern.anchorPoint1 = pattern.anchorPoint2;
+                pattern.anchorPoint2 = tmpV;
+                // change rotated points
+                tmpV = patternPoints[0];
+                patternPoints[0] = patternPoints[1];
+                patternPoints[1] = tmpV;
+            }
+
+            // get info (grid-)coordinates as Tuple<int, int>
+            Tuple<int, int> infoCoord = new Tuple<int, int>(0, 0);
+            float rawX = patternPoints[2].x - patternPoints[0].x;
+            float rawY = patternPoints[2].y - patternPoints[0].y;
+            int coordX = Mathf.RoundToInt(rawX / gridSize);
+            int coordY = Mathf.RoundToInt(rawY / gridSize);
+            if (coordY == 0 && coordX < 0)
+            { // special case: if pattern is 'linear pattern' then the info point should have positive coordinates
+                coordX = 2 - coordX; // e.g. (-3,0) -> (5,0)
+            }
+            infoCoord.first = coordX;
+            infoCoord.second = coordY;
+
+            if (infoCoord.first == 0 && infoCoord.second == 0)
                 return null;
             else
             {
-                TangiblePattern pattern = new TangiblePattern { type = type };
+                // for evaluation purposes the angle of pattern should always be displayed as a positive value
+                if (patternAngle < 0) patternAngle = 360 + patternAngle;
 
-                if (type == TangiblePattern.Type.UDP)
-                    if (OSCTangibleID!=null)
-                        pattern._id = OSCTangibleID;
-                    else
-                        return null;
+                pattern.infoCoord = infoCoord;
+                pattern.gridSize = gridSize;
+                pattern.orientation = patternAngle;
 
-                // closest points are "base" of pattern and determine grid (cell) size and rotation
-                // rotate to align "base" horizontally
-                Vector2 anchorVector = new Vector2(
-                    patternPoints[anchorPair.first].x - patternPoints[anchorPair.second].x,
-                    patternPoints[anchorPair.first].y - patternPoints[anchorPair.second].y);
-                float angle = -Vector2.SignedAngle(new Vector2(1, 0), anchorVector);
-                Vector3 rotation = new Vector3(0, 0, angle);
-
-                for (int i = 0; i < patternPoints.Count; i++)
-                    if (i != anchorPair.first && i != anchorPair.second)
-                        idIndex = i;
-
-                // fill pattern with data
-                pattern.anchorPoint1 = patternPoints[anchorPair.first];
-                pattern.anchorPoint2 = patternPoints[anchorPair.second];
-                pattern.idPoint = patternPoints[idIndex];
-
-                // continue 'rotate to align "base" horizontally'
-                for (int i = 0; i < patternPoints.Count; i++)
-                    patternPoints[i] = MathHelper.RotatePointAroundPivot(patternPoints[i], patternPoints[anchorPair.first], rotation);
-
-                // infopoint(s) should be above base points
-                if (patternPoints[idIndex].y < patternPoints[anchorPair.first].y)
-                {
-                    FlipPattern(patternPoints, anchorPair);
-                    angle += 180f;
-                }
-
-                // make sure the most left base point is point one 
-                if (patternPoints[anchorPair.first].x > patternPoints[anchorPair.second].x)
-                {
-                    int tmpI = anchorPair.first;
-                    anchorPair.first = anchorPair.second;
-                    anchorPair.second = tmpI;
-
-                    Vector2 tmpV = pattern.anchorPoint1;
-                    pattern.anchorPoint1 = pattern.anchorPoint2;
-                    pattern.anchorPoint2 = tmpV;
-                }
-
-                // get info (grid-)coordinates as Tuple<int, int>
-                Tuple<int, int> infoCoord = new Tuple<int, int>(0, 0);
-                for (int i = 0; i < patternPoints.Count; i++)
-                    if (i != anchorPair.first && i != anchorPair.second)
-                    {
-                        float rawX = patternPoints[i].x - patternPoints[anchorPair.first].x;
-                        float rawY = patternPoints[i].y - patternPoints[anchorPair.first].y;
-                        int coordX = Mathf.RoundToInt(rawX / gridSize);
-                        int coordY = Mathf.RoundToInt(rawY / gridSize);
-                        if (coordY == 0 && coordX < 0)
-                        { // special case: if pattern is linear then the info point should have positive coordinates
-                            coordX = 2 - coordX; // e.g. (-3,0) -> (5,0)
-                        }
-                        infoCoord.first = coordX;
-                        infoCoord.second = coordY;
-                    }
-
-                // put coords in 'pattern' and add 'pattern' to 'patterns'
-                if (infoCoord.first == 0 && infoCoord.second == 0)
-                {
-                    return null;
-                }
-                else
-                {
-                    pattern.infoCoord = infoCoord;
-                    pattern.gridSize = gridSize;
-                    pattern.orientation = -angle;
-
-                    return pattern;
-                }
+                return pattern;
             }
         }
 
         // Rotates patternPoints by 180°.
-        private void FlipPattern(List<Vector2> patternPoints, Tuple<int, int> anchorPair)
+        private void FlipPattern(List<Vector2> patternPoints)
         {
-            for (int j = 0; j < patternPoints.Count; j++)
-                patternPoints[j] = MathHelper.RotatePointAroundPivot(patternPoints[j], patternPoints[anchorPair.first], new Vector3(0, 0, 180));
-
+            for (int i = 1; i < patternPoints.Count; i++)
+                patternPoints[i] = MathHelper.RotatePointAroundPivot(patternPoints[i], patternPoints[0], new Vector3(0, 0, 180));
         }
 
     }

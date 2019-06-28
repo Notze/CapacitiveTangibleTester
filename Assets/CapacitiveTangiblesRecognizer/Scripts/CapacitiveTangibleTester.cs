@@ -12,7 +12,7 @@ namespace CTR
         public bool debug = false;
         public bool outline = true;
         public TangiblePattern.Type mode;
-        public static int testCycles = 10;
+        public static int testCycles = 30;
         
         public GameObject outlinePrefab;
         public Button startButton;
@@ -52,7 +52,7 @@ namespace CTR
 
         void Update() // continuous tracking 
         {
-            TangiblePattern? recognition = RecognizePattern(mode, mockUp);
+            TangiblePattern? recognition = RecognizePattern(mode, true, mockUp);
             if (recognition != null)
             {
                 TangiblePattern pattern = (TangiblePattern)recognition;
@@ -60,7 +60,11 @@ namespace CTR
 
                 if (recognizedPatternDict.ContainsKey(pattern.id))
                 {
-                    recognizedPatternDict[pattern.id] = pattern;
+                    float gridSizeRatio = pattern.gridSize / recognizedPatternDict[pattern.id].gridSize;
+                    if (gridSizeRatio < 1.1f && gridSizeRatio > .9f)
+                    {
+                        recognizedPatternDict[pattern.id] = pattern;
+                    }
                     Testlog(pattern.ToLogString(), LogMessageType.RECOGNITION);
                 }
                 else

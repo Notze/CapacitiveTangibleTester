@@ -57,7 +57,7 @@ namespace CTR
         {
             Clear();
             
-            TangiblePattern? recognition = RecognizePattern(mode, (debugType == 4));
+            TangiblePattern? recognition = RecognizePattern(mode, false, (debugType == 4));
             if (recognition != null)
             {
                 pattern = (TangiblePattern)recognition;

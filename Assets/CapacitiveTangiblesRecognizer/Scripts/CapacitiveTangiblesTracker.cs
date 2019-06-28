@@ -17,11 +17,11 @@ namespace CTR
 
         bool mockUp = false;
 
-        //OSCReceiver oscReceiver;
         string logPathAndFilename; // this is handled by the Log function
         List<TangiblePattern> patterns;
         Dictionary<string, TangiblePattern> patternDictUDP;
         Dictionary<string, TangiblePattern> patternDictPlain;
+        Dictionary<string, TangiblePattern> patternDict;
 
         // Use this for initialization
         void Start()
@@ -30,6 +30,7 @@ namespace CTR
             //oscReceiver.osc = osc;
             //basicFunctions = (new GameObject("basicFunctionalityContainer")).AddComponent<CTRBasicFunctionality>() as CTRBasicFunctionality; //new CTRBasicFunctionality(transform as RectTransform);
             //basicFunctions.rectTransform = transform as RectTransform;
+            patternDict = LoadPatternDict();
             patternDictUDP = LoadPatternDict(TangiblePattern.Type.UDP);
             patternDictPlain = LoadPatternDict(TangiblePattern.Type.PLAIN);
             //outlineManager = OutlineManager.Instance; //(new GameObject("outlineManagerContainer").AddComponent<OutlineManager>()) as OutlineManager;
@@ -47,13 +48,25 @@ namespace CTR
         // Update is called once per frame
         void Update() // continuous tracking 
         {
-            TangiblePattern? recognition = RecognizePattern(mode, mockUp);
+            TangiblePattern? recognition = RecognizePattern(mode, true, mockUp);
             if (recognition != null)
             {
                 TangiblePattern pattern = (TangiblePattern) recognition;
-                if (debug) print("calling updateOutline for " + pattern.ToString(true));
-                OutlineManager.updateOutlinePosition(pattern);
-                InfoText("Found Pattern with ID " + pattern.infoCoord.ToString() + " at " + pattern.Position.ToString() + " oriented to " + pattern.orientation.ToString());
+
+                if (!patternDict.ContainsKey(pattern.id))
+                {
+                    InfoText("Found Pattern with ID " + pattern.infoCoord.ToString() + " but is not a known pattern.");
+                    return;
+                }
+                float gridSizeRatio = pattern.gridSize / patternDict[pattern.id].gridSize;
+                if(gridSizeRatio < 1.1f && gridSizeRatio > .9f)
+                {
+                    if (debug) print("calling updateOutline for " + pattern.ToString(true));
+                    OutlineManager.updateOutlinePosition(pattern);
+                    InfoText("Found Pattern with ID " + pattern.infoCoord.ToString() + " at " + pattern.Position.ToString() + " oriented to " + pattern.orientation.ToString());
+                }else
+                    InfoText("Found Pattern with ID " + pattern.infoCoord.ToString() + " but at wrong scale!");
+
             }
         }
 

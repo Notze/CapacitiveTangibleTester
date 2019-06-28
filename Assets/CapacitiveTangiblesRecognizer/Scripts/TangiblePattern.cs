@@ -90,6 +90,7 @@ namespace CTR
            
             string str = string.Empty;
             str += "id: " + id + ";";
+            str += "gridSize: " + gridSize.ToString() + ";";
             str += "position: " + Position.ToString() + ";";
             str += "orientation: " + orientation.ToString();
             return str;

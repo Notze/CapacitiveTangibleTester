@@ -1665,9 +1665,9 @@ MonoBehaviour:
   debugTextField: {fileID: 629088051}
   infoTextField: {fileID: 1158669719}
   logLengthSlider: {fileID: 520436207}
-  infoTextToggle: 1
-  debugTextToggle: 1
-  debug: 1
+  infoTextToggle: 0
+  debugTextToggle: 0
+  debug: 0
   outline: 1
   mode: 1
   outlinePrefab: {fileID: 1478479570162358, guid: be9cbef1c7734284583baac4e6728f55,
