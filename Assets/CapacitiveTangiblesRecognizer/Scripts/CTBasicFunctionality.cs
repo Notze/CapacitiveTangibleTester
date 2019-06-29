@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -7,7 +6,7 @@ using UnityEngine.UI;
 
 namespace CTR
 {
-    public class CTRBasicFunctionality : MonoBehaviour
+    public class CTBasicFunctionality : MonoBehaviour
     {
         public bool debugBasicFunctionality = true;
 
@@ -115,7 +114,7 @@ namespace CTR
             }
             catch (Exception e)
             {
-
+                print(e.Message);
             }
         }
 
@@ -133,7 +132,7 @@ namespace CTR
             }
             catch (Exception e)
             {
-                string error = e.GetType().ToString();
+                print(e.GetType().ToString());
                 return 1;
             }
         }
@@ -159,7 +158,9 @@ namespace CTR
             return list;
         }
 
-        // Analyses touch input and returns type- and nameless pattern if any.
+        // Analyses touch input and returns a found pattern if any.
+        // As long as there are at least three touch signals a pattern will be 
+        // found.
         public TangiblePattern? RecognizePattern( TangiblePattern.Type type, bool doClustering = false, bool mockUp = false )
         {
             // get touch inputs from rectangle and put in a list
@@ -184,7 +185,7 @@ namespace CTR
                 patternPoints.Add(point3);
             }
 
-            DebugText("Touchpoint count: " + patternPoints.Count);
+            if (debugBasicFunctionality) print("Touchpoint count: " + patternPoints.Count);
 
             float minDist = 0; // double grid (cell) size value of tangible
             if (patternPoints.Count < 3) return null;

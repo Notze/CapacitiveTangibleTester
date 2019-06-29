@@ -6,7 +6,7 @@ using System.IO;
 
 namespace CTR
 {
-	public class CapacitiveTangiblesTrainer : CTRBasicFunctionality
+	public class CTTrainer : CTBasicFunctionality
 	{
         public bool debug = false;
 		public bool outline = true;
@@ -25,9 +25,7 @@ namespace CTR
         // 4 = fake tangible
         int debugType = 3;
         float gridSize;
-		List<TangiblePattern> patterns = new List<TangiblePattern>();
 		List<GameObject> patternPointsVisuals;
-		List<GameObject> monitorPatterns;
         static TangiblePattern pattern;
 
 
@@ -35,7 +33,6 @@ namespace CTR
 		{
 			rectTransform = transform as RectTransform;
 			patternPointsVisuals = new List<GameObject>();
-			monitorPatterns = new List<GameObject>();
             OutlineManager.Initialize(rectTransform, outlinePrefab);
         }
 

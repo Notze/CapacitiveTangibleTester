@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace CTR
 {
-    public class CapacitiveTangiblesTracker : CTRBasicFunctionality
+    public class CTTracker : CTBasicFunctionality
     {
         public bool debug = false;
 

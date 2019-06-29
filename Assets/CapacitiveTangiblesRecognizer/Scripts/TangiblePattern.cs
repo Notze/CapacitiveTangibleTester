@@ -50,6 +50,7 @@ namespace CTR
         public float OutlineWidth { get { return widthVector.magnitude + padD; } }
         public float OutlineHeight { get { return heightVector.magnitude + padD; } }
         [NonSerialized] public float orientation;
+        
         // hardcoded configuration for the currently tangible prototype layout
         [NonSerialized] public static float padD = 24; // adjust this so the outline is extended far enough
         [NonSerialized] public static int gridWidth = 5; // pattern grid dimensions of physical tangibles

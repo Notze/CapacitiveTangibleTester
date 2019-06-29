@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,11 +10,6 @@ namespace CTR
 
         static RectTransform rectTransform;
         static GameObject tangibleOutlinePrefab;
-
-        //// hardcoded configuration for the current tangible layout
-        //static float padD = 24; // adjust this so the outline is extended far enough
-        //static int gridWidth = 5; // pattern grid dimensions of physical tangibles
-        //static int gridHeight = 6;
 
         public static Dictionary<string, GameObject> outlineDict = new Dictionary<string, GameObject>();
         public static List<Vector2> OutlinePositions { get {
@@ -86,12 +80,6 @@ namespace CTR
             if (debug) print("InstantiateOutline invoced with: " + pattern.ToString(true));
             if (!outlineDict.ContainsKey(pattern.id))
             {
-                //Vector2 anchorVector = pattern.anchorPoint1 - pattern.anchorPoint2;
-                //Vector2 widthVector = anchorVector * pattern.gridWidth / 2;
-                //Vector2 anchorVector1 = RotateVector(anchorVector, -90);
-                //Vector2 heightVector = anchorVector1 * gridHeight / 2;
-                //float width = widthVector.magnitude + padD;
-                //float height = heightVector.magnitude + padD;
                 Vector2 pivot = new Vector2( // pivot point is at second (most right) base point
                     (pattern.OutlineWidth - TangiblePattern.padD) / pattern.OutlineWidth,
                     TangiblePattern.padD / pattern.OutlineHeight

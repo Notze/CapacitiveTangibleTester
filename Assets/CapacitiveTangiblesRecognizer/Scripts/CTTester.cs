@@ -1,12 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace CTR
 {
 
-    public class CapacitiveTangibleTester : CTRBasicFunctionality
+    public class CTTester : CTBasicFunctionality
     {
 
         public bool debug = false;
@@ -18,7 +17,6 @@ namespace CTR
         public Button startButton;
 
         float gridSize;
-        List<TangiblePattern> patterns = new List<TangiblePattern>();
         List<GameObject> monitorPatterns;
         Dictionary<string, TangiblePattern> recognizedPatternDict;
         List<Vector2> outlinePositionSnapshot;
